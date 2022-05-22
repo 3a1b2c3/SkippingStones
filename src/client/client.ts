@@ -53,7 +53,7 @@ function setText(rockState : RockState, stoneDefault : stone,
     text = "Set rock tilt angle by dragging the mouse.";
   }
   else if (rockHandling.rockState.valueOf() == RockState.configuring){
-    text = "Current angle:"  + roundTo((rockHandling.stoneSimulation.theta * 180 / Math.PI), 2) + " degree";
+    text = "Current angle: "  + roundTo((rockHandling.stoneSimulation.theta * 180 / Math.PI), 2) + " degree";
   }
   else if(rockState.valueOf() == RockState.simulation){
     text = stoneDefault.bounces + " bounces and distance: " 
