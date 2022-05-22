@@ -8,7 +8,7 @@ Here is a nice 2d version of the simulation:
 https://www.glowscript.org/#/user/B06902117/folder/Public/program/FinalProject
 
 Use Esc Key to interrupt current run. Mouse down drag to configure the stone angle for a run.
-Then let go of the mouse to sent the rock off.
+Then let go of the mouse to send the rock off.
 
 WIP:
 ![](Animation2.gif)
