@@ -9,6 +9,9 @@ https://www.glowscript.org/#/user/B06902117/folder/Public/program/FinalProject
 
 Esc Key to interrupt current run. Mouse down drag to configure the stonefor run
 
+WIP
+![](Animation2.gif)
+
 ## TODOs:
 * Fix the physics currently using a dummy
 
