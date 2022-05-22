@@ -13,7 +13,7 @@ import { roundTo, clamp } from "./lib/helper";
 const debug = true;
 const headsUpStartText = "Skip a stone";
 const defaultLabel = "labelSprite";
-const defaultLabelY = .6;
+const defaultLabelY = .5;
 const defaultLabelZ = 2.2;
 const defaultLabelFont = 12;
 
@@ -123,7 +123,7 @@ const addObjectClickListener = (
           Controls.enableRotate = false;
         }
         if (diffY > delta) {
-            const angleDiff = clamp(diffY *.001, -.03, .03);
+            const angleDiff = clamp(diffY *.001, -.05, .05);
             rockHandling.rockMeshes[0].rotateX(angleDiff);
             rockHandling.stoneSimulation.theta = rockHandling.rockMeshes[0].rotation.x;
             //update label
