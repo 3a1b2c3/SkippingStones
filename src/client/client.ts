@@ -237,9 +237,8 @@ function setupRenderer(){
               addHeadsup(document, "Splash", 200, 200, "splashLabel", 18);
               splash = false;
               setTimeout(() => {
-                if (Scene)
-                removeEntity("splashLabel", Scene);
-              }, 5000);
+                addHeadsup(document, "", 200, 200, "splashLabel", 18);
+              }, 3000);
             }
           }
           // update distance label
