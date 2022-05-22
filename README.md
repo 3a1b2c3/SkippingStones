@@ -15,7 +15,7 @@ WIP
 ## TODOs:
 * Fix the physics currently using a dummy
 
-* Sprite text and raycasting for selection does not work well together
+* Ui
 
 * I want to use the phone’s gyro sensor movement to determine start angle and maybe velocity
 
@@ -49,9 +49,7 @@ yarn install
 yarn cli
 yarn lint
 yarn test
-yarn build-all
-yarn ts-node <filename>
-yarn esbuild-browser
+yarn build
 ...
 ```
 
