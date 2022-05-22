@@ -27,6 +27,7 @@ export function makeLights(intensity = 1.0, SceneRadius=sceneRadius){
     const Light = new DirectionalLight(0xffaa33);
     Light.position.set(-SceneRadius, SceneRadius, SceneRadius);
     Light.intensity = intensity
+    Light.castShadow = true;
 
     // Add the sun
     Light.add(

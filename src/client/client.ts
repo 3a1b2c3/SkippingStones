@@ -166,6 +166,8 @@ function setupRenderer(){
     Renderer = new THREE.WebGLRenderer({ antialias: true })
     Renderer.setPixelRatio(window.devicePixelRatio);
     Renderer.setSize(window.innerWidth, window.innerHeight);
+    Renderer.shadowMap.enabled = true;
+    Renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
     Renderer.xr.enabled = true;
     //orbit
     Controls = new OrbitControls(Camera, Renderer.domElement);
