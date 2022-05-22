@@ -188,15 +188,15 @@ function setupRenderer(){
   function render() {
       requestAnimationFrame(render);
       // find rock intersection
-      if (Scene && Raycaster && rockHandling.rockMeshes?.length && rockHandling.rockState.valueOf() != RockState.simulation){
+      if (Scene && Raycaster && rockHandling.rockMeshes?.length){
           Raycaster.setFromCamera(Pointer, Camera);
           const intersects = Raycaster.intersectObjects(Scene.children, true);
           if (intersects.length > 0) {
             if ( intersects.length > 0 ) {
               if (rockHandling.intersections != intersects[0].object) {
-                if (rockHandling.intersections && rockHandling.intersections?.material?.emissive)// && rockHandling.rockState.valueOf() == RockState.simulation) 
+                if (rockHandling.intersections && rockHandling.intersections?.material?.emissive) 
                   rockHandling.intersections.material.emissive.setHex(rockHandling.intersections.currentHex);
-                if (intersects[0].object.name == 'boulder'){
+                if (intersects[0].object.name == 'boulder' && rockHandling.rockState.valueOf() != RockState.simulation){
                     rockHandling.intersections = intersects[0].object;
                 }
                 else{
