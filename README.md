@@ -7,6 +7,7 @@ The objective of "skipping" is to see how many times a stone can bounce before i
 Here is a nice 2d version of the simulation:
 https://www.glowscript.org/#/user/B06902117/folder/Public/program/FinalProject
 
+How to play: 
 Use Esc Key to interrupt current run. Mouse down drag to configure the stone angle for a run.
 Then let go of the mouse to send the rock off.
 
@@ -21,7 +22,7 @@ WIP:
 
 * 2d ui needs some design
 
-* Add sound effects and feedback when stone touches water, needs shadow to makemovement more clear
+* Add sound effects and feedback when stone touches water, needs shadow to make movement more clear
 
 * Code cleanup and tests
 
