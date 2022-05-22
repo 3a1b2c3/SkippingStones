@@ -30,6 +30,9 @@ async function loadModels(positionY=defaultPositionY, rotateX=defaultRoationX) {
     rock.scale.z = .1 * 5;
     rock.scale.y = .033 *5 ;
     rock.name = 'rock';
+    rock.castShadow = true;
+    rock.receiveShadow = true;
+
     //in rad
     rock.rotateX(rotateX);
     rock.material =

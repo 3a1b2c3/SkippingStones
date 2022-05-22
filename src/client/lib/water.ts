@@ -33,6 +33,7 @@ function makeFloor(sceneRadius=defautltSceneRadius, repeat=2){
     );
     floor.rotation.x = -Math.PI / 2;
     floor.name = 'floor';
+    floor.receiveShadow = true;
     return floor;
 }
 
