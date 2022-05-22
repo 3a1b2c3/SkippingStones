@@ -7,10 +7,12 @@ The objective of "skipping" is to see how many times a stone can bounce before i
 Here is a nice 2d version of the simulation:
 https://www.glowscript.org/#/user/B06902117/folder/Public/program/FinalProject
 
-Esc Key to interrupt current run.
+Esc Key to interrupt current run. Mouse down drag to configure the stonefor run
 
 ## TODOs:
 * Fix the physics currently using a dummy
+
+* Sprite text and raycasting for selection does not work well together
 
 * I want to use the phone’s gyro sensor movement to determine start angle and maybe velocity
 

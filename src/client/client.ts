@@ -13,15 +13,23 @@ import { roundTo, clamp } from "./lib/helper";
 const debug = true;
 const headsUpStartText = "Skip a stone";
 const defaultLabel = "labelSprite";
-const defaultLabelY = 1;
-const defaultLabelZ = 1;
-const defaultLabelFont = 14;
+const defaultLabelY = .6;
+const defaultLabelZ = 2.2;
+const defaultLabelFont = 12;
 
-//rock handling
-let g_rockState: RockState = RockState.start;
-const g_rockMeshes: THREE.Mesh[] = [];
-let g_intersections : null | any;//THREE.Intersection;
+type RockHandling = {
+  rockState: RockState;
+  rockMeshes: Array<THREE.Mesh>;
+  intersections : any | null;
+  stoneSimulation : stone
+};
 
+const rockHandling : RockHandling = {
+  rockState: RockState.start,
+  rockMeshes: Array<THREE.Mesh>(),
+  intersections : null,
+  stoneSimulation : StoneDefault
+};
 
 // XR globals
 const xrImmersiveRefSpace = null;
@@ -30,11 +38,10 @@ const inlineViewerHelper = null;
 // WebGL Scene globals, make object 
 let Renderer : any = null;
 let Scene : THREE.Scene | null = null;
-let Controls : OrbitControls |null = null;
-
-//TODO init in setup
+let Controls : OrbitControls | null = null;
 let Clock: THREE.Clock | null = null;
 let Raycaster : THREE.Raycaster | null = null;
+
 const Pointer = new THREE.Vector2();
 const { Camera, CameraGroup } = makeCamera();
 
@@ -46,8 +53,8 @@ function setText(rockState : RockState, stoneDefault : stone,
   if (rockState.valueOf() == RockState.selected ){
     text = "Set rock tilt angle by dragging the mouse.";
   }
-  else if (g_rockState.valueOf() == RockState.configuring){
-    text = "Current angle:"  + roundTo((StoneDefault.theta * 180 / Math.PI), 2) + " degree";
+  else if (rockHandling.rockState.valueOf() == RockState.configuring){
+    text = "Current angle:"  + roundTo((rockHandling.stoneSimulation.theta * 180 / Math.PI), 2) + " degree";
   }
   else if(rockState.valueOf() == RockState.simulation){
     text = stoneDefault.bounces + " bounces and distance: " 
@@ -88,15 +95,15 @@ const addObjectClickListener = (
     let startX = 0;
     let startY = 0;
     document.addEventListener('mousedown', function (event) {
-      if (g_rockMeshes && g_rockMeshes[0] && g_intersections &&
-        g_rockState.valueOf() == RockState.start) {
-        g_rockState = RockState.configuring;
+      if (rockHandling.rockMeshes && rockHandling.rockMeshes[0] && rockHandling.intersections &&
+        rockHandling.rockState.valueOf() == RockState.start) {
+        rockHandling.rockState = RockState.configuring;
         startX = event.pageX;
         startY = event.pageY;
         if (debug)
-          console.debug(startY + 'mousedown' + g_rockState);
+          console.debug(startY + 'mousedown' + rockHandling.rockState);
         removeEntity(defaultLabel, Scene);
-        const spritey = setText(g_rockState, StoneDefault, -1, 
+        const spritey = setText(rockHandling.rockState, rockHandling.stoneSimulation, -1.3, 
           defaultPositionY * defaultLabelY, defaultLabelZ, defaultLabel, defaultLabelFont);
         Scene.add(spritey);
       }
@@ -108,7 +115,7 @@ const addObjectClickListener = (
 
 
     document.addEventListener('mousemove', function (event) {
-      if (g_intersections && g_rockMeshes && g_rockState.valueOf() == RockState.configuring) {
+      if (rockHandling.intersections && rockHandling.rockMeshes && rockHandling.rockState.valueOf() == RockState.configuring) {
         //const diffX = Math.abs(event.pageX - startX);//weight
         const diffY = Math.abs(event.pageY - startY);
         const delta = 5;
@@ -117,11 +124,11 @@ const addObjectClickListener = (
         }
         if (diffY > delta) {
             const angleDiff = clamp(diffY *.001, -.03, .03);
-            g_rockMeshes[0].rotateX(angleDiff);
-            StoneDefault.theta = g_rockMeshes[0].rotation.x;
+            rockHandling.rockMeshes[0].rotateX(angleDiff);
+            rockHandling.stoneSimulation.theta = rockHandling.rockMeshes[0].rotation.x;
             //update label
             removeEntity(defaultLabel, Scene);
-            const spritey = setText(g_rockState, StoneDefault, -1, defaultPositionY * defaultLabelY, 
+            const spritey = setText(rockHandling.rockState, rockHandling.stoneSimulation, -1.3, defaultPositionY * defaultLabelY, 
               defaultLabelZ, defaultLabel, defaultLabelFont);
             Scene.add(spritey);
           }
@@ -129,13 +136,13 @@ const addObjectClickListener = (
     });
 
     document.addEventListener('mouseup', function (event) {
-      if (g_rockMeshes && g_rockState.valueOf() == RockState.configuring) {
+      if (rockHandling.rockMeshes && rockHandling.rockState.valueOf() == RockState.configuring) {
           if (debug)
-          console.debug("mouseup:" + g_rockState);
-          g_rockState = RockState.simulation;
+          console.debug("mouseup:" + rockHandling.rockState);
+          rockHandling.rockState = RockState.simulation;
           //update label
           removeEntity(defaultLabel, Scene);
-          const spritey = setText(g_rockState, StoneDefault, -1, defaultPositionY * defaultLabelY, 
+          const spritey = setText(rockHandling.rockState, rockHandling.stoneSimulation, -1.3, defaultPositionY * defaultLabelY, 
             defaultLabelZ, defaultLabel, defaultLabelFont);
           Scene.add(spritey);
           if (Controls)
@@ -146,17 +153,17 @@ const addObjectClickListener = (
   };
 
   function resetRock(){
-    init(StoneDefault);
-    g_rockState = RockState.start;
+    init(rockHandling.stoneSimulation);
+    rockHandling.rockState = RockState.start;
     if (Scene){
       removeEntity(defaultLabel, Scene);
-      const spritey = setText(g_rockState, StoneDefault, -1, defaultPositionY * defaultLabelY,
+      const spritey = setText(rockHandling.rockState, rockHandling.stoneSimulation, -1.3, defaultPositionY * defaultLabelY,
         defaultLabelZ, defaultLabel, defaultLabelFont);
       Scene.add(spritey);
     }
-    if (g_rockMeshes && g_rockMeshes[0]){
-      g_rockMeshes[0].position.set(0, defaultPositionY, 0);
-      g_rockMeshes[0].rotateX(defaultRoationX);
+    if (rockHandling.rockMeshes && rockHandling.rockMeshes[0]){
+      rockHandling.rockMeshes[0].position.set(0, defaultPositionY, 0);
+      rockHandling.rockMeshes[0].rotateX(defaultRoationX);
     }
   }
 
@@ -181,62 +188,62 @@ function setupRenderer(){
   function render() {
       requestAnimationFrame(render);
       // find rock intersection
-      if (Scene && Raycaster && g_rockMeshes?.length && g_rockState.valueOf() != RockState.simulation){
+      if (Scene && Raycaster && rockHandling.rockMeshes?.length && rockHandling.rockState.valueOf() != RockState.simulation){
           Raycaster.setFromCamera(Pointer, Camera);
           const intersects = Raycaster.intersectObjects(Scene.children, true);
           if (intersects.length > 0) {
             if ( intersects.length > 0 ) {
-              if (g_intersections != intersects[0].object ) {
-                if (g_intersections && g_intersections?.material?.emissive) 
-                  g_intersections.material.emissive.setHex(g_intersections.currentHex );
+              if (rockHandling.intersections != intersects[0].object) {
+                if (rockHandling.intersections && rockHandling.intersections?.material?.emissive)// && rockHandling.rockState.valueOf() == RockState.simulation) 
+                  rockHandling.intersections.material.emissive.setHex(rockHandling.intersections.currentHex);
                 if (intersects[0].object.name == 'boulder'){
-                    g_intersections = intersects[0].object;
+                    rockHandling.intersections = intersects[0].object;
                 }
                 else{
-                  g_intersections = null;
+                  rockHandling.intersections = null;
                 }
-                if (g_intersections && g_intersections?.material?.emissive){
-                  g_intersections.currentHex = g_intersections.material.emissive.getHex();
-                  g_intersections.material.emissive.setHex( 0xff0000 );
+                if (rockHandling.intersections && rockHandling.intersections?.material?.emissive){
+                  rockHandling.intersections.currentHex = rockHandling.intersections.material.emissive.getHex();
+                  rockHandling.intersections.material.emissive.setHex( 0xff0000 );
                 }
               }
             } else {
-              if (g_intersections && g_intersections?.material?.emissive)
-                g_intersections.material.emissive.setHex(g_intersections.currentHex );
-              g_intersections = null;
+              if (rockHandling.intersections && rockHandling.intersections?.material?.emissive)
+                rockHandling.intersections.material.emissive.setHex(rockHandling.intersections.currentHex);
+              rockHandling.intersections = null;
             }
           }
       }
       //update simulation
-      if(Clock && g_rockMeshes?.length && g_rockState.valueOf() == RockState.simulation){
+      if(Clock && rockHandling.rockMeshes?.length && rockHandling.rockState.valueOf() == RockState.simulation){
         let splash = false;
         let delta = Clock.getDelta();
         if (delta > 0.01){
               delta = 0.01;
         }
-        if (g_rockMeshes[0].position.y > floorHeight *defaultLabelY){
-          const res : THREE.Vector3 = simulateOneStep(StoneDefault, delta);
+        if (rockHandling.rockMeshes[0].position.y > floorHeight *defaultLabelY){
+          const res : THREE.Vector3 = simulateOneStep(rockHandling.stoneSimulation, delta);
           if (debug){
-            if (g_rockMeshes[0].position.y > waterHeight && 
-              g_rockMeshes[0].position.y - delta < waterHeight){
+            if (rockHandling.rockMeshes[0].position.y > waterHeight && 
+              rockHandling.rockMeshes[0].position.y - delta < waterHeight){
               //splash = true;
             }
-            g_rockMeshes[0].position.z += delta;
-            g_rockMeshes[0].position.y -= delta/5;
-            StoneDefault.meters = g_rockMeshes[0].position.z;
+            rockHandling.rockMeshes[0].position.z += delta;
+            rockHandling.rockMeshes[0].position.y -= delta/5;
+            rockHandling.stoneSimulation.meters = rockHandling.rockMeshes[0].position.z;
             if (debug && false)
-              console.debug("g_rockMeshes[0].position.y" + g_rockMeshes[0].position.y);
+              console.debug("rockHandling.rockMeshes[0].position.y" + rockHandling.rockMeshes[0].position.y);
           }
           else{
-            g_rockMeshes[0].position.x = res.z;
-            g_rockMeshes[0].position.y = res.y + waterHeight;
-            g_rockMeshes[0].position.z = res.x; //add random?
+            rockHandling.rockMeshes[0].position.x = res.z;
+            rockHandling.rockMeshes[0].position.y = res.y + waterHeight;
+            rockHandling.rockMeshes[0].position.z = res.x; //add random?
           }
           if(splash){
             if (Scene){
               const spritey = makeTextSprite("Splash", { fontsize : 12, textColor: {r:255, g:255, b:255, a:1.0}},
                "splashLabel", document);
-              spritey.position.set(g_rockMeshes[0].position.x, g_rockMeshes[0].position.y, g_rockMeshes[0].position.z);
+              spritey.position.set(rockHandling.rockMeshes[0].position.x, rockHandling.rockMeshes[0].position.y, rockHandling.rockMeshes[0].position.z);
               Scene.add(spritey);
               splash = false;
               setTimeout(() => {
@@ -248,12 +255,12 @@ function setupRenderer(){
           // update distance label
           if (Scene){
             removeEntity(defaultLabel, Scene);
-            const spritey = setText(g_rockState, StoneDefault, -1, defaultPositionY * defaultLabelY, 
+            const spritey = setText(rockHandling.rockState, rockHandling.stoneSimulation, -1.3, defaultPositionY * defaultLabelY, 
               defaultLabelZ, defaultLabel, defaultLabelFont);
             Scene.add(spritey);
           }
           //done
-          if(g_rockMeshes[0].position.y <= floorHeight *1.2 || g_rockMeshes[0].position.z > 90){
+          if(rockHandling.rockMeshes[0].position.y <= floorHeight *1.2 || rockHandling.rockMeshes[0].position.z > 90){
             if (debug)
             console.debug("done");
             setTimeout(() => {
@@ -278,7 +285,7 @@ function setupScene(){
             rock,
             rock2,
         } = await models;
-        g_rockMeshes.push(rock);
+        rockHandling.rockMeshes.push(rock);
         addObjectClickListener(
           Scene
         );
@@ -287,8 +294,8 @@ function setupScene(){
     })();
     resetRock();
 
-    const spritey = setText(g_rockState, StoneDefault, -1,
-      defaultPositionY * 1.3, defaultLabelZ, "header", 18);
+    const spritey = setText(rockHandling.rockState, rockHandling.stoneSimulation, -1.3,
+      defaultPositionY * 1.25, defaultLabelZ, "header", 16);
     Scene.add(spritey);
 
     const { Light, Light2 } = makeLights();
