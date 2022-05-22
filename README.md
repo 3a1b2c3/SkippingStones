@@ -13,17 +13,24 @@ WIP
 ![](Animation2.gif)
 
 ## TODOs:
-* Fix the physics currently using a dummy
+### Things still missing or bad: 
+* Fix the physic/simulation code currently using a dummy
 
-* Ui
+* 3d ui is difficult to use, maybe add a slider
 
+* 2d ui needs some design
+
+* Add sound effects and feedback when stone touches water
+
+* Code cleanup and tests
+
+### Later
 * I want to use the phone’s gyro sensor movement to determine start angle and maybe velocity
 
-* An AR version were you can use a realwater surface
+* An AR version were you can use a real water surface
 
-* Add more input paramters to the simuation: velocity, spin and stone weight
+* Add more input parameters to the simulation: velocity, spin and stone weight
 
-* Add sound effects
 
 ## Credits:
 * 3d assets from https://poly.pizza

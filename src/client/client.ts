@@ -120,7 +120,7 @@ const addObjectClickListener = (
           Controls.enableRotate = false;
         }
         if (diffY > delta) {
-            const angleDiff = clamp(diffY *.005, -.07, .07);
+            const angleDiff = clamp(diffY *.005, -.04, .04);
             rockHandling.rockMeshes[0].rotateX(angleDiff);
             rockHandling.stoneSimulation.theta = rockHandling.rockMeshes[0].rotation.x;
             //update label
@@ -237,7 +237,7 @@ function setupRenderer(){
               splash = false;
               setTimeout(() => {
                 addHeadsup(document, "", 200, 200, "splashLabel", 18);
-              }, 3000);
+              }, 4000);
           }
           // update distance label
           if (Scene){
