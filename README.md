@@ -7,7 +7,8 @@ The objective of "skipping" is to see how many times a stone can bounce before i
 Here is a nice 2d version of the simulation:
 https://www.glowscript.org/#/user/B06902117/folder/Public/program/FinalProject
 
-Esc Key to interrupt current run. Mouse down drag to configure the stonefor run
+Esc Key to interrupt current run. Mouse down drag to configure the stone angle for a run.
+Let go ofthe mouse to sent the rock off
 
 WIP
 ![](Animation2.gif)
