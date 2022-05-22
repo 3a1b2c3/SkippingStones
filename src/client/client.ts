@@ -115,7 +115,7 @@ const addObjectClickListener = (
 
 
     document.addEventListener('mousemove', function (event) {
-      if (rockHandling.intersections && rockHandling.rockMeshes && rockHandling.rockState.valueOf() == RockState.configuring) {
+      if (rockHandling.rockMeshes && rockHandling.rockState.valueOf() == RockState.configuring) {
         //const diffX = Math.abs(event.pageX - startX);//weight
         const diffY = Math.abs(event.pageY - startY);
         const delta = 5;
@@ -123,7 +123,7 @@ const addObjectClickListener = (
           Controls.enableRotate = false;
         }
         if (diffY > delta) {
-            const angleDiff = clamp(diffY *.001, -.05, .05);
+            const angleDiff = clamp(diffY *.005, -.07, .07);
             rockHandling.rockMeshes[0].rotateX(angleDiff);
             rockHandling.stoneSimulation.theta = rockHandling.rockMeshes[0].rotation.x;
             //update label
