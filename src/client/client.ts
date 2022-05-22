@@ -232,14 +232,12 @@ function setupRenderer(){
             rockHandling.rockMeshes[0].position.y = res.y + waterHeight;
             rockHandling.rockMeshes[0].position.z = res.x; //add random?
           }
-          if(splash){
-            if (Scene){
+          if(splash){ //placeholder
               addHeadsup(document, "Splash", 200, 200, "splashLabel", 18);
               splash = false;
               setTimeout(() => {
                 addHeadsup(document, "", 200, 200, "splashLabel", 18);
               }, 3000);
-            }
           }
           // update distance label
           if (Scene){
