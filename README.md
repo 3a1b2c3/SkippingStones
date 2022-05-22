@@ -20,7 +20,7 @@ WIP
 
 * 2d ui needs some design
 
-* Add sound effects and feedback when stone touches water
+* Add sound effects and feedback when stone touches water, needs shadow to makemovement more clear
 
 * Code cleanup and tests
 
@@ -41,13 +41,6 @@ was used as a starting point for simulation
 
 ## Getting Started
 
-```bash
-# Clone the repository (you can also click "Use this template")
-git clone https://github.com/metachris/typescript-boilerplate.git your_project_name
-cd your_project_name
-
-# Edit `package.json` and `tsconfig.json` to your liking
-...
 
 # Install dependencies
 yarn install
