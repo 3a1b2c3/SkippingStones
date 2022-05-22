@@ -36,8 +36,8 @@ export function makeLights(intensity = 1.0, SceneRadius=sceneRadius){
             color: 0xffaa33
         }))
     )
-    const Light2 = new AmbientLight(0x003973);
-    Light2.intensity = intensity;
+    const Sun = new AmbientLight(0x003973);
+    Sun.intensity = intensity;
 
-    return {Light, Light2};
+    return {Light, Sun};
 }

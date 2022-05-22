@@ -284,8 +284,11 @@ function setupScene(){
     resetRock();
     addHeadsup(document, "Skip a stone", 100, 50, "header", 22);
 
-    const { Light, Light2 } = makeLights();
-    Scene.add(Light2);
+    const { Light, Sun } = makeLights();
+    const helper = new THREE.CameraHelper(Light.shadow.camera)
+    Scene.add(helper)
+
+    Scene.add(Sun);
     Scene.add(Light);
     Scene.add(Camera);
     Scene.add(CameraGroup);
