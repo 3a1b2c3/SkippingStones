@@ -47,7 +47,7 @@ const { Camera, CameraGroup } = makeCamera();
 
 //TODO add spin, velocity, incident velocity, weight, height
 function setText(rockState : RockState, stoneDefault : stone,
-   objectName="textSprite", fontSize=14, x=100, y=100) : string {
+   objectName="textSprite", fontSize=15, x=100, y=100) : string {
   let text = headsUpStartText;
   if (rockState.valueOf() == RockState.selected ){
     text = "Set rock tilt angle by dragging the mouse.";
@@ -234,7 +234,7 @@ function setupRenderer(){
           }
           if(splash){
             if (Scene){
-              addHeadsup(document, "Splash");
+              addHeadsup(document, "Splash", 200, 200, "splashLabel", 18);
               splash = false;
               setTimeout(() => {
                 if (Scene)
@@ -283,8 +283,7 @@ function setupScene(){
         Scene.add(rock2);
     })();
     resetRock();
-    //header
-    addHeadsup(document, "Skip a stone", 100, 50, "header", 18);
+    addHeadsup(document, "Skip a stone", 100, 50, "header", 22);
 
     const { Light, Light2 } = makeLights();
     Scene.add(Light2);
