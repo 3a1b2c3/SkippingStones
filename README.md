@@ -7,8 +7,8 @@ The objective of "skipping" is to see how many times a stone can bounce before i
 Here is a nice 2d version of the simulation:
 https://www.glowscript.org/#/user/B06902117/folder/Public/program/FinalProject
 
-Esc Key to interrupt current run. Mouse down drag to configure the stone angle for a run.
-Then let go off the mouse to sent the rock off.
+Use Esc Key to interrupt current run. Mouse down drag to configure the stone angle for a run.
+Then let go of the mouse to sent the rock off.
 
 WIP:
 ![](Animation2.gif)
@@ -52,23 +52,6 @@ yarn lint
 yarn test
 yarn build
 ...
-```
-
-* Take a look at all the scripts in [`package.json`](https://github.com/metachris/typescript-boilerplate/blob/master/package.json)
-* For publishing to npm, use `yarn publish` (or `npm publish`)
-
-## esbuild
-
-[esbuild](https://esbuild.github.io/) is an extremely fast bundler that supports a [large part of the TypeScript syntax](https://esbuild.github.io/content-types/#typescript). This project uses it to bundle for browsers (and Node.js if you want).
-
-```bash
-# Build for browsers
-yarn esbuild-browser:dev
-yarn esbuild-browser:watch
-
-# Build the cli for node
-yarn esbuild-node:dev
-yarn esbuild-node:watch
 ```
 
 
