@@ -1,4 +1,6 @@
-function addHeadsup(document : Document, text="test", x_pos=150, y_pos=150, 
+
+
+export function addHeadsup(document : Document, text="test", x_pos=150, y_pos=150, 
     objectName="headsUp", fontSize=18){
   let div = document.getElementById(objectName);
   if (!div){
