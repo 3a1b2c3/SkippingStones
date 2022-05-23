@@ -16,12 +16,12 @@ const HORIZONTAL = new Vector3(1.0, 0, 0);
 
 // The constants of dragging function used for the shape factor
 const MinCd = 0.05;
-const global_MaxCd = 1.98;
-const global_gap = global_MaxCd - MinCd;
-let global_dt = 0.01;
-const defaultHeight = 0.5;
-let global_Bounces = 0;
+const g_MaxCd = 1.98;
+const g_gap = g_MaxCd - MinCd;
+let g_dt = 0.01;
+let g_Bounces = 0;
 
+const defaultHeight = 0.5;
 const massDefault = 0.1;
 const radiusDefault = 0.05;
 const positionDefault = new Vector3(0, defaultHeight, 0);  // Average height a human throws a stone
@@ -131,7 +131,7 @@ export function linearCollision(Stone : stone,
 }
 
 // Calculate the maximun number of bounces, which stone will be stable below.
-function circularCollision(Stone : stone, gravity=GRAVITY, bounces=global_Bounces){ 
+function circularCollision(Stone : stone, gravity=GRAVITY, bounces=g_Bounces){ 
     if (Stone?.spin){
         const ncount = (4*Math.PI*Math.PI* Stone.radius) * Stone.spin * Stone.spin / gravity;
         if (bounces+1 >= ncount){
@@ -148,10 +148,10 @@ function circularCollision(Stone : stone, gravity=GRAVITY, bounces=global_Bounce
 //We know that the drag coefficient is related to the Reynolds number && stone's shape. 
 //The Reynolds number can be computed by the density && viscosity of the fluid the stone go thrthough 
 // the stone's velocity. Then, we compute the angle between the +x && the direction of the stone's velocity, //
-// use it to define the shape-related function whose maximum is global_MaxCd && minimum is global_MinCd. By the way, when we calculate the Reynolds number && the Area, we use stone's characteristic length,stone's diameter. We can get the magnitude of drag force from the factor above. Finally, we can get drag force in vector form when the magnitude of drag force time negative direction of stone's velocity.
+// use it to define the shape-related function whose maximum is g_MaxCd && minimum is g_MinCd. By the way, when we calculate the Reynolds number && the Area, we use stone's characteristic length,stone's diameter. We can get the magnitude of drag force from the factor above. Finally, we can get drag force in vector form when the magnitude of drag force time negative direction of stone's velocity.
 */
 export function airDrag(Stone : stone, media : string, horizontal=HORIZONTAL,
-            MaxCd=global_MaxCd, gap=global_gap) : Vector3{
+            MaxCd=g_MaxCd, gap=g_gap) : Vector3{
     let velocity : Vector3 = Stone.velocity.clone();
     const vis = Viscosity.get(media) || 1; 
     const rho = Rho.get(media) || 1;
@@ -197,10 +197,19 @@ export function airDrag(Stone : stone, media : string, horizontal=HORIZONTAL,
 /*
 // Lower fluid resistance
 // The function is same as upper fluid resistance but for diffrent kind of fluid.
-// In order to the formula F = 1/2(Cd)(Rho)(A)(v^2) to compute the drag force applying on the stone, we need to estimate the drag coefficient first. We know that the drag coefficient is related to the Reynolds number && stone's shape. The Reynolds number can be computed by the density && viscosity of the fluid the stone go thrthough && the stone's velocity. Then, we compute the angle between the +x && the direction of the stone's velocity, && use it to define the shape-related function whose maximum is global_MaxCd && minimum is global_MinCd. By the way, when we calculate the Reynolds number && the Area, we use stone's characteristic length,stone's diameter. We can get the magnitude of drag force from the factor above. Finally, we can get drag force in vector form when the magnitude of drag force time negative direction of stone's velocity.
+// In order to the formula F = 1/2(Cd)(Rho)(A)(v^2) to compute the drag force applying on the stone,
+ we need to estimate the drag coefficient first. We know that the drag coefficient is related to the Reynolds number 
+  stone's shape. The Reynolds number can be computed by the density && viscosity of the fluid the stone go thrthough 
+  the stone's velocity. Then, we compute the angle between the +x && the direction of the stone's velocity, 
+  use it to define the shape-related function whose maximum is g_MaxCd && minimum is g_MinCd. By the way, 
+  when we calculate the Reynolds number && the Area, we use stone's characteristic length,stone's diameter. 
+  We can get the magnitude of drag force from the factor above. Finally, we can get drag force in vector form when 
+  the magnitude of drag force time negative direction of stone's velocity.
 */
 export function waterDrag(Stone : stone, 
     media : string, 
+    maxCd = g_MaxCd, 
+    gap = g_gap,
     horizontal=HORIZONTAL.clone()) : Vector3 {
     // Compute angle
     // alpha is the angle between the +x vector && the direction vector of stone's velocity
@@ -230,7 +239,7 @@ export function waterDrag(Stone : stone,
     else if (Re > 1e7 && Re < 1e9){
         Cd_ = 0.455/((Math.log10(Re))**2.58) - 1700/Re
     }
-    const Cd = Cd_ * (global_MaxCd - Math.abs(Math.cos(beta))*global_gap);
+    const Cd = Cd_ * (maxCd - Math.abs(Math.cos(beta))*gap);
     
     // Compute reference area
     const A = Stone.radius * Stone.radius *Math.PI*Math.sin(beta);
@@ -245,7 +254,7 @@ export function waterDrag(Stone : stone,
 }
 
 export function simulateOneStep(Stone : stone, 
-                            delta : number = global_dt, 
+                            delta : number = g_dt, 
                             skipping : boolean = false,
                             minHeight=-2,
                             debug=false,
