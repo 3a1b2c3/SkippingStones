@@ -68,19 +68,24 @@ export const StoneDefault : stone = {
     meters : 0
 }
 
-let global_Fgrav = DOWN.multiplyScalar(StoneDefault.mass);
-let global_P_Stone = StoneDefault.velocity.multiplyScalar(StoneDefault.mass);
-let global_fraction_V = global_scale * ((StoneDefault.velocity.length() / Vx_max) ** 2);
+let global_Fgrav = DOWN.clone();
+global_Fgrav.multiplyScalar(StoneDefault.mass);
+const velocity1 : Vector3 = StoneDefault.velocity.clone();
+const velocity2 : Vector3 = StoneDefault.velocity.clone();
+let global_P_Stone = velocity1.multiplyScalar(StoneDefault.mass);
+let global_fraction_V = global_scale * ((velocity2.length() / Vx_max) ** 2);
 const global_Real_Stone = {
     position : new Vector3(0, 0.5, 0)
 };
 
 export function init(Stone : stone){
-    const velocity : Vector3 = Stone.velocity.clone();
-    global_Fgrav = DOWN.multiplyScalar(Stone.mass);
-    global_P_Stone = StoneDefault.velocity.multiplyScalar(Stone.mass);
-    global_Real_Stone.position = Stone.position;
-    global_fraction_V = global_scale * ((velocity.length() / Vx_max) ** 2);
+    const velocity1 : Vector3 = Stone.velocity.clone();
+    const velocity2 : Vector3 = Stone.velocity.clone();
+    global_Fgrav = DOWN.clone();
+    global_Fgrav.multiplyScalar(Stone.mass);
+    global_P_Stone = velocity1.multiplyScalar(Stone.mass);
+    global_Real_Stone.position = Stone.position.clone();
+    global_fraction_V = global_scale * ((velocity2.length() / Vx_max) ** 2);
     global_t = 0;
     global_dt = 0.01;
     global_run = true;
@@ -330,16 +335,18 @@ export function simulateOneStep(Stone : stone,
         Real_Stone.pos = Stone['position']
     */
     // Update stone's position 
-    const deltaFnet : Vector3 = Fnet.multiplyScalar(dt);
+    Fnet.multiplyScalar(dt);
     console.error(Stone.mass +" Stone.velocity1: " + JSON.stringify(velocity));
-    const massVelocity : Vector3 = velocity.multiplyScalar(Stone.mass);
+    velocity.multiplyScalar(Stone.mass);
     console.error(Stone.mass +" Stone.velocity2 : " + JSON.stringify(velocity));
     // P_Stone = Stone['mass'] * Stone['velocity']  + Fnet * dt
-    const P_Stone : Vector3 = massVelocity.add(deltaFnet);
-    velocity = P_Stone.divideScalar(Stone.mass);
-    const deltaVelocity = velocity.multiplyScalar(dt);
-    Stone.position = Stone.position.add(deltaVelocity);
-    console.error(JSON.stringify(deltaVelocity)  + "Stone: 2" + JSON.stringify(Stone.position));
+    velocity.add(Fnet);
+    console.error(Stone.mass +" Stone.velocity2 : " + JSON.stringify(velocity));
+    velocity.divideScalar(Stone.mass);
+    velocity.multiplyScalar(dt);
+    Stone.position.add(velocity);
+    console.error(Stone.mass +" Stone.velocity3 : " + JSON.stringify(velocity));
+    console.error(JSON.stringify(velocity)  + "Stone: 2" + JSON.stringify(Stone.position));
 
     // Stone skipping
     if (Stone.position.y <= 0 && skipping){
@@ -379,11 +386,13 @@ export function simulate(Stone : stone, calculateSplash=false, endHeight=-1, deb
             continue; 
         }
         // Update stone's position
-        const temp = velocity.multiplyScalar(Stone.mass);
-        const global_P_Stone = temp.add(Fnet).multiplyScalar(global_dt);
+        velocity.multiplyScalar(Stone.mass);
+        Fnet.multiplyScalar(global_dt);
+        const global_P_Stone = velocity.add(Fnet);
         velocity = global_P_Stone.divideScalar(Stone.mass);
-        Stone.position = Stone.position.add(velocity).multiplyScalar(global_dt);
-        global_Real_Stone.position = Stone.position;
+        velocity.multiplyScalar(global_dt);
+        Stone.position = Stone.position.add(velocity);
+        global_Real_Stone.position = Stone.position.clone();
         if(debug){
             console.debug("global_Real_Stone.position" + JSON.stringify(global_Real_Stone.position));
         }
