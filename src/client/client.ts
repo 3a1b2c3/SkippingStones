@@ -203,20 +203,18 @@ function setupRenderer(){
 
   function render() {
       requestAnimationFrame(render);
-      console.error((Clock && rockHandling.rockMeshes?.length && 
-        rockHandling.rockState.valueOf() == RockState.simulation) +" sim " + rockHandling.rockState.valueOf())
+      console.error(Clock && rockHandling.rockMeshes?.length +" sim " + (rockHandling.rockState.valueOf() == RockState.simulation));
       //update simulation
       if(Clock && rockHandling.rockMeshes?.length && 
         rockHandling.rockState.valueOf() == RockState.simulation){
         let splash = false;
-        let delta = Clock.getDelta();
+        let delta = Clock.getDelta(); 
         if (delta > animDelta){
             delta = animDelta;
         }
         const res : THREE.Vector3 = simulateOneStep(rockHandling.stoneSimulation,
             delta,
-            true,
-            minFloorHeight);
+            true);
         rockHandling.rockMeshes[0].position.x = res.z;
         rockHandling.rockMeshes[0].position.y = res.y + waterHeight;
         rockHandling.rockMeshes[0].position.z = res.x; //add random?
