@@ -211,8 +211,7 @@ function setupRenderer(){
         if (delta > animDelta){
             delta = animDelta;
         }
-        if (rockHandling.rockMeshes[0].position){//} > minFloorHeight){
-          const res : THREE.Vector3 = simulateOneStep(rockHandling.stoneSimulation,
+       const res : THREE.Vector3 = simulateOneStep(rockHandling.stoneSimulation,
             delta,
             true,
             minFloorHeight);
@@ -242,7 +241,6 @@ function setupRenderer(){
               resetRock();
             }, 8000);
           }
-        }
       }
       Renderer.setAnimationLoop(function (time : number) {
         rafCallbacks.forEach(cb => cb(time));
