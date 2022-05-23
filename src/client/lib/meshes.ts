@@ -10,8 +10,6 @@ const rockPath = path.join(mediaPath, 'Boulder.glb');
 const rockPath2 = path.join(mediaPath, 'stone.glb');
 
 const loader = new GLTFLoader();
-export const minTilt = -Math.PI/4;//45
-export const maxTilt = Math.PI/4;//45
 export const defaultPositionY = 1.3;
 export const defaultRoationX = -.175;
 

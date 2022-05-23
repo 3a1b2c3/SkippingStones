@@ -2,10 +2,11 @@ import * as THREE from 'three';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton'
 import { OrbitControls } from 'three/examples/jsm/Controls/OrbitControls';
 
-import { models, defaultPositionY, defaultRoationX, minTilt, maxTilt } from "./lib/meshes";
+import { models, defaultPositionY, defaultRoationX } from "./lib/meshes";
 import { makeFloor, WaterMesh, rafCallbacks, rain } from "./lib/water";
 import { makeLights, makeCamera, removeEntity } from "./lib/Scene";
-import { StoneDefault, stone, init, simulateOneStep, RockState } from "./lib/skipping";
+import { StoneDefault, init, simulateOneStep } from "./lib/skipping";
+import { stone, RockState, RockHandling} from './types/types'
 import { waterHeight, floorHeight} from "./lib/constants";
 import { addHeadsup } from "./lib/headsUp";
 import { roundTo, clamp } from "./lib/helper";
@@ -13,15 +14,8 @@ import { roundTo, clamp } from "./lib/helper";
 const debug = true;
 const headsUpStartText = "Skip a stone";
 const defaultLabel = "labelSprite";
-const defaultLabelY = .5;
 const defaultLabelFont = 12;
-
-type RockHandling = {
-  rockState: RockState;
-  rockMeshes: Array<THREE.Mesh>;
-  intersections : any | null;
-  stoneSimulation : stone
-};
+const minFloorHeight = floorHeight * 1.1;
 
 const rockHandling : RockHandling = {
   rockState: RockState.start,
@@ -218,11 +212,11 @@ function setupRenderer(){
         if (delta > 0.01){
             delta = 0.01;
         }
-        if (rockHandling.rockMeshes[0].position.y > floorHeight *1.1){
+        if (rockHandling.rockMeshes[0].position.y > minFloorHeight){
           const res : THREE.Vector3 = simulateOneStep(rockHandling.stoneSimulation,
             delta,
             true,
-            floorHeight *1.1,//make const
+            minFloorHeight,
             debug);
           if (false){
             rockHandling.rockMeshes[0].position.z += delta;
