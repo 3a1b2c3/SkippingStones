@@ -1,9 +1,31 @@
 import * as THREE from 'three'; 
 import { stone, upper_fluid, lower_fluid,
-  simulateOneStep, Air_Drag, Linear_Collision, 
-  Collision, StoneDefault, init, simulate } from '../src/client/lib/skipping';
+  simulateOneStep, airDrag, linearCollision, waterDrag,
+  collision, StoneDefault, init } from '../src/client/lib/skipping';
 
+  test('waterDrag', () => {
+    jest.spyOn(console, 'debug');
+    init(StoneDefault);
+    const s = Object.create(StoneDefault);
+    const res = waterDrag(StoneDefault, lower_fluid);
+    expect(res.x).toBe(-0.004450037693489743);
+    expect(Math.abs(res.y)).toBe(0);
+    //no side effects
+    expect(s).toMatchObject(StoneDefault);
+  });
 
+  test('airDrag', () => {
+      jest.spyOn(console, 'debug');
+      init(StoneDefault);
+      const s = Object.create(StoneDefault);
+      const res = airDrag(StoneDefault, upper_fluid);
+      expect(res.x).toBe(-0.000015997359486306445);
+      expect(Math.abs(res.y)).toBe(0);
+      //no side effects
+    expect(s).toMatchObject(StoneDefault);
+  });
+
+  /*
   test('simulateOneStep', () => {
     jest.spyOn(console, 'debug');
     init(StoneDefault);
@@ -14,35 +36,23 @@ import { stone, upper_fluid, lower_fluid,
       }, 10000);
   
   });
-
-  /*
-    test('Air_Drag', () => {
-      jest.spyOn(console, 'debug');
-      init(StoneDefault);
-      setTimeout(() => {
-        const res = Air_Drag(StoneDefault, upper_fluid);
-        expect(res.x).toBe(-1.6625405305050877e-28);
-        }, 10000);
-    
-    });
-
-  test('Linear_Collision', () => {
+  test('linearCollision', () => {
     jest.spyOn(console, 'debug');
     init(StoneDefault);
     setTimeout(() => {
-      const res = Linear_Collision(StoneDefault, lower_fluid);
+      const res = linearCollision(StoneDefault, lower_fluid);
       expect(res).toBe(true);
       expect(StoneDefault.bounces).toBeGreaterThan(1);
       }, 10000);
   
   });
 
-test('Collision', () => {
+test('collision', () => {
   jest.spyOn(console, 'debug');
   StoneDefault.position.y= -.01;
   init(StoneDefault);
   setTimeout(() => {
-    const res = Collision(StoneDefault, lower_fluid);
+    const res = collision(StoneDefault, lower_fluid);
     expect(res).toBe(true);
     expect(StoneDefault.bounces).toBeGreaterThan(0);
     }, 10000);
