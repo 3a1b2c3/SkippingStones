@@ -2,6 +2,7 @@ const path = require('path');
 import {
     AdditiveBlending,
     Mesh,
+    DoubleSide,
     MeshLambertMaterial,
     MeshBasicMaterial,
     TorusGeometry,
@@ -28,7 +29,8 @@ function makeFloor(sceneRadius=defautltSceneRadius, repeat=2){
     const floor = new Mesh(
         new PlaneGeometry(sceneRadius*2,sceneRadius*2,50,50),
         new MeshLambertMaterial({
-            map: floorTexture
+            map: floorTexture,
+            side: DoubleSide,
         })
     );
     floor.rotation.x = -Math.PI / 2;

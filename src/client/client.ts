@@ -93,7 +93,7 @@ const addObjectClickListener = (
         if (debug)
           console.debug(startY + 'mousedown' + rockHandling.rockState);
         removeEntity(defaultLabel, Scene);
-        setText(rockHandling.rockState, rockHandling.stoneSimulation, 
+        setText(rockHandling.rockState, rockHandling.stoneSimulation,
           defaultLabel, defaultLabelFont);
       }
       else{
@@ -143,9 +143,8 @@ const addObjectClickListener = (
             rockHandling.stoneSimulation.theta = rockHandling.rockMeshes[0].rotation.x;
             //update label
             removeEntity(defaultLabel, Scene);
-            setText(rockHandling.rockState, rockHandling.stoneSimulation, 
+            setText(rockHandling.rockState, rockHandling.stoneSimulation,
                defaultLabel, defaultLabelFont);
-            
           }
         }
     });
@@ -157,7 +156,7 @@ const addObjectClickListener = (
           rockHandling.rockState = RockState.simulation;
           //update label
           removeEntity(defaultLabel, Scene);
-          setText(rockHandling.rockState, rockHandling.stoneSimulation, 
+          setText(rockHandling.rockState, rockHandling.stoneSimulation,
              defaultLabel, defaultLabelFont);
           if (Controls)
             Controls.enableRotate = true;
@@ -171,7 +170,7 @@ const addObjectClickListener = (
     rockHandling.rockState = RockState.start;
     if (Scene){
       removeEntity(defaultLabel, Scene);
-      setText(rockHandling.rockState, rockHandling.stoneSimulation, 
+      setText(rockHandling.rockState, rockHandling.stoneSimulation,
          defaultLabel, defaultLabelFont);
     }
     if (rockHandling.rockMeshes && rockHandling.rockMeshes[0]){
@@ -212,21 +211,15 @@ function setupRenderer(){
         if (delta > animDelta){
             delta = animDelta;
         }
-        if (rockHandling.rockMeshes[0].position.y){//} > minFloorHeight + waterHeight){
+        if (rockHandling.rockMeshes[0].position){//} > minFloorHeight + waterHeight){
           const res : THREE.Vector3 = simulateOneStep(rockHandling.stoneSimulation,
             delta,
             true,
             minFloorHeight);
-          if (false){
-            rockHandling.rockMeshes[0].position.z += delta;
-            rockHandling.rockMeshes[0].position.y -= delta/5;
-            rockHandling.stoneSimulation.meters = rockHandling.rockMeshes[0].position.z;
-          }
-          else{
-            rockHandling.rockMeshes[0].position.x = res.z;
-            rockHandling.rockMeshes[0].position.y = res.y + waterHeight;
-            rockHandling.rockMeshes[0].position.z = res.x; //add random?
-          }
+          rockHandling.rockMeshes[0].position.x = res.z;
+          rockHandling.rockMeshes[0].position.y = res.y + waterHeight;
+          rockHandling.rockMeshes[0].position.z = res.x; //add random?
+
           if(splash){ //placeholder
               addHeadsup(document, "Splash", 200, 200, "splashLabel", 18);
               splash = false;
@@ -237,9 +230,8 @@ function setupRenderer(){
           // update distance label
           if (Scene){
             removeEntity(defaultLabel, Scene);
-            setText(rockHandling.rockState, rockHandling.stoneSimulation, 
-              
-               defaultLabel, defaultLabelFont);
+            setText(rockHandling.rockState, rockHandling.stoneSimulation,
+            defaultLabel, defaultLabelFont);
           }
           //done
           if(rockHandling.rockMeshes[0].position.z > 90){
@@ -293,6 +285,7 @@ function setupScene(){
 
     const { Light, Sun } = makeLights();
     const cameraHelper = new THREE.CameraHelper(Light.shadow.camera);
+    if (debug)
     Scene.add(cameraHelper);
 
     const helper = new THREE.DirectionalLightHelper(Light);

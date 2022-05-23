@@ -57,33 +57,37 @@ export function reset(Stone : stone){
 }
 
 // Specific constants of fluid
-// In this cell, there are some constants refer to the density, Viscosity, opacity && color of different fluid.
 const Rho = new Map<string, number>([
     ['air', 1.29],
     ['water', 1000.0]
 ]);
 
 const Viscosity = new Map<string, number>([
-    // Upper fluid's viscosity
     ['air', 1.78E-05],
-    // Lower fluid's viscosity
     ['water', 1.00E-03]
 ]);
 
 /*
 // collision
-// 1. In the linear collision, we use the formula in the reference to calculate the loss of the stone's energy in the x component, && check the rest energy of the stone. The formula is related to the density && the viscosity of lower fluid,etc.
-// 2. In the circular collision, we use the formula in the reference to calculate the maximun number of bounces,
-// which stone will be stable below. If the bouncing number is larger than the maximun number of bounces, the stone will become unstable && cannot skip successfully.
-// 3. To explain the second point, we quote from the reference.
-//  If after a collision, the stone is put in rotation around the y axis,that is,theta is ! equal to 0, its orientation would change by an appreciable amount during free flight{ the incidence angle thata for the next collision has little chance to still be in a favorable situation. There is therefore a need for a stabilizing angular motion. This is the role of the spin of the stone.
-//  A spin motion around normal vector of stone induces a stabilizing torque{ this is the well-known gyroscopic effect. Spin motion induces a stabilizing torque that can maintain theta around its initial value."
-// If after a collision, the stone is put in rotation around the y axis
+1. In the linear collision, we use the formula in the reference to calculate the loss of the stone's energy
+ in the x component, && check the rest energy of the stone. 
+ The formula is related to the density && the viscosity of lower fluid,etc.
+2. In the circular collision, we use the formula in the reference to calculate the maximun number of bounces,
+which stone will be stable below. If the bouncing number is larger than the maximun number of bounces, 
+the stone will become unstable && cannot skip successfully.
+3. To explain the second point, we quote from the reference.
+ If after a collision, the stone is put in rotation around the y axis,that is,theta is ! equal to 0, 
+its orientation would change by an appreciable amount during free flight{ the incidence angle thata 
+    for the next collision has little chance to still be in a favorable situation. 
+    There is therefore a need for a stabilizing angular motion. This is the role of the spin of the stone.
+  A spin motion around normal vector of stone induces a stabilizing torque{ this is the well-known gyroscopic effect.
+ Spin motion induces a stabilizing torque that can maintain theta around its initial value."
+ If after a collision, the stone is put in rotation around the y axis
 */
 export function collision(Stone : stone, media : string){
     const resLinear = linearCollision(Stone, media);
     const resCircular = circularCollision(Stone);
-    return resLinear || resCircular
+    return resLinear || resCircular;
 }
 
 export function linearCollision(Stone : stone, 
@@ -109,7 +113,7 @@ export function linearCollision(Stone : stone,
     }
     // L is the distance along x traversed by the stone during the collision.
     const l = 2*Math.PI* Math.sqrt(2* Stone.mass*Math.sin(Stone.theta)/(2*Cy*pw*Stone.radius));
-    Stone.meters += l;
+
     // Calculate the waste of energy during a collision process.
     const energy_waste_x = -u*Stone.mass * gravity * l;
     const Initial_Energy_x = Stone.mass* velocity.x * velocity.x/2;
@@ -118,15 +122,14 @@ export function linearCollision(Stone : stone,
     // Asumed that every stone will bounce back into the air
     Stone.velocity.y = -Stone.velocity.y;
     
-    // Estimate that whether the stone will skip or not
+    // Estimate whether the stone will skip or not
     if (final_Energy_x <= 0){
         Stone.skip = false;
         Stone.velocity.x = 1e-10;
-     }
+    }
     else{
         Stone.velocity.x = Math.sqrt(2*final_Energy_x / Stone.mass);
     }
-
     return Stone.skip;
 }
 
@@ -148,7 +151,10 @@ function circularCollision(Stone : stone, gravity=GRAVITY, bounces=g_Bounces){
 //We know that the drag coefficient is related to the Reynolds number && stone's shape. 
 //The Reynolds number can be computed by the density && viscosity of the fluid the stone go thrthough 
 // the stone's velocity. Then, we compute the angle between the +x && the direction of the stone's velocity, //
-// use it to define the shape-related function whose maximum is g_MaxCd && minimum is g_MinCd. By the way, when we calculate the Reynolds number && the Area, we use stone's characteristic length,stone's diameter. We can get the magnitude of drag force from the factor above. Finally, we can get drag force in vector form when the magnitude of drag force time negative direction of stone's velocity.
+// use it to define the shape-related function whose maximum is g_MaxCd && minimum is g_MinCd.
+ By the way, when we calculate the Reynolds number && the Area, we use stone's characteristic length,
+ stone's diameter. We can get the magnitude of drag force from the factor above. 
+ Finally, we can get drag force in vector form when the magnitude of drag force time negative direction of stone's velocity.
 */
 export function airDrag(Stone : stone, media : string, horizontal=HORIZONTAL,
             MaxCd=g_MaxCd, gap=g_gap) : Vector3{
@@ -195,9 +201,9 @@ export function airDrag(Stone : stone, media : string, horizontal=HORIZONTAL,
 }
 
 /*
-// Lower fluid resistance
-// The function is same as upper fluid resistance but for diffrent kind of fluid.
-// In order to the formula F = 1/2(Cd)(Rho)(A)(v^2) to compute the drag force applying on the stone,
+Lower fluid resistance
+The function is same as upper fluid resistance but for diffrent kind of fluid.
+ In order to the formula F = 1/2(Cd)(Rho)(A)(v^2) to compute the drag force applying on the stone,
  we need to estimate the drag coefficient first. We know that the drag coefficient is related to the Reynolds number 
   stone's shape. The Reynolds number can be computed by the density && viscosity of the fluid the stone go thrthough 
   the stone's velocity. Then, we compute the angle between the +x && the direction of the stone's velocity, 
@@ -259,7 +265,7 @@ export function simulateOneStep(Stone : stone,
                             minHeight=-2,
                             upperFluid = upper_fluid,
                             lowerFluid = lower_fluid,
-                            debug=false,
+                            debug=true,
     ) : Vector3 {
     if (Stone.position.y <= minHeight || delta <= 0){
         return Stone.position;
