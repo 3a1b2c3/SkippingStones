@@ -160,7 +160,9 @@ function setupRenderer(){
     Renderer.setPixelRatio(window.devicePixelRatio);
     Renderer.setSize(window.innerWidth, window.innerHeight);
     Renderer.shadowMap.enabled = true;
-    //Renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
+    Renderer.outputEncoding = THREE.sRGBEncoding;
+    Renderer.setSize(window.innerWidth, window.innerHeight);
+    
     Renderer.xr.enabled = true;
 
     //orbit
@@ -292,7 +294,11 @@ function setupScene(){
     addHeadsup(document, "Skip a stone", 100, 50, "header", 22);
 
     const { Light, Sun } = makeLights();
-    const helper = new THREE.CameraHelper(Light.shadow.camera)
+    const cameraHelper = new THREE.CameraHelper(Light.shadow.camera);
+    Scene.add(cameraHelper);
+
+    const helper = new THREE.DirectionalLightHelper(Light);
+
     Scene.add(helper)
 
     Scene.add(Sun);
