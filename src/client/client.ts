@@ -201,9 +201,10 @@ function setupRenderer(){
     document.body.appendChild(VRButton.createButton(Renderer))
   }
 
-  //https://stackoverflow.com/questions/40566045/three-js-mouse-events-with-raycasting-and-intersect-testing
   function render() {
       requestAnimationFrame(render);
+      console.error((Clock && rockHandling.rockMeshes?.length && 
+        rockHandling.rockState.valueOf() == RockState.simulation) +" sim " + rockHandling.rockState.valueOf())
       //update simulation
       if(Clock && rockHandling.rockMeshes?.length && 
         rockHandling.rockState.valueOf() == RockState.simulation){
@@ -212,7 +213,7 @@ function setupRenderer(){
         if (delta > animDelta){
             delta = animDelta;
         }
-       const res : THREE.Vector3 = simulateOneStep(rockHandling.stoneSimulation,
+        const res : THREE.Vector3 = simulateOneStep(rockHandling.stoneSimulation,
             delta,
             true,
             minFloorHeight);
@@ -238,8 +239,9 @@ function setupRenderer(){
              rockHandling.rockMeshes[0].position.z > 90){
             if (debug)
             console.debug("done");
+            rockHandling.rockState = RockState.simulationDone;
             setTimeout(() => {
-              resetRock();
+               resetRock();
             }, 8000);
           }
       }
