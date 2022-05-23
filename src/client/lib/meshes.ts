@@ -14,16 +14,32 @@ export const defaultPositionY = 1.3;
 export const defaultRoationX = -.175;
 
 async function loadModels(positionY=defaultPositionY, rotateX=defaultRoationX) {
-    const { scene: rock2 } = await new Promise((resolve) =>
-    loader.load(rockPath2, resolve)
+    //ground rocks
+    const { scene : rock2 } = await new Promise((resolve) =>
+        loader.load(rockPath2, resolve)
     );
+    rock2.traverse(function (child : any) {
+        if (child.isMesh) {
+            let m = child;
+            m.receiveShadow = true;
+            m.castShadow = true;
+        }
+    })
     rock2.scale.x = 4;
     rock2.scale.z = 4;
     rock2.scale.y = 3;
     rock2.castShadow = true;
+    rock2.receiveShadow = true;
     const { scene: rock } = await new Promise((resolve) =>
         loader.load(rockPath, resolve)
     );
+    rock.traverse(function (child : any) {
+        if (child.isMesh) {
+            let m = child;
+            m.receiveShadow = true;
+            m.castShadow = true;
+        }
+    })
     rock.position.y = positionY;
     rock.scale.x = .1 * 5;
     rock.scale.z = .1 * 5;
