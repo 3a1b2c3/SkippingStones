@@ -205,7 +205,8 @@ function setupRenderer(){
   function render() {
       requestAnimationFrame(render);
       //update simulation
-      if(Clock && rockHandling.rockMeshes?.length && rockHandling.rockState.valueOf() == RockState.simulation){
+      if(Clock && rockHandling.rockMeshes?.length && 
+        rockHandling.rockState.valueOf() == RockState.simulation){
         let splash = false;
         let delta = Clock.getDelta();
         if (delta > animDelta){
@@ -215,25 +216,25 @@ function setupRenderer(){
             delta,
             true,
             minFloorHeight);
-          rockHandling.rockMeshes[0].position.x = res.z;
-          rockHandling.rockMeshes[0].position.y = res.y + waterHeight;
-          rockHandling.rockMeshes[0].position.z = res.x; //add random?
+        rockHandling.rockMeshes[0].position.x = res.z;
+        rockHandling.rockMeshes[0].position.y = res.y + waterHeight;
+        rockHandling.rockMeshes[0].position.z = res.x; //add random?
 
-          if(splash){ //placeholder
+         if(splash){ //placeholder
               addHeadsup(document, "Splash", 200, 200, "splashLabel", 18);
               splash = false;
               setTimeout(() => {
                 addHeadsup(document, "", 200, 200, "splashLabel", 18);
               }, 4000);
           }
-          // update distance label
-          if (Scene){
+        // update distance label
+        if (Scene){
             removeEntity(defaultLabel, Scene);
             setText(rockHandling.rockState, rockHandling.stoneSimulation,
             defaultLabel, defaultLabelFont);
           }
-          //done
-          if(rockHandling.rockMeshes[0].position.y <= minFloorHeight ||
+        //done
+        if(rockHandling.rockMeshes[0].position.y <= minFloorHeight ||
              rockHandling.rockMeshes[0].position.z > 90){
             if (debug)
             console.debug("done");
