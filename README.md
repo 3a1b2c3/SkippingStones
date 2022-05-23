@@ -16,8 +16,6 @@ WIP:
 
 ## TODOs:
 ### Things still missing or bad: 
-* Fix the physic/simulation code currently using a dummy
-
 * 3d ui is difficult to use, maybe add a slider
 
 * 2d ui needs some design
