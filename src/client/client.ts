@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/examples/jsm/Controls/OrbitControls';
 import { models, defaultPositionY, defaultRoationX } from "./lib/meshes";
 import { makeFloor, WaterMesh, rafCallbacks, rain } from "./lib/water";
 import { makeLights, makeCamera, removeEntity } from "./lib/Scene";
-import { StoneDefault, init, simulateOneStep } from "./lib/skipping";
+import { StoneDefault, simulateOneStep, init } from "./lib/skipping";
 import { stone, RockState, RockHandling} from './types/types'
 import { waterHeight, floorHeight} from "./lib/constants";
 import { addHeadsup } from "./lib/headsUp";
@@ -16,6 +16,7 @@ const headsUpStartText = "Skip a stone";
 const defaultLabel = "labelSprite";
 const defaultLabelFont = 12;
 const minFloorHeight = floorHeight * 1.1;
+const animDelta = 0.01;
 
 const rockHandling : RockHandling = {
   rockState: RockState.start,
@@ -142,7 +143,7 @@ const addObjectClickListener = (
   };
 
   function resetRock(){
-    init(rockHandling.stoneSimulation);
+    init();
     rockHandling.rockState = RockState.start;
     if (Scene){
       removeEntity(defaultLabel, Scene);
@@ -209,8 +210,8 @@ function setupRenderer(){
       if(Clock && rockHandling.rockMeshes?.length && rockHandling.rockState.valueOf() == RockState.simulation){
         let splash = false;
         let delta = Clock.getDelta();
-        if (delta > 0.01){
-            delta = 0.01;
+        if (delta > animDelta){
+            delta = animDelta;
         }
         if (rockHandling.rockMeshes[0].position.y > minFloorHeight){
           const res : THREE.Vector3 = simulateOneStep(rockHandling.stoneSimulation,

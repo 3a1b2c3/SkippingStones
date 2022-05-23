@@ -1,6 +1,7 @@
 import {
 	Vector3,
 } from 'three';
+
 import {stone} from '../types/types'
 
 /*
@@ -19,35 +20,41 @@ const global_MaxCd = 1.98;
 const global_gap = global_MaxCd - MinCd;
 let global_dt = 0.01;
 const defaultHeight = 0.5;
+let global_Bounces = 0;
+
+const massDefault = 0.1;
+const radiusDefault = 0.05;
+const positionDefault = new Vector3(0, defaultHeight, 0);  // Average height a human throws a stone
+const velocityDefault = new Vector3(6.0, 0, 0);  // Incident velocity in x
+const spinDefault = 7;      // Spin angular velocity (rev/s) 
+const thetaDefault = 10 / 180 * Math.PI;    // Tilt angle (radian) 10 degree
 
 // Create a stone
 // We assume that the stone is a flat cylinder been thrown out in a small angle relative to the HORIZONTAL direction.
 // Moreover, we set the spin velocity at 7 rev/s && velocity at (6,0,0) m/s in the beginning.
 export const StoneDefault : stone = { 
     skip : true,
-    mass  : 0.1,
-    radius  : 0.05,
-    position : new Vector3(0, defaultHeight, 0),  // Average height a human throws a stone
-    velocity : new Vector3(6.0, 0, 0),  // Incident velocity in x
-    spin : 7,      // Spin angular velocity (rev/s) 
-    theta : 10 / 180 * Math.PI,    // Tilt angle (radian) 10 degree
+    mass  : massDefault,
+    radius  : radiusDefault,
+    position : positionDefault.clone(),  // Average height a human throws a stone
+    velocity : velocityDefault.clone(),  // Incident velocity in x
+    spin : spinDefault,      // Spin angular velocity (rev/s) 
+    theta : thetaDefault,    // Tilt angle (radian) 10 degree
     bounces : 0,
     meters : 0
 }
 
-let global_fGrav = DOWN.clone();
-global_fGrav.multiplyScalar(StoneDefault.mass);
-const global_Real_Stone = {
-    position : new Vector3(0, defaultHeight, 0)
-};
-
-export function init(Stone : stone){
-    global_fGrav = DOWN.clone();
-    global_fGrav.multiplyScalar(Stone.mass);
-    global_Real_Stone.position = Stone.position.clone();
+export function init(){
+    StoneDefault.skip = true;
+    StoneDefault.mass = massDefault;
+    StoneDefault.radius = radiusDefault,
+    StoneDefault.position = positionDefault.clone(),
+    StoneDefault.velocity = velocityDefault.clone(),  // Incident velocity in x
+    StoneDefault.spin = spinDefault,      // Spin angular velocity (rev/s) 
+    StoneDefault.theta = thetaDefault,    // Tilt angle (radian) 10 degree
+    StoneDefault.bounces = 0;
+    StoneDefault.meters = 0
 }
-
-let global_Bounces = 0;
 
 // Specific constants of fluid
 // In this cell, there are some constants refer to the density, Viscosity, opacity && color of different fluid.
@@ -123,12 +130,12 @@ export function linearCollision(Stone : stone,
     return Stone.skip;
 }
 
-function circularCollision(Stone : stone, gravity=GRAVITY){ 
+function circularCollision(Stone : stone, gravity=GRAVITY, bounces=global_Bounces){ 
     // Calculate the maximun number of bounces, which stone will be stable below.
     if (Stone?.spin){
         const ncount = (4*Math.PI*Math.PI* Stone.radius) * Stone.spin * Stone.spin / gravity;
-        if (global_Bounces+1 >= ncount){
-            Stone.skip  = false;
+        if (bounces+1 >= ncount){
+            Stone.skip = false;
         }
     }
     return Stone.skip;
@@ -242,11 +249,12 @@ export function simulateOneStep(Stone : stone,
                             skipping : boolean = false,
                             minHeight=-2,
                             debug=false,
-                            fGrav = global_fGrav.clone()
                             ) : Vector3 {
     if (Stone.position.y <= minHeight || delta<=0){
         return Stone.position;
     }
+    let fGrav = DOWN.clone();
+    fGrav.multiplyScalar(Stone.mass);
     let fDrag : Vector3 = waterDrag(Stone, lower_fluid);
     if (Stone.position.y > 0){
         fDrag = airDrag(Stone, upper_fluid);
