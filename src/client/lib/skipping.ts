@@ -21,11 +21,12 @@ const g_gap = g_MaxCd - MinCd;
 let g_dt = 0.01;
 let g_Bounces = 0;
 
+const defaultVelocity = 4.9;
 const defaultHeight = 0.5;
 const massDefault = 0.1;
 const radiusDefault = 0.05;
 const positionDefault = new Vector3(0, defaultHeight, 0);  // Average height a human throws a stone
-const velocityDefault = new Vector3(6.0, 0, 0);  // Incident velocity in x
+const velocityDefault = new Vector3(defaultVelocity, 0, 0);  // Incident velocity in x
 const spinDefault = 7;      // Spin angular velocity (rev/s) 
 const thetaDefault = 10 / 180 * Math.PI;    // Tilt angle (radian) 10 degree
 

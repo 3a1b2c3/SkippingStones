@@ -11,12 +11,12 @@ import { waterHeight, floorHeight} from "./lib/constants";
 import { addHeadsup } from "./lib/headsUp";
 import { roundTo, clamp } from "./lib/helper";
 
-const debug = true;
+const debug = false;
 const headsUpStartText = "Skip a stone";
 const defaultLabel = "labelSprite";
 const defaultLabelFont = 13;
 const minFloorHeight = floorHeight * 1.1;
-const animDelta = 0.01;
+const animDelta = 0.02;
 
 const rockHandling : RockHandling = {
   rockState: RockState.start,
@@ -47,7 +47,7 @@ function setText(rockState : RockState, stoneObject : stone,
     text = "Set rock tilt angle by dragging it with the mouse.";
   }
   else if (rockHandling.rockState.valueOf() == RockState.configuring){
-    text = `Current tilt angle: ${roundTo((rockHandling.stoneSimulation.theta * 180 / Math.PI), 2)} degree`;
+    text = `Current tilt angle: ${roundTo((rockHandling.stoneSimulation.theta * 180 / Math.PI), 2)} degree. Drag the mouse to change it`;
   }
   else if(rockState.valueOf() == RockState.simulation){
     text = `${stoneObject.bounces} bounces and distance: ${roundTo(stoneObject.meters, 2)}  m`;
@@ -283,15 +283,16 @@ function setupScene(){
     resetRock();
     addHeadsup(document, "Skip a stone", 100, 50, "header", 22);
 
-    const { Light, Sun } = makeLights();
+    const { Light, Bounce } = makeLights();
     const cameraHelper = new THREE.CameraHelper(Light.shadow.camera);
     if (debug)
     Scene.add(cameraHelper);
 
     const helper = new THREE.DirectionalLightHelper(Light);
+    if (debug)
     Scene.add(helper)
 
-    Scene.add(Sun);
+    Scene.add(Bounce);
     Scene.add(Light);
     Scene.add(Camera);
     Scene.add(CameraGroup);

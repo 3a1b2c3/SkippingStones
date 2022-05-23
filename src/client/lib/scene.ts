@@ -7,7 +7,7 @@ import {
     MeshBasicMaterial,
     Group,
 } from 'three';
-import { sceneRadius } from './constants';
+import { sceneRadius as sceneRadiusDefault } from './constants';
 
 export function removeEntity(name: string, scene : THREE.Scene) {
     const selectedObject = scene.getObjectByName(name);
@@ -23,23 +23,23 @@ export function makeCamera(far=1000){
     return {Camera, CameraGroup};
 }
 
-export function makeLights(intensity=1, SceneRadius=sceneRadius){
+export function makeLights(intensity=1, sceneRadius=sceneRadiusDefault){
     const Light = new DirectionalLight(0xffaa33);
-    Light.position.set(-SceneRadius, SceneRadius, SceneRadius);
+    Light.position.set(-sceneRadius, sceneRadius, sceneRadius);
     Light.intensity = intensity
     Light.castShadow = true;
-    Light.shadow.camera.far = SceneRadius;
+    Light.shadow.camera.far = sceneRadius;
     Light.shadow.mapSize.width = 1024;
     Light.shadow.mapSize.height = 1024;
-    // Add the sun
     Light.add(
-        new Mesh(new SphereGeometry(SceneRadius/10, 32, 32), 
+        new Mesh(new SphereGeometry(sceneRadius/10, 32, 32), 
             new MeshBasicMaterial({
             color: 0xffaa33
         }))
     )
-    const Sun = new AmbientLight(0x003973);
-    Sun.intensity = intensity;
 
-    return {Light, Sun};
+    const Bounce = new AmbientLight(0x003973);
+    Bounce.intensity = intensity *.5;
+
+    return {Light, Bounce};
 }

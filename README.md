@@ -18,16 +18,14 @@ WIP:
 ### Things still missing or bad: 
 * 3d ui is difficult to use, maybe add a slider
 
-* 2d ui needs some design
-
-* Add sound effects and feedback when stone touches water, needs shadow to make movement more clear
+* Add sound effects and feedback when stone touches water, needs shadow to make movement visually more clear
 
 * Code cleanup and tests
 
 ### Later
 * I want to use the phone’s gyro sensor movement to determine start angle and maybe velocity
 
-* An AR version were you can use a real water surface
+* An AR version where you can use a real water surface to play rather than cg water
 
 * Add more input parameters to the simulation: velocity, spin and stone weight
 
