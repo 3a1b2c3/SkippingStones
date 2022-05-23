@@ -203,15 +203,16 @@ function Circular_collision(Stone : stone){
 // In order to the formula F = 1/2(Cd)(Rho)(A)(v^2) to compute the drag force applying on the stone, we need to estimate the drag coefficient first. We know that the drag coefficient is related to the Reynolds number && stone's shape. The Reynolds number can be computed by the density && viscosity of the fluid the stone go thrthough && the stone's velocity. Then, we compute the angle between the +x && the direction of the stone's velocity, && use it to define the shape-related function whose maximum is global_MaxCd && minimum is MinCd. By the way, when we calculate the Reynolds number && the Area, we use stone's characteristic length,stone's diameter. We can get the magnitude of drag force from the factor above. Finally, we can get drag force in vector form when the magnitude of drag force time negative direction of stone's velocity.
 //global global_run , global_Bounces , global_MaxCd , global_gap , HORIZONTAL
 export function airDrag(Stone : stone, media : string) : Vector3{
+    let velocity : Vector3 = Stone.velocity.clone();
     const vis = Viscosity.get(media) || 1; 
     const rho = Rho.get(media) || 1;
     // Compute angle
     // alpha is the angle between the +x vector && the direction vector of stone's velocity
-    const cos_alpha = Stone.velocity.dot(HORIZONTAL)/(Stone.velocity.length()* HORIZONTAL.length())
+    const cos_alpha = velocity.dot(HORIZONTAL)/(velocity.length()* HORIZONTAL.length())
     const alpha = Math.acos(cos_alpha)
     // beta is the difference between the direction of the stone flying && surface of cylinder (stone)
     let beta = Math.abs(Stone.theta  + alpha);
-    if (Stone.velocity.y >= 0) {
+    if (velocity.y >= 0) {
         beta = Math.abs(Stone.theta  - alpha);
     }
     // Compute characteristic length
@@ -219,7 +220,7 @@ export function airDrag(Stone : stone, media : string) : Vector3{
     
     // Compute Reynolds number
     const Kv = vis / rho;
-    const Re = (Stone.velocity.length()*d)/Kv;
+    const Re = (velocity.length()*d)/Kv;
     let Cd_=  1.328 / (Re**0.5);
     // Compute Drag Coefficient
     if (Re < 5e5){
@@ -237,8 +238,8 @@ export function airDrag(Stone : stone, media : string) : Vector3{
     const A = Stone.radius * Stone.radius *Math.PI*Math.sin(beta);
     
     // Compute Drag Force
-    const Fd = (rho *A*Cd*Stone.velocity.length() )* Stone.velocity.length()/2;  // Magnitude of drag force
-    const Fdir : Vector3 = Stone.velocity.divideScalar(Stone.velocity.length());  // Unit vector of drag force
+    const Fd = (rho *A*Cd* velocity.length() )* velocity.length()/2;  // Magnitude of drag force
+    const Fdir : Vector3 = velocity.divideScalar(velocity.length());  // Unit vector of drag force
     Fdir.negate();
     const Fdrag = Fdir.multiplyScalar(Fd);
     return Fdrag;
