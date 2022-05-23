@@ -14,7 +14,7 @@ import { roundTo, clamp } from "./lib/helper";
 const debug = true;
 const headsUpStartText = "Skip a stone";
 const defaultLabel = "labelSprite";
-const defaultLabelFont = 12;
+const defaultLabelFont = 13;
 const minFloorHeight = floorHeight * 1.1;
 const animDelta = 0.01;
 
@@ -40,18 +40,17 @@ const Pointer = new THREE.Vector2();
 const { Camera, CameraGroup } = makeCamera();
 
 //TODO add spin, velocity, incident velocity, weight, height
-function setText(rockState : RockState, stoneDefault : stone,
-   objectName="textSprite", fontSize=15, x=100, y=100) : string {
+function setText(rockState : RockState, stoneObject : stone,
+   objectName="headsUp", fontSize=15, x=100, y=100) : string {
   let text = headsUpStartText;
   if (rockState.valueOf() == RockState.selected ){
-    text = "Set rock tilt angle by dragging the mouse.";
+    text = "Set rock tilt angle by dragging it with the mouse.";
   }
   else if (rockHandling.rockState.valueOf() == RockState.configuring){
-    text = "Current angle: "  + roundTo((rockHandling.stoneSimulation.theta * 180 / Math.PI), 2) + " degree";
+    text = `Current tilt angle: ${roundTo((rockHandling.stoneSimulation.theta * 180 / Math.PI), 2)} degree`;
   }
   else if(rockState.valueOf() == RockState.simulation){
-    text = stoneDefault.bounces + " bounces and distance: " 
-    + roundTo(stoneDefault.meters, 2) + " m";
+    text = `${stoneObject.bounces} bounces and distance: ${roundTo(stoneObject.meters, 2)}  m`;
   }
   else if(rockState.valueOf() == RockState.start && objectName==defaultLabel){
     text = "Grab the stone to play";

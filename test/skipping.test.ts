@@ -37,7 +37,6 @@ const testStone = Object.create(StoneDefault);
     expect(s.velocity.x).toBeLessThan(testStone.velocity.x);
   });
 
-/*
   test('linearCollision', () => {
     jest.spyOn(console, 'debug');
     reset(testStone);
@@ -48,7 +47,7 @@ const testStone = Object.create(StoneDefault);
           //no side effects
     expect(s).toMatchObject(testStone);
   });
-
+/*
 test('collision', () => {
   jest.spyOn(console, 'debug');
   testStone.position.y= -.01;
