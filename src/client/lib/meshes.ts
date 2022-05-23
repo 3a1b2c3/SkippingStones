@@ -22,6 +22,7 @@ async function loadModels(positionY=defaultPositionY, rotateX=defaultRoationX) {
     rock2.scale.x = 4;
     rock2.scale.z = 4;
     rock2.scale.y = 3;
+    rock2.castShadow = true;
     const { scene: rock } = await new Promise((resolve) =>
         loader.load(rockPath, resolve)
     );
