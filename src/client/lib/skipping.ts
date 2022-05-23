@@ -21,7 +21,7 @@ const g_gap = g_MaxCd - MinCd;
 let g_dt = 0.01;
 let g_Bounces = 0;
 
-const defaultVelocity = 4.9;
+const defaultVelocity = 5;
 const defaultHeight = 0.5;
 const massDefault = 0.1;
 const radiusDefault = 0.05;
@@ -300,7 +300,8 @@ export function simulateOneStep(Stone : stone,
             Stone.bounces++;
         }
     }
-    Stone.meters = Stone.position.x;
+    if (Stone.position.x)
+        Stone.meters = Stone.position.x;
     return Stone.position;
 }
 
