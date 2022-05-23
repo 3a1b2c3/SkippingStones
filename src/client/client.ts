@@ -14,7 +14,6 @@ const debug = true;
 const headsUpStartText = "Skip a stone";
 const defaultLabel = "labelSprite";
 const defaultLabelY = .5;
-const defaultLabelZ = 2.2;
 const defaultLabelFont = 12;
 
 type RockHandling = {
@@ -167,8 +166,9 @@ function setupRenderer(){
     Renderer.setPixelRatio(window.devicePixelRatio);
     Renderer.setSize(window.innerWidth, window.innerHeight);
     Renderer.shadowMap.enabled = true;
-    Renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
+    //Renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
     Renderer.xr.enabled = true;
+
     //orbit
     Controls = new OrbitControls(Camera, Renderer.domElement);
     Controls.maxPolarAngle = Math.PI * 0.5;
@@ -218,13 +218,13 @@ function setupRenderer(){
         if (delta > 0.01){
             delta = 0.01;
         }
-        if (rockHandling.rockMeshes[0].position.y > floorHeight *defaultLabelY){
-          const res : THREE.Vector3 = simulateOneStep(rockHandling.stoneSimulation, delta);
-          if (debug){
-            if (rockHandling.rockMeshes[0].position.y > waterHeight && 
-              rockHandling.rockMeshes[0].position.y - delta < waterHeight){
-              splash = true;
-            }
+        if (rockHandling.rockMeshes[0].position.y > floorHeight *1.1){
+          const res : THREE.Vector3 = simulateOneStep(rockHandling.stoneSimulation,
+            delta,
+            false, 
+            floorHeight *1.1,//make const
+            debug);
+          if (false){
             rockHandling.rockMeshes[0].position.z += delta;
             rockHandling.rockMeshes[0].position.y -= delta/5;
             rockHandling.stoneSimulation.meters = rockHandling.rockMeshes[0].position.z;
@@ -281,6 +281,20 @@ function setupScene(){
         Scene.add(rock);
         Scene.add(rock2);
     })();
+    const geometry = new THREE.BoxGeometry( 1, 1, 1 );
+    const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+    const cube = new THREE.Mesh( geometry, material );
+    cube.position.y = 2;
+    cube.castShadow = true;
+    //Scene.add( cube );
+
+    const geometry1 = new THREE.BoxGeometry( 3, 1, 3 );
+    const material1 = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+    const cube1 = new THREE.Mesh( geometry, material );
+
+    cube1.receiveShadow = true;
+    //Scene.add( cube1 );
+
     resetRock();
     addHeadsup(document, "Skip a stone", 100, 50, "header", 22);
 
