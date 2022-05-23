@@ -217,8 +217,7 @@ function setupRenderer(){
           const res : THREE.Vector3 = simulateOneStep(rockHandling.stoneSimulation,
             delta,
             true,
-            minFloorHeight,
-            debug);
+            minFloorHeight);
           if (false){
             rockHandling.rockMeshes[0].position.z += delta;
             rockHandling.rockMeshes[0].position.y -= delta/5;

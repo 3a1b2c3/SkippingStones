@@ -255,17 +255,19 @@ export function waterDrag(Stone : stone,
 
 export function simulateOneStep(Stone : stone, 
                             delta : number = g_dt, 
-                            skipping : boolean = false,
+                            skipping : boolean = true,
                             minHeight=-2,
+                            upperFluid = upper_fluid,
+                            lowerFluid = lower_fluid,
                             debug=false,
-                            ) : Vector3 {
-    if (Stone.position.y <= minHeight || delta<=0){
+    ) : Vector3 {
+    if (Stone.position.y <= minHeight || delta <= 0){
         return Stone.position;
     }
     let fGrav = DOWN.clone();
     fGrav.multiplyScalar(Stone.mass);
-    const fDrag : Vector3 = Stone.position.y > 0 ? airDrag(Stone, upper_fluid) 
-        : waterDrag(Stone, lower_fluid);
+    const fDrag : Vector3 = Stone.position.y > 0 ? airDrag(Stone, upperFluid) 
+        : waterDrag(Stone, lowerFluid);
 
     //fNet = fGrav + fDrag
     const fNet : Vector3 = fGrav.add(fDrag);
@@ -277,10 +279,13 @@ export function simulateOneStep(Stone : stone,
     Stone.velocity = velocity.clone();
     velocity.multiplyScalar(delta);
     Stone.position.add(velocity);
-
+    if(debug){
+        console.error(JSON.stringify(Stone.position) + "Stone.position: " + JSON.stringify(Stone.velocity));
+    }
     // Stone skipping
     if (Stone.position.y <= 0 && skipping){
-        collision(Stone, lower_fluid)
+        const res = collision(Stone, lowerFluid);
+        console.error("res: " + res);
         if (!Stone.skip){
             Stone.velocity.y = - Stone.velocity.y;
         }

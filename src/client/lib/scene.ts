@@ -23,7 +23,7 @@ export function makeCamera(far=1000){
     return {Camera, CameraGroup};
 }
 
-export function makeLights(intensity = 1.0, SceneRadius=sceneRadius){
+export function makeLights(intensity=1.5, SceneRadius=sceneRadius){
     const Light = new DirectionalLight(0xffaa33);
     Light.position.set(-SceneRadius, SceneRadius, SceneRadius);
     Light.intensity = intensity
