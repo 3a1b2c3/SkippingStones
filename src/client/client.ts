@@ -221,7 +221,7 @@ function setupRenderer(){
         if (rockHandling.rockMeshes[0].position.y > floorHeight *1.1){
           const res : THREE.Vector3 = simulateOneStep(rockHandling.stoneSimulation,
             delta,
-            false, 
+            true,
             floorHeight *1.1,//make const
             debug);
           if (false){
