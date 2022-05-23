@@ -102,7 +102,6 @@ const addObjectClickListener = (
       }
     });
 
-
     document.addEventListener('mousemove', function (event) {
       if (Raycaster){
         Raycaster.setFromCamera(Pointer, Camera);
@@ -130,7 +129,8 @@ const addObjectClickListener = (
             }
           }
         }
-      if (rockHandling.rockMeshes && rockHandling.rockState.valueOf() == RockState.configuring) {
+      if (rockHandling.rockMeshes && 
+        rockHandling.rockState.valueOf() == RockState.configuring) {
         //const diffX = Math.abs(event.pageX - startX);//weight
         const diffY = Math.abs(event.pageY - startY);
         const delta = 5;
@@ -211,7 +211,7 @@ function setupRenderer(){
         if (delta > animDelta){
             delta = animDelta;
         }
-        if (rockHandling.rockMeshes[0].position){//} > minFloorHeight + waterHeight){
+        if (rockHandling.rockMeshes[0].position){//} > minFloorHeight){
           const res : THREE.Vector3 = simulateOneStep(rockHandling.stoneSimulation,
             delta,
             true,
@@ -234,7 +234,8 @@ function setupRenderer(){
             defaultLabel, defaultLabelFont);
           }
           //done
-          if(rockHandling.rockMeshes[0].position.z > 90){
+          if(rockHandling.rockMeshes[0].position.y <= minFloorHeight ||
+             rockHandling.rockMeshes[0].position.z > 90){
             if (debug)
             console.debug("done");
             setTimeout(() => {
