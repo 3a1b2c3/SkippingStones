@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/examples/jsm/Controls/OrbitControls';
 import { models, defaultPositionY, defaultRoationX } from "./lib/meshes";
 import { makeFloor, WaterMesh, rafCallbacks, rain } from "./lib/water";
 import { makeLights, makeCamera, removeEntity } from "./lib/Scene";
-import { StoneDefault, simulateOneStep, init } from "./lib/skipping";
+import { StoneDefault, simulateOneStep, reset } from "./lib/skipping";
 import { stone, RockState, RockHandling} from './types/types'
 import { waterHeight, floorHeight} from "./lib/constants";
 import { addHeadsup } from "./lib/headsUp";
@@ -22,7 +22,7 @@ const rockHandling : RockHandling = {
   rockState: RockState.start,
   rockMeshes: Array<THREE.Mesh>(),
   intersections : null,
-  stoneSimulation : StoneDefault
+  stoneSimulation : Object.create(StoneDefault)
 };
 
 // XR globals
@@ -143,7 +143,7 @@ const addObjectClickListener = (
   };
 
   function resetRock(){
-    init();
+    reset(rockHandling.stoneSimulation);
     rockHandling.rockState = RockState.start;
     if (Scene){
       removeEntity(defaultLabel, Scene);

@@ -1,12 +1,15 @@
-import * as THREE from 'three'; 
-import { stone, upper_fluid, lower_fluid,
-  simulateOneStep, airDrag, linearCollision, //circularCollision,
-  waterDrag, collision, StoneDefault, init } from '../src/client/lib/skipping';
+import * as THREE from 'three';
+
+import { upper_fluid, lower_fluid, airDrag,
+  simulateOneStep, linearCollision, //circularCollision,
+  waterDrag, collision, StoneDefault, reset } from '../src/client/lib/skipping';
+
+const testStone = Object.create(StoneDefault);
 
   test('waterDrag', () => {
     jest.spyOn(console, 'debug');
-    init(StoneDefault);
-    const s = Object.create(StoneDefault);
+    reset(testStone);
+    const s = Object.create(testStone);
     const res = waterDrag(StoneDefault, lower_fluid);
     expect(res.x).toBe(-0.004450037693489743);
     expect(Math.abs(res.y)).toBe(0);
@@ -16,8 +19,8 @@ import { stone, upper_fluid, lower_fluid,
 
   test('airDrag', () => {
     jest.spyOn(console, 'debug');
-    init(StoneDefault);
-    const s = Object.create(StoneDefault);
+    reset(testStone);
+    const s = Object.create(testStone);
     const res = airDrag(StoneDefault, upper_fluid);
     expect(res.x).toBe(-0.000015997359486306445);
     expect(Math.abs(res.y)).toBe(0);
@@ -28,7 +31,8 @@ import { stone, upper_fluid, lower_fluid,
   /*
   test('simulateOneStep', () => {
     jest.spyOn(console, 'debug');
-    init(StoneDefault);
+    reset(testStone);
+    const s = Object.create(testStone);
     const s = Object.create(StoneDefault);
     const res = simulateOneStep(StoneDefault);
     expect(s.position.y).toBeLessThan(StoneDefault.position.y);
@@ -39,7 +43,7 @@ import { stone, upper_fluid, lower_fluid,
 
   test('linearCollision', () => {
     jest.spyOn(console, 'debug');
-    init(StoneDefault);
+    reset(StoneDefault);
       const s = Object.create(StoneDefault);
       const res = linearCollision(StoneDefault, lower_fluid);
       expect(res).toBe(true);
@@ -51,7 +55,7 @@ import { stone, upper_fluid, lower_fluid,
 test('collision', () => {
   jest.spyOn(console, 'debug');
   StoneDefault.position.y= -.01;
-  init(StoneDefault);
+  reset(StoneDefault);
     const res = collision(StoneDefault, lower_fluid);
     expect(res).toBe(true);
     expect(StoneDefault.bounces).toBeGreaterThan(0);

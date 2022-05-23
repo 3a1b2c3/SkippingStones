@@ -44,16 +44,16 @@ export const StoneDefault : stone = {
     meters : 0
 }
 
-export function init(){
-    StoneDefault.skip = true;
-    StoneDefault.mass = massDefault;
-    StoneDefault.radius = radiusDefault,
-    StoneDefault.position = positionDefault.clone(),
-    StoneDefault.velocity = velocityDefault.clone(),  // Incident velocity in x
-    StoneDefault.spin = spinDefault,      // Spin angular velocity (rev/s) 
-    StoneDefault.theta = thetaDefault,    // Tilt angle (radian) 10 degree
-    StoneDefault.bounces = 0;
-    StoneDefault.meters = 0
+export function reset(Stone : stone){
+    Stone.skip = true;
+    Stone.mass = massDefault;
+    Stone.radius = radiusDefault,
+    Stone.position = positionDefault.clone(),
+    Stone.velocity = velocityDefault.clone(),  // Incident velocity in x
+    Stone.spin = spinDefault,      // Spin angular velocity (rev/s) 
+    Stone.theta = thetaDefault,    // Tilt angle (radian) 10 degree
+    Stone.bounces = 0;
+    Stone.meters = 0
 }
 
 // Specific constants of fluid
@@ -130,8 +130,8 @@ export function linearCollision(Stone : stone,
     return Stone.skip;
 }
 
+// Calculate the maximun number of bounces, which stone will be stable below.
 function circularCollision(Stone : stone, gravity=GRAVITY, bounces=global_Bounces){ 
-    // Calculate the maximun number of bounces, which stone will be stable below.
     if (Stone?.spin){
         const ncount = (4*Math.PI*Math.PI* Stone.radius) * Stone.spin * Stone.spin / gravity;
         if (bounces+1 >= ncount){
@@ -219,7 +219,7 @@ export function waterDrag(Stone : stone,
     // Compute Reynolds number
     const Kv = vis / rho;
     const Re = ((velocity.length())*d)/Kv
-    let Cd_ =  1.328 / (Re**0.5);
+    let Cd_ = 1.328 / (Re**0.5);
     // Compute Drag Coefficient
     if (Re < 5e5){
         Cd_ = 1.328 / (Re**0.5);
@@ -239,7 +239,7 @@ export function waterDrag(Stone : stone,
     const Fd = (rho * A * Cd * velocity.length() * velocity.length()/2);  // Magnitude of drag force
     const fDir : Vector3 = velocity.divideScalar(velocity.length());  // Unit vector of drag force
     fDir.negate();
-    const fDrag  : Vector3 = fDir.multiplyScalar(Fd);
+    const fDrag : Vector3 = fDir.multiplyScalar(Fd);
 
     return fDrag;
 }
@@ -255,10 +255,9 @@ export function simulateOneStep(Stone : stone,
     }
     let fGrav = DOWN.clone();
     fGrav.multiplyScalar(Stone.mass);
-    let fDrag : Vector3 = waterDrag(Stone, lower_fluid);
-    if (Stone.position.y > 0){
-        fDrag = airDrag(Stone, upper_fluid);
-    }
+    const fDrag : Vector3 = Stone.position.y > 0 ? airDrag(Stone, upper_fluid) 
+        : waterDrag(Stone, lower_fluid);
+
     //fNet = fGrav + fDrag
     const fNet : Vector3 = fGrav.add(fDrag);
     let velocity : Vector3 = Stone.velocity.clone();
@@ -276,8 +275,9 @@ export function simulateOneStep(Stone : stone,
         if (!Stone.skip){
             Stone.velocity.y = - Stone.velocity.y;
         }
-        else  
+        else{
             Stone.bounces++;
+        }
     }
     Stone.meters = Stone.position.x;
     return Stone.position;
