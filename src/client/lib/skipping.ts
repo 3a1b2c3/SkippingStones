@@ -76,10 +76,10 @@ const global_Real_Stone = {
 };
 
 export function init(Stone : stone){
+    const velocity : Vector3 = Stone.velocity.clone();
     global_Fgrav = DOWN.multiplyScalar(Stone.mass);
     global_P_Stone = StoneDefault.velocity.multiplyScalar(Stone.mass);
     global_Real_Stone.position = Stone.position;
-    let velocity : Vector3 = Stone.velocity.clone();
     global_fraction_V = global_scale * ((velocity.length() / Vx_max) ** 2);
     global_t = 0;
     global_dt = 0.01;
@@ -144,8 +144,8 @@ export function collision(Stone : stone, media : string){
     return resLinear || resCircular
 }
 
-export function linearCollision(Stone : stone, media : string){ 
-    let velocity : Vector3 = Stone.velocity.clone();
+export function linearCollision(Stone : stone, media : string, gravity=GRAVITY){ 
+    const velocity : Vector3 = Stone.velocity.clone();
     const vis = Viscosity.get(media) || 1; 
     const rho = Rho.get(media) || 1; 
     const visWater = Viscosity.get('water') || 1; 
@@ -167,8 +167,8 @@ export function linearCollision(Stone : stone, media : string){
     const l = 2*Math.PI* Math.sqrt(2* Stone.mass*Math.sin(Stone.theta)/(2*Cy*pw*Stone.radius));
     Stone.meters += l;
     // Calculate the waste of energy during a collision process.
-    const energy_waste_x = -u*Stone.mass*GRAVITY*l;
-    const Initial_Energy_x = Stone.mass* Stone.velocity.x*Stone.velocity.x/2;
+    const energy_waste_x = -u*Stone.mass * gravity * l;
+    const Initial_Energy_x = Stone.mass* velocity.x * velocity.x/2;
     const final_Energy_x = Initial_Energy_x + energy_waste_x;
 
     // Asumed that every stone will bounce back into the air
@@ -180,16 +180,16 @@ export function linearCollision(Stone : stone, media : string){
         Stone.velocity.x = 1e-10;
      }
     else{
-        Stone.velocity.x = Math.sqrt(2*final_Energy_x/ Stone.mass);
+        Stone.velocity.x = Math.sqrt(2*final_Energy_x / Stone.mass);
     }
 
     return Stone.skip;
 }
 
-function Circular_collision(Stone : stone){
+function Circular_collision(Stone : stone, gravity=GRAVITY){ 
     // Calculate the maximun number of bounces, which stone will be stable below.
     if (Stone?.spin){
-        const ncount = (4*Math.PI*Math.PI* Stone.radius )* Stone.spin *Stone.spin /GRAVITY;
+        const ncount = (4*Math.PI*Math.PI* Stone.radius) * Stone.spin * Stone.spin / gravity;
         if (global_Bounces+1 >= ncount){
             Stone.skip  = false;
         }
@@ -300,7 +300,7 @@ function waterDrag(Stone : stone,  media : string) : Vector3 {
     */
 export function simulateOneStep(Stone : stone, 
                             dt : number = global_dt, 
-                            skipping : boolean = false,
+                            skipping  = false,
                             minHeight=-2,
                             debug=false) : Vector3 {
     if (Stone.position.y <= minHeight){
@@ -331,13 +331,12 @@ export function simulateOneStep(Stone : stone,
     */
     // Update stone's position 
     const deltaFnet : Vector3 = Fnet.multiplyScalar(dt);
-    console.error(Stone.mass +" Stone.velocity" + JSON.stringify(velocity));
+    console.error(Stone.mass +" Stone.velocity1: " + JSON.stringify(velocity));
     const massVelocity : Vector3 = velocity.multiplyScalar(Stone.mass);
-    console.error(Stone.mass +" Stone.velocity" + JSON.stringify(velocity));
+    console.error(Stone.mass +" Stone.velocity2 : " + JSON.stringify(velocity));
     // P_Stone = Stone['mass'] * Stone['velocity']  + Fnet * dt
     const P_Stone : Vector3 = massVelocity.add(deltaFnet);
-    if (false)
-        Stone.velocity = P_Stone.divideScalar(Stone.mass);
+    velocity = P_Stone.divideScalar(Stone.mass);
     const deltaVelocity = velocity.multiplyScalar(dt);
     Stone.position = Stone.position.add(deltaVelocity);
     console.error(JSON.stringify(deltaVelocity)  + "Stone: 2" + JSON.stringify(Stone.position));
@@ -366,7 +365,8 @@ When global_Real_Stone.position.y >= -4 is ! satisfied, the second loop stop run
 */
 export function simulate(Stone : stone, calculateSplash=false, endHeight=-1, debug=false, dt=global_dt){
     global_t = 0;
-    let Fdrag  : Vector3  = waterDrag(Stone, lower_fluid);
+    let velocity : Vector3 = Stone.velocity.clone();
+    let Fdrag : Vector3  = waterDrag(Stone, lower_fluid);
     // Resistant force exerting on the stone
     if (global_Real_Stone.position.y > 0){
         Fdrag = airDrag(Stone, upper_fluid);
@@ -379,10 +379,10 @@ export function simulate(Stone : stone, calculateSplash=false, endHeight=-1, deb
             continue; 
         }
         // Update stone's position
-        const temp = Stone.velocity.multiplyScalar(Stone.mass);
+        const temp = velocity.multiplyScalar(Stone.mass);
         const global_P_Stone = temp.add(Fnet).multiplyScalar(global_dt);
-        Stone.velocity = global_P_Stone.divideScalar(Stone.mass);
-        Stone.position = Stone.position.add(Stone.velocity).multiplyScalar(global_dt);
+        velocity = global_P_Stone.divideScalar(Stone.mass);
+        Stone.position = Stone.position.add(velocity).multiplyScalar(global_dt);
         global_Real_Stone.position = Stone.position;
         if(debug){
             console.debug("global_Real_Stone.position" + JSON.stringify(global_Real_Stone.position));
