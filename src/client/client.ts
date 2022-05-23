@@ -59,7 +59,7 @@ function setText(rockState : RockState, stoneDefault : stone,
     + roundTo(stoneDefault.meters, 2) + " m";
   }
   else if(rockState.valueOf() == RockState.start && objectName==defaultLabel){
-    text = "Play again";
+    text = "Grab the stone to play";
   }
   addHeadsup(document, text, x, y, objectName, fontSize);
   return text;
