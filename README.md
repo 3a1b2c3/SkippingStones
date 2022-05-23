@@ -50,14 +50,14 @@ https://www.glowscript.org/#/user/B06902117/folder/Public/program/FinalProject
 
 ## Getting Started
 
-
-# Install dependencies
+### Install dependencies
 yarn install
 
-# Now you can run various yarn commands:
+###  Now you can run various yarn commands:
 yarn cli
+
 yarn lint
-yarn test
+
 yarn build
 ...
 ```
