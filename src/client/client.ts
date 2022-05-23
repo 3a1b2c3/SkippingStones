@@ -95,7 +95,6 @@ const addObjectClickListener = (
         removeEntity(defaultLabel, Scene);
         setText(rockHandling.rockState, rockHandling.stoneSimulation, 
           defaultLabel, defaultLabelFont);
-        
       }
       else{
         startX = 0;
@@ -105,6 +104,32 @@ const addObjectClickListener = (
 
 
     document.addEventListener('mousemove', function (event) {
+      if (Raycaster){
+        Raycaster.setFromCamera(Pointer, Camera);
+          const intersects = Raycaster.intersectObjects(Scene.children, true);
+          if (intersects.length > 0) {
+            if ( intersects.length > 0 ) {
+              if (rockHandling.intersections != intersects[0].object) {
+                if (rockHandling.intersections && rockHandling.intersections?.material?.emissive) 
+                  rockHandling.intersections.material.emissive.setHex(rockHandling.intersections.currentHex);
+                if (intersects[0].object.name == 'boulder' && rockHandling.rockState.valueOf() != RockState.simulation){
+                    rockHandling.intersections = intersects[0].object;
+                }
+                else{
+                  rockHandling.intersections = null;
+                }
+                if (rockHandling.intersections && rockHandling.intersections?.material?.emissive){
+                  rockHandling.intersections.currentHex = rockHandling.intersections.material.emissive.getHex();
+                  rockHandling.intersections.material.emissive.setHex( 0xff0000 );
+                }
+              }
+            } else {
+              if (rockHandling.intersections && rockHandling.intersections?.material?.emissive)
+                rockHandling.intersections.material.emissive.setHex(rockHandling.intersections.currentHex);
+              rockHandling.intersections = null;
+            }
+          }
+        }
       if (rockHandling.rockMeshes && rockHandling.rockState.valueOf() == RockState.configuring) {
         //const diffX = Math.abs(event.pageX - startX);//weight
         const diffY = Math.abs(event.pageY - startY);
@@ -180,33 +205,6 @@ function setupRenderer(){
   //https://stackoverflow.com/questions/40566045/three-js-mouse-events-with-raycasting-and-intersect-testing
   function render() {
       requestAnimationFrame(render);
-      // find rock intersection
-      if (Scene && Raycaster && rockHandling.rockMeshes?.length){
-          Raycaster.setFromCamera(Pointer, Camera);
-          const intersects = Raycaster.intersectObjects(Scene.children, true);
-          if (intersects.length > 0) {
-            if ( intersects.length > 0 ) {
-              if (rockHandling.intersections != intersects[0].object) {
-                if (rockHandling.intersections && rockHandling.intersections?.material?.emissive) 
-                  rockHandling.intersections.material.emissive.setHex(rockHandling.intersections.currentHex);
-                if (intersects[0].object.name == 'boulder' && rockHandling.rockState.valueOf() != RockState.simulation){
-                    rockHandling.intersections = intersects[0].object;
-                }
-                else{
-                  rockHandling.intersections = null;
-                }
-                if (rockHandling.intersections && rockHandling.intersections?.material?.emissive){
-                  rockHandling.intersections.currentHex = rockHandling.intersections.material.emissive.getHex();
-                  rockHandling.intersections.material.emissive.setHex( 0xff0000 );
-                }
-              }
-            } else {
-              if (rockHandling.intersections && rockHandling.intersections?.material?.emissive)
-                rockHandling.intersections.material.emissive.setHex(rockHandling.intersections.currentHex);
-              rockHandling.intersections = null;
-            }
-          }
-      }
       //update simulation
       if(Clock && rockHandling.rockMeshes?.length && rockHandling.rockState.valueOf() == RockState.simulation){
         let splash = false;
@@ -214,7 +212,7 @@ function setupRenderer(){
         if (delta > animDelta){
             delta = animDelta;
         }
-        if (rockHandling.rockMeshes[0].position.y > minFloorHeight){
+        if (rockHandling.rockMeshes[0].position.y){//} > minFloorHeight + waterHeight){
           const res : THREE.Vector3 = simulateOneStep(rockHandling.stoneSimulation,
             delta,
             true,
@@ -244,7 +242,7 @@ function setupRenderer(){
                defaultLabel, defaultLabelFont);
           }
           //done
-          if(rockHandling.rockMeshes[0].position.y <= floorHeight *1.2 || rockHandling.rockMeshes[0].position.z > 90){
+          if(rockHandling.rockMeshes[0].position.z > 90){
             if (debug)
             console.debug("done");
             setTimeout(() => {
@@ -298,7 +296,6 @@ function setupScene(){
     Scene.add(cameraHelper);
 
     const helper = new THREE.DirectionalLightHelper(Light);
-
     Scene.add(helper)
 
     Scene.add(Sun);
