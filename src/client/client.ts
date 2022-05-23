@@ -17,6 +17,8 @@ const defaultLabel = "labelSprite";
 const defaultLabelFont = 13;
 const minFloorHeight = floorHeight * 1.1;
 const animDelta = 0.02;
+const resetTime = 6000;
+const angleIncr = .03;
 
 const rockHandling : RockHandling = {
   rockState: RockState.start,
@@ -47,10 +49,14 @@ function setText(rockState : RockState, stoneObject : stone,
     text = "Set rock tilt angle by dragging it with the mouse.";
   }
   else if (rockHandling.rockState.valueOf() == RockState.configuring){
-    text = `Current tilt angle: ${roundTo((rockHandling.stoneSimulation.theta * 180 / Math.PI), 2)} degree. Drag the mouse to change it`;
+    text = `Drag the mouse to change the stone's tilt angle: ${roundTo((rockHandling.stoneSimulation.theta * 180 / Math.PI), 2)} degree.`;
   }
   else if(rockState.valueOf() == RockState.simulation){
-    text = `${stoneObject.bounces} bounces and distance: ${roundTo(stoneObject.meters, 2)}  m`;
+    text = `${stoneObject.bounces} bounce`
+    if (stoneObject.bounces != 1)
+      text += `s`;
+    if (stoneObject.meters)
+      text += ` and distance: ${roundTo(stoneObject.meters, 2)}  m`;
   }
   else if(rockState.valueOf() == RockState.start && objectName==defaultLabel){
     text = "Grab the stone to play";
@@ -138,7 +144,7 @@ const addObjectClickListener = (
           Controls.enableRotate = false;
         }
         if (diffY > delta) {
-            const angleDiff = clamp(diffY *.005, -.04, .04);
+            const angleDiff = clamp(diffY *.005, -angleIncr,  angleIncr);
             rockHandling.rockMeshes[0].rotateX(angleDiff);
             rockHandling.stoneSimulation.theta = rockHandling.rockMeshes[0].rotation.x;
             //update label
@@ -240,7 +246,7 @@ function setupRenderer(){
             rockHandling.rockState = RockState.simulationDone;
             setTimeout(() => {
                resetRock();
-            }, 8000);
+            }, resetTime);
           }
       }
       Renderer.setAnimationLoop(function (time : number) {
