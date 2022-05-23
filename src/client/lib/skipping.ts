@@ -141,7 +141,7 @@ for (let i=0; i<10;i++){
 // If after a collision, the stone is put in rotation around the y axi
 export function collision(Stone : stone, media : string){
     const resLinear = linearCollision(Stone, media);
-    const resCircular = Circular_collision(Stone);
+    const resCircular = circularCollision(Stone);
     return resLinear || resCircular
 }
 
@@ -187,7 +187,7 @@ export function linearCollision(Stone : stone, media : string, gravity=GRAVITY){
     return Stone.skip;
 }
 
-function Circular_collision(Stone : stone, gravity=GRAVITY){ 
+function circularCollision(Stone : stone, gravity=GRAVITY){ 
     // Calculate the maximun number of bounces, which stone will be stable below.
     if (Stone?.spin){
         const ncount = (4*Math.PI*Math.PI* Stone.radius) * Stone.spin * Stone.spin / gravity;
@@ -316,7 +316,7 @@ export function simulateOneStep(Stone : stone,
                             debug=false,
                             fGrav = global_Fgrav.clone()
                             ) : Vector3 {
-    if (Stone.position.y <= minHeight){
+    if (Stone.position.y <= minHeight || delta<=0){
         return Stone.position;
     }
     console.error(JSON.stringify(Stone.velocity) +" __fGrav: 1" + JSON.stringify(Stone.position));
@@ -327,14 +327,18 @@ export function simulateOneStep(Stone : stone,
     //fNet = fGrav + fDrag
     const fNet : Vector3 = fGrav.add(fDrag);
     console.error(JSON.stringify(fNet)  +" fDrag : " + JSON.stringify(fDrag));
+    //bundle.js:2 {"x":-0.000007862181003827387,"y":-0.1,"z":0} fDrag : {"x":-0.000007862181003827387,"y":0,"z":0}
     // Update stone's position 
     let velocity : Vector3 = Stone.velocity.clone();
     velocity.multiplyScalar(Stone.mass);
     fNet.multiplyScalar(delta);
     velocity.add(fNet);
     velocity.divideScalar(Stone.mass);
+    console.error(" velocity1 : " + JSON.stringify(velocity));
     Stone.velocity = velocity.clone();
-    velocity.divideScalar(delta);
+    console.error(delta + " Stone.velocity : " + JSON.stringify(Stone.velocity));
+    velocity.multiplyScalar(delta);
+    console.error(delta + " velocity2 : " + JSON.stringify(velocity));
     Stone.position.add(velocity);
     console.error(JSON.stringify(fNet)  +" Stone.velocity3 : " + JSON.stringify(velocity));
     console.error(JSON.stringify(fGrav)  + "fGrav: 2" + JSON.stringify(Stone.position));
@@ -348,44 +352,7 @@ export function simulateOneStep(Stone : stone,
         else  
             Stone.bounces++;
     }
+    Stone.meters = Stone.position.x;
     return Stone.position;
 }
 
-
-
-
-
-function Splash(Stone : stone, collision : boolean){
-    if (collision){
-        // Set splashes position
-        for (let i=0; i<10;i++){
-            ball_drawSplash[i].position = Stone.position;
-            if (i < 3){
-                ball_drawSplash[i].position.x = ball_drawSplash[i].position.x - global_scale * Stone.radius;
-            }
-            else{
-                ball_drawSplash[i].position.x = ball_drawSplash[i].position.x + global_scale * Stone.radius;
-            }
-        }
-        // Set splashes' velocity 
-        for (let i=0; i<10;i++){
-            splash_theta[i] = Math.random() * Math.PI * 5 / 18 + Math.PI / 9;
-            if (i < 3){
-                const temp = new Vector3(-Math.cos(splash_theta[i]),Math.sin(splash_theta[i]),0);
-                global_splash_v[i] = temp.multiplyScalar(global_fraction_V*Math.random());
-            }
-            else{
-                const temp = new Vector3(Math.cos(splash_theta[i]),Math.sin(splash_theta[i]),0);
-                global_splash_v[i] = temp.multiplyScalar(global_fraction_V*Math.random());
-            }
-        }
-    }
-    else{
-        // Splashes' motion in the air
-        const temp = new Vector3(0,-1,0);
-        for (let i=0; i<10;i++){
-            ball_drawSplash[i].position = ball_drawSplash[i].position + global_splash_v[i]*global_dt + temp.multiplyScalar(GRAVITY* (global_dt**2)/2);
-            //ball_drawSplash[i].position = ball_drawSplash[i].position + global_splash_v[i]*global_dt + g*vector(0,-1,0)*(global_dt**2)/2
-        }
-    }
-}

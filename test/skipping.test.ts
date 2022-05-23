@@ -1,7 +1,7 @@
 import * as THREE from 'three'; 
 import { stone, upper_fluid, lower_fluid,
-  simulateOneStep, airDrag, linearCollision, waterDrag,
-  collision, StoneDefault, init } from '../src/client/lib/skipping';
+  simulateOneStep, airDrag, linearCollision, //circularCollision,
+  waterDrag, collision, StoneDefault, init } from '../src/client/lib/skipping';
 
   test('waterDrag', () => {
     jest.spyOn(console, 'debug');
@@ -15,13 +15,13 @@ import { stone, upper_fluid, lower_fluid,
   });
 
   test('airDrag', () => {
-      jest.spyOn(console, 'debug');
-      init(StoneDefault);
-      const s = Object.create(StoneDefault);
-      const res = airDrag(StoneDefault, upper_fluid);
-      expect(res.x).toBe(-0.000015997359486306445);
-      expect(Math.abs(res.y)).toBe(0);
-      //no side effects
+    jest.spyOn(console, 'debug');
+    init(StoneDefault);
+    const s = Object.create(StoneDefault);
+    const res = airDrag(StoneDefault, upper_fluid);
+    expect(res.x).toBe(-0.000015997359486306445);
+    expect(Math.abs(res.y)).toBe(0);
+    //no side effects
     expect(s).toMatchObject(StoneDefault);
   });
 
@@ -29,44 +29,33 @@ import { stone, upper_fluid, lower_fluid,
   test('simulateOneStep', () => {
     jest.spyOn(console, 'debug');
     init(StoneDefault);
-    setTimeout(() => {
-      const res = simulateOneStep(StoneDefault);
-      expect(StoneDefault.velocity.x).toBeGreaterThan(0);
-      expect(StoneDefault.position.x).toBeGreaterThan(0);
-      }, 10000);
-  
+    const s = Object.create(StoneDefault);
+    const res = simulateOneStep(StoneDefault);
+    expect(s.position.y).toBeLessThan(StoneDefault.position.y);
+    expect(s.velocity.x).toBeLessThan(StoneDefault.velocity.x);
   });
+
+
+
   test('linearCollision', () => {
     jest.spyOn(console, 'debug');
     init(StoneDefault);
-    setTimeout(() => {
+      const s = Object.create(StoneDefault);
       const res = linearCollision(StoneDefault, lower_fluid);
       expect(res).toBe(true);
-      expect(StoneDefault.bounces).toBeGreaterThan(1);
-      }, 10000);
-  
+      expect(StoneDefault.bounces).toBeGreaterThan(1);  
+          //no side effects
+    expect(s).toMatchObject(StoneDefault);
   });
 
 test('collision', () => {
   jest.spyOn(console, 'debug');
   StoneDefault.position.y= -.01;
   init(StoneDefault);
-  setTimeout(() => {
     const res = collision(StoneDefault, lower_fluid);
     expect(res).toBe(true);
     expect(StoneDefault.bounces).toBeGreaterThan(0);
-    }, 10000);
+    //no side effects
+    expect(s).toMatchObject(StoneDefault);
 });
 
-/*
-test('simulate', () => {
-    jest.spyOn(console, 'debug');
-    init(StoneDefault);
-    setTimeout(() => {
-        simulate(StoneDefault, false, -1, true);
-            console.error("StoneDefault" + JSON.stringify(StoneDefault));
-    expect(StoneDefault.bounces).toBeGreaterThan(1);
-      }, 60000);
-
-});
-*/
