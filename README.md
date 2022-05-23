@@ -7,16 +7,21 @@ The objective of "skipping" is to see how many times a stone can bounce before i
 Here is a nice 2d version of the simulation:
 https://www.glowscript.org/#/user/B06902117/folder/Public/program/FinalProject
 
-How to play: 
-Use Esc Key to interrupt current run. Mouse down drag to configure the stone angle for a run.
+Some lides at https://docs.google.com/presentation/d/1JtKs5VajW88dYSgr5EwdCILuMcmJk0QbY2yZ9t8yddc/edit?usp=sharing
+
+## How to play: 
+Use Esc Key to interrupt current run. 
+
+Mouse down drag to configure the stone angle for a run.
+
 Then let go of the mouse to send the rock off.
 
-WIP:
+The stone will bounce (or not) depending on inital angle it is thrown:
 ![](Animation2.gif)
 
 ## TODOs:
 ### Things still missing or bad: 
-* 3d ui is difficult to use, maybe add a slider
+* 3d ui is difficult to use, maybe add a slider. Make it easier to see which way it will fly 
 
 * Add sound effects and feedback when stone touches water, needs shadow to make movement visually more clear
 
@@ -32,6 +37,8 @@ WIP:
 
 ## Credits:
 * 3d assets from https://poly.pizza
+
+* Texture from https://www.deviantart.com/berserkitty/art/Seamless-Cartoon-styled-Water-Texture-743787929
 
 * Python code from
 https://www.glowscript.org/#/user/B06902117/folder/Public/program/FinalProject
