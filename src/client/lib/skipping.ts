@@ -287,7 +287,8 @@ export function simulateOneStep(Stone : stone,
     velocity.multiplyScalar(delta);
     Stone.position.add(velocity);
     if(debug){
-        console.error(JSON.stringify(Stone.position) + "Stone.position: " + JSON.stringify(Stone.velocity));
+        console.error(JSON.stringify(Stone.position)
+         + "Stone.position: " + JSON.stringify(Stone.velocity));
     }
     // Stone skipping
     if (Stone.position.y <= 0 && skipping){

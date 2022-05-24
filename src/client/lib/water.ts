@@ -72,7 +72,8 @@ rafCallbacks.add(function (t : number) {
     WaterMesh.position.y = 0.4 + 0.1 * Math.sin(t / 2000);
 });
 
-function rain(radius=.024, maxR=8, speed=0.01, posX=null, posY=null) {
+function rain(radius=.024, maxR=8, speed=0.01, 
+    posX : null | number=null, posZ : null | number=null, distX=20, distZ=20) {
     const rainRipples :any  = [];
     const unsedRainRipples = [];
     const dripPos = new Vector3();
@@ -92,8 +93,8 @@ function rain(radius=.024, maxR=8, speed=0.01, posX=null, posY=null) {
     (function drip() {
         if (unsedRainRipples.length > 3) {
             const ripplesToUse = unsedRainRipples.splice(0, 3);
-            const x = 20 * (Math.random() - 0.5);
-            const z = 20 * (Math.random() - 0.5);
+            const x = posX ? posX : distX * (Math.random() - 0.5);
+            const z = posZ ? posZ : distZ * (Math.random() - 0.5);
             dripPos.set(x, WaterMesh.position.y, z);
 
             for (let ri = 1; ri <= 3; ri++) {

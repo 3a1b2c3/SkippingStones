@@ -252,18 +252,24 @@ function setupRenderer(documentObj : Document){
             delta = animDelta;
         }
         const res : THREE.Vector3 = simulateOneStep(rockHandling.stoneSimulation,
-            delta,
-            true);
+            delta, true);
         rockHandling.rockMeshes[0].position.x = res.z;
+        rockHandling.rockMeshes[0].position.y = res.y + waterHeight;
+        if (rockHandling.rockMeshes[0].position.y > 0 && 
+          res.y + waterHeight <=  waterHeight){
+          splash = true;
+        }
         rockHandling.rockMeshes[0].position.y = res.y + waterHeight;
         rockHandling.rockMeshes[0].position.z = res.x; //add random?
 
-         if(splash){ //placeholder
-              addHeadsup(document, "Splash", 200, 200, "splashLabel", 18);
+         if(splash){
+              rain(.024, 1, 0.02, rockHandling.rockMeshes[0].position.x,
+                rockHandling.rockMeshes[0].position.z);
+              addHeadsup(document, "Splash", 300, 300, "splashLabel", 18);
               splash = false;
               setTimeout(() => {
-                addHeadsup(document, "", 200, 200, "splashLabel", 18);
-              }, 4000);
+                addHeadsup(document, "", 300, 300, "splashLabel", 18);
+              }, 1000);
           }
         // update distance label
         if (Scene){
