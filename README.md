@@ -22,7 +22,7 @@ At the moment only tilt angle can be specified.
 
 Some slides are [here](https://docs.google.com/presentation/d/1JtKs5VajW88dYSgr5EwdCILuMcmJk0QbY2yZ9t8yddc/edit?usp=sharing)
 
-Uses [three.js](https://threejs.org) and a simple custome physics engine althought it would be interes.
+Uses [three.js](https://threejs.org) and a simple custome physics engine althought it would be interesting to try with an existing one.
 
 
 ## How to play: 
