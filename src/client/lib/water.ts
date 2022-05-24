@@ -74,7 +74,7 @@ rippleCallbacks.add(function (t : number) {
 
 function rain(radius=.024, maxR=8, speed=0.01,
     posX : null | number=null, posZ : null | number=null, 
-    distX=20, distZ=20) : any {
+    distX=20, distZ=20, timeOut=1000) : any {
     const rainRipples :any  = [];
     const unsedRainRipples = [];
     const dripPos = new Vector3();
@@ -94,8 +94,8 @@ function rain(radius=.024, maxR=8, speed=0.01,
     (function drip() {
         if (unsedRainRipples.length > 3) {
             const ripplesToUse = unsedRainRipples.splice(0, 3);
-            const x = posX ? posX : distX * (Math.random() - 0.5);
-            const z = posZ ? posZ : distZ * (Math.random() - 0.5);
+            const x = posX ? posX * (Math.random() - 0.1) : distX * (Math.random() - 0.5);
+            const z = posZ ? posZ * (Math.random() - 0.1) : distZ * (Math.random() - 0.5);
             dripPos.set(x, WaterMesh.position.y, z);
 
             for (let ri = 1; ri <= 3; ri++) {
@@ -108,11 +108,11 @@ function rain(radius=.024, maxR=8, speed=0.01,
                     setTimeout(() => {
                         WaterMesh.remove(ripple);
                         unsedRainRipples.push(ripple)
-                    }, 3000);
-                }, ri * 800);
+                    }, timeOut*3);
+                }, ri * timeOut*.5);
             }
         }
-        setTimeout(drip, Math.random() * 1000);
+        setTimeout(drip, Math.random() * timeOut);
     }());
 
     const rippleSpeed = new Vector3(1, 1, 1).multiplyScalar(speed);

@@ -223,7 +223,8 @@ function setupRenderer(documentObj : Document){
     Renderer.setPixelRatio(window.devicePixelRatio);
     Renderer.setSize(window.innerWidth, window.innerHeight);
     Renderer.shadowMap.enabled = true;
-    Renderer.outputEncoding = THREE.sRGBEncoding;
+    Renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    //Renderer.outputEncoding = THREE.sRGBEncoding;
     Renderer.setSize(window.innerWidth, window.innerHeight);
     
     Renderer.xr.enabled = true;
@@ -263,13 +264,17 @@ function setupRenderer(documentObj : Document){
         rockHandling.rockMeshes[0].position.z = res.x;
 
          if(splash){
-              rain(.24, 4, 0.03, rockHandling.rockMeshes[0].position.x,
-                rockHandling.rockMeshes[0].position.z);
-              addHeadsup(document, "Splash", 300, 300, "splashLabel", 18);
-              splash = false;
-              setTimeout(() => {
-                addHeadsup(document, "", 300, 300, "splashLabel", 18);
-              }, 1000);
+              rain(.25, 4, 0.005, rockHandling.rockMeshes[0].position.x,
+                rockHandling.rockMeshes[0].position.z, .3, .3, 80);
+                splash = false;
+                if(debug)
+                {
+                    addHeadsup(document, "Splash", 300, 300, "splashLabel", 18);
+            
+                  setTimeout(() => {
+                    addHeadsup(document, "", 300, 300, "splashLabel", 18);
+                  }, 800);
+                }
           }
         // update distance label
         if (Scene){
@@ -318,7 +323,6 @@ function setupScene(documentObj : Document){
 
     const { Light, Bounce } = makeLights();
     const cameraHelper = new THREE.CameraHelper(Light.shadow.camera);
-    if (debug)
     Scene.add(cameraHelper);
 
     const helper = new THREE.DirectionalLightHelper(Light);

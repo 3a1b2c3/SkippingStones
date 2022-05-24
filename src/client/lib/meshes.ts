@@ -39,9 +39,9 @@ async function loadModels(positionY=defaultPositionY, rotateX=defaultRoationX) {
         }
     })
     rock.position.y = positionY;
-    rock.scale.x = .1 * 5;
-    rock.scale.z = .1 * 5;
-    rock.scale.y = .033 *5 ;
+    rock.scale.x = .1 * 4;
+    rock.scale.z = .1 * 4;
+    rock.scale.y = .033 * 4;
     rock.name = 'rock';
     rock.castShadow = true;
     rock.receiveShadow = true;
