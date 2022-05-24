@@ -97,7 +97,7 @@ const addObjectClickListener = (
       if (rockHandling.rockMeshes && rockHandling.rockMeshes[0] && rockHandling.intersections &&
         rockHandling.rockState.valueOf() == RockState.start) {
         rockHandling.rockState = RockState.configuring;
-        var touch = event.touches[0] || event.changedTouches[0];
+        const touch = event.touches[0] || event.changedTouches[0];
         startX = touch.pageX;
         startY = touch.pageY;
         removeEntity(defaultLabel, Scene);
