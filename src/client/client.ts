@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton'
 import { OrbitControls } from 'three/examples/jsm/Controls/OrbitControls';
 
+
 import { models, defaultPositionY, defaultRoationX } from "./lib/meshes";
 import { makeFloor, WaterMesh, rafCallbacks, rain } from "./lib/water";
 import { makeLights, makeCamera, removeEntity } from "./lib/Scene";
@@ -66,6 +67,24 @@ function setText(rockState : RockState, stoneObject : stone,
 }
 
 //callbacks
+/*
+let pose = xrFrame.getPose(preferredInputSource.gripSpace, xrViewerReferenceSpace);
+if (pose) {
+  // Calculate how far the motion controller is from the user's head
+}
+
+document.body.addEventListener( 'click', _ => {
+  // Ask the browser to lock the pointer
+  document.body.requestPointerLock = document.body.requestPointerLock ||
+    document.body?.mozRequestPointerLock ||
+    document.body?.webkitRequestPointerLock;
+    document.body.requestPointerLock();
+}, false);
+*/
+
+
+
+
 document.onkeydown = function(evt) {
   evt = evt || window.event;
   let isEscape = false;
@@ -84,12 +103,49 @@ function onPointerMove( event : any ) {
   Pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
 }
 
+const button = document.createElement('button');  
+button.innerText = "Restart";
+button.onclick = function() {
+  console.error("restart");
+  resetRock();
+};  
+document.body.appendChild(button);
 
 const addObjectClickListener = (
   Scene : THREE.Scene
   ) => {
     let startX = 0;
     let startY = 0;
+    document.addEventListener("touchstart", function (event) {
+      if (rockHandling.rockMeshes && rockHandling.rockMeshes[0] && rockHandling.intersections &&
+        rockHandling.rockState.valueOf() == RockState.start) {
+        rockHandling.rockState = RockState.configuring;
+        const touch = event.touches[0] || event.changedTouches[0];
+        startX = touch.pageX;
+        startY = touch.pageY;
+        removeEntity(defaultLabel, Scene);
+        setText(rockHandling.rockState, rockHandling.stoneSimulation,
+          defaultLabel, defaultLabelFont);
+      }
+      else{
+        startX = 0;
+        startY = 0;
+      }
+    })
+    document.addEventListener("touchend", function (event) {
+        if (rockHandling.rockMeshes && rockHandling.rockState.valueOf() == RockState.configuring) {
+            if (debug)
+            console.debug("mouseup:" + rockHandling.rockState);
+            rockHandling.rockState = RockState.simulation;
+            //update label
+            removeEntity(defaultLabel, Scene);
+            setText(rockHandling.rockState, rockHandling.stoneSimulation,
+               defaultLabel, defaultLabelFont);
+            if (Controls)
+              Controls.enableRotate = true;
+        }
+    })
+   
     document.addEventListener('mousedown', function (event) {
       if (rockHandling.rockMeshes && rockHandling.rockMeshes[0] && rockHandling.intersections &&
         rockHandling.rockState.valueOf() == RockState.start) {

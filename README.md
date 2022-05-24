@@ -29,12 +29,18 @@ Uses [three.js](https://threejs.org) and a simple custome physics engine althoug
 Open the web site (locally from dist/client folder) in chrome and android chrome, I have not tested other browers yet. 
 Hosted [here](https:/) 
 
-On a computer use: 
-Esc Key to interrupt current run. 
+*On a computer use*: 
+
+Esc Key to interrupt current run.
+
 Mouse down drag to configure the stone angle for a run.
+
 Then let go of the mouse to send the rock off.
 
-On a phone touch on drag the stone on the creen to rotate it, then lift your finger form the screen. 
+
+*On a phone*:
+
+Touch on drag the stone on the screen to rotate it, then lift your finger form the screen. 
 
 The stone will bounce (or not) depending on inital angle it is thrown:
 
