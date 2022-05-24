@@ -2,14 +2,13 @@ import * as THREE from 'three';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton'
 import { OrbitControls } from 'three/examples/jsm/Controls/OrbitControls';
 
-
 import { models, defaultPositionY, defaultRoationX } from "./lib/meshes";
 import { makeFloor, WaterMesh, rafCallbacks, rain } from "./lib/water";
 import { makeLights, makeCamera, removeEntity } from "./lib/Scene";
 import { StoneDefault, simulateOneStep, reset } from "./lib/skipping";
 import { stone, RockState, RockHandling} from './types/types'
 import { waterHeight, floorHeight} from "./lib/constants";
-import { addHeadsup } from "./lib/headsUp";
+import { addHeadsup, addButton } from "./lib/headsUp";
 import { roundTo, clamp } from "./lib/helper";
 
 const debug = false;
@@ -41,10 +40,14 @@ let Raycaster : THREE.Raycaster | null = null;
 
 const Pointer = new THREE.Vector2();
 const { Camera, CameraGroup } = makeCamera();
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent); 
+
+let mobile = false;
+
 
 //TODO add spin, velocity, incident velocity, weight, height
 function setText(rockState : RockState, stoneObject : stone,
-   objectName="headsUp", fontSize=15, x=100, y=100) : string {
+   objectName="headsUp", fontSize=15, x=100, y=100, documentObj=document) : string {
   let text = headsUpStartText;
   if (rockState.valueOf() == RockState.selected ){
     text = "Set rock tilt angle by dragging it with the mouse.";
@@ -62,27 +65,9 @@ function setText(rockState : RockState, stoneObject : stone,
   else if(rockState.valueOf() == RockState.start && objectName==defaultLabel){
     text = "Grab the stone to play";
   }
-  addHeadsup(document, text, x, y, objectName, fontSize);
+  addHeadsup(documentObj, text, x, y, objectName, fontSize);
   return text;
 }
-
-//callbacks
-/*
-let pose = xrFrame.getPose(preferredInputSource.gripSpace, xrViewerReferenceSpace);
-if (pose) {
-  // Calculate how far the motion controller is from the user's head
-}
-
-document.body.addEventListener( 'click', _ => {
-  // Ask the browser to lock the pointer
-  document.body.requestPointerLock = document.body.requestPointerLock ||
-    document.body?.mozRequestPointerLock ||
-    document.body?.webkitRequestPointerLock;
-    document.body.requestPointerLock();
-}, false);
-*/
-
-
 
 
 document.onkeydown = function(evt) {
@@ -103,14 +88,6 @@ function onPointerMove( event : any ) {
   Pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
 }
 
-const button = document.createElement('button');  
-button.innerText = "Restart";
-button.onclick = function() {
-  console.error("restart");
-  resetRock();
-};  
-document.body.appendChild(button);
-
 const addObjectClickListener = (
   Scene : THREE.Scene
   ) => {
@@ -120,7 +97,7 @@ const addObjectClickListener = (
       if (rockHandling.rockMeshes && rockHandling.rockMeshes[0] && rockHandling.intersections &&
         rockHandling.rockState.valueOf() == RockState.start) {
         rockHandling.rockState = RockState.configuring;
-        const touch = event.touches[0] || event.changedTouches[0];
+        var touch = event.touches[0] || event.changedTouches[0];
         startX = touch.pageX;
         startY = touch.pageY;
         removeEntity(defaultLabel, Scene);
@@ -241,7 +218,7 @@ const addObjectClickListener = (
     }
   }
 
-function setupRenderer(){
+function setupRenderer(documentObj : Document){
     Renderer = new THREE.WebGLRenderer({ antialias: true })
     Renderer.setPixelRatio(window.devicePixelRatio);
     Renderer.setSize(window.innerWidth, window.innerHeight);
@@ -312,7 +289,8 @@ function setupRenderer(){
       Renderer.render(Scene, Camera)
 }
 
-function setupScene(){
+function setupScene(documentObj : Document){
+    if (isMobile) { mobile = true; } else{	mobile = false; }
     Scene = new THREE.Scene();
     Clock = new THREE.Clock();
     Raycaster = new THREE.Raycaster();
@@ -328,19 +306,6 @@ function setupScene(){
         Scene.add(rock);
         Scene.add(rock2);
     })();
-    const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-    const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-    const cube = new THREE.Mesh( geometry, material );
-    cube.position.y = 2;
-    cube.castShadow = true;
-    //Scene.add( cube );
-
-    const geometry1 = new THREE.BoxGeometry( 3, 1, 3 );
-    const material1 = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-    const cube1 = new THREE.Mesh( geometry, material );
-
-    cube1.receiveShadow = true;
-    //Scene.add( cube1 );
 
     resetRock();
     addHeadsup(document, "Skip a stone", 100, 50, "header", 22);
@@ -371,9 +336,10 @@ function setupScene(){
     Renderer.setAnimationLoop(render);
 }
 
-function setup(){
-    setupRenderer();
-    setupScene();
+function setup(documentObj : Document, resetRockFct : any){
+    setupRenderer(documentObj);
+    setupScene(documentObj);
+    addButton(documentObj, resetRockFct);
 }
 
-setup();
+setup(document, resetRock);
