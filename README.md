@@ -29,11 +29,12 @@ Uses [three.js](https://threejs.org) and a simple custome physics engine althoug
 Open the web site (locally from dist/client folder) in chrome, I haven tested other browers yet. 
 Hosted [here](https:/) 
 
-Use Esc Key to interrupt current run. 
-
+On a computer use: 
+Esc Key to interrupt current run. 
 Mouse down drag to configure the stone angle for a run.
-
 Then let go of the mouse to send the rock off.
+
+
 
 The stone will bounce (or not) depending on inital angle it is thrown:
 
@@ -41,18 +42,19 @@ The stone will bounce (or not) depending on inital angle it is thrown:
 
 ## TODOs:
 ### Things still missing or bad: 
-* 3d ui is difficult to use, maybe add a slider. Make it easier to see which way it will fly 
+* 3d ui is difficult to use, add a slider or better solution for dragging for mobile
+
+* Make it easier to see which way it will fly 
 
 * Add sound effects and feedback when stone touches water, needs shadow to make movement visually more clear
 
-* Code cleanup and tests
 
 ### Later
 * I want to use the phone’s gyro sensor movement to determine start angle and maybe velocity
 
 * An AR version where you can use a real water surface to play rather than cg water
 
-* Add more input parameters to the simulation: velocity, spin and stone weight
+* Add more input parameters to the simulation: see above
 
 
 ## Credits:
