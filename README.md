@@ -26,7 +26,7 @@ Uses [three.js](https://threejs.org) and a simple custome physics engine althoug
 
 
 ## How to play: 
-Open the web site (locally from dist/client folder) in chrome, I haven tested other browers yet. 
+Open the web site (locally from dist/client folder) in chrome and android chrome, I have not tested other browers yet. 
 Hosted [here](https:/) 
 
 On a computer use: 
@@ -34,7 +34,7 @@ Esc Key to interrupt current run.
 Mouse down drag to configure the stone angle for a run.
 Then let go of the mouse to send the rock off.
 
-
+On a phone touch on drag the stone on the creen to rotate it, then lift your finger form the screen. 
 
 The stone will bounce (or not) depending on inital angle it is thrown:
 
@@ -42,11 +42,11 @@ The stone will bounce (or not) depending on inital angle it is thrown:
 
 ## TODOs:
 ### Things still missing or bad: 
-* 3d ui is difficult to use, add a slider or better solution for dragging for mobile
+* 3d ui can be difficult to use
 
-* Make it easier to see which way it will fly 
+* Make it easier to see which way the stone will fly 
 
-* Add sound effects and feedback when stone touches water, needs shadow to make movement visually more clear
+* Add sound effects and feedback (i.e ripples) when stone touches water, needs shadow to make movement visually more clear
 
 
 ### Later
