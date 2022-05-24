@@ -265,7 +265,7 @@ function setupRenderer(documentObj : Document){
 
          if(splash){
               rain(.25, 4, 0.005, rockHandling.rockMeshes[0].position.x,
-                rockHandling.rockMeshes[0].position.z, .3, .3, 80);
+                rockHandling.rockMeshes[0].position.z, .3, .3, 40);
                 splash = false;
                 if(debug)
                 {

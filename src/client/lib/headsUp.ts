@@ -18,7 +18,7 @@ export function addButton(documentObj : Document,
     button.style.border = "none";
     div.appendChild(button);
     
-    button.innerHTML = "<img src=\"" + imgPath + "\" width=\"64\" height=\"64\"/>";
+    button.innerHTML = "<img src=\"" + imgPath + "\" width=\"44\"/>";
     button.onclick = function() {
       console.error("restart");
       resetRock();

@@ -78,6 +78,7 @@ function rain(radius=.024, maxR=8, speed=0.01,
     const rainRipples :any  = [];
     const unsedRainRipples = [];
     const dripPos = new Vector3();
+    const minR = 3;
     const geometry = new TorusGeometry(radius, 3, 1, 20 );
     geometry.rotateX(-Math.PI / 2);
 
@@ -92,13 +93,13 @@ function rain(radius=.024, maxR=8, speed=0.01,
     }
 
     (function drip() {
-        if (unsedRainRipples.length > 3) {
+        if (unsedRainRipples.length > minR) {
             const ripplesToUse = unsedRainRipples.splice(0, 3);
             const x = posX ? posX * (Math.random() - 0.1) : distX * (Math.random() - 0.5);
             const z = posZ ? posZ * (Math.random() - 0.1) : distZ * (Math.random() - 0.5);
             dripPos.set(x, WaterMesh.position.y, z);
 
-            for (let ri = 1; ri <= 3; ri++) {
+            for (let ri = 1; ri <= minR; ri++) {
                 const ripple = ripplesToUse[ri - 1];
                 ripple.position.set(x, -0.1, z);
                 setTimeout(() => {
