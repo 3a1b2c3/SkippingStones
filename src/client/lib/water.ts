@@ -17,7 +17,7 @@ import {
 import {sceneRadius, waterHeight, mediaPath } from './constants';
 
 const defautltSceneRadius = sceneRadius;
-const rafCallbacks = new Set<any>();
+const rippleCallbacks = new Set<any>();
 
 const floorTexturePath = path.join(mediaPath, 'dcatyft-3d286c66-03cc-448e-b8d8-a4f0a3a2fc26.png');
 const WaterTexturePath = path.join(mediaPath,'WaterNormal.jpg');
@@ -62,7 +62,7 @@ function makeWater(position=waterHeight, sceneRadius=defautltSceneRadius, opacit
 
 const WaterMesh = makeWater();
 
-rafCallbacks.add(function (t : number) {
+rippleCallbacks.add(function (t : number) {
     if (WaterMesh?.material?.normalMap?.offset)
         WaterMesh.material.normalMap.offset.x += 0.01 * Math.sin(t / 10000)/sceneRadius;
     if (WaterMesh?.material?.normalMap?.offset)
@@ -72,8 +72,9 @@ rafCallbacks.add(function (t : number) {
     WaterMesh.position.y = 0.4 + 0.1 * Math.sin(t / 2000);
 });
 
-function rain(radius=.024, maxR=8, speed=0.01, 
-    posX : null | number=null, posZ : null | number=null, distX=20, distZ=20) {
+function rain(radius=.024, maxR=8, speed=0.01,
+    posX : null | number=null, posZ : null | number=null, 
+    distX=20, distZ=20) : any {
     const rainRipples :any  = [];
     const unsedRainRipples = [];
     const dripPos = new Vector3();
@@ -116,7 +117,7 @@ function rain(radius=.024, maxR=8, speed=0.01,
 
     const rippleSpeed = new Vector3(1, 1, 1).multiplyScalar(speed);
 
-    rafCallbacks.add(function () {
+    rippleCallbacks.add(function () {
         for (const r of rainRipples) {
             r.scale.add(rippleSpeed);
             const col = (r.material.color.getHex() >> 16)*0.99;
@@ -128,11 +129,11 @@ function rain(radius=.024, maxR=8, speed=0.01,
         return rainRipples;
     }
 
-rain();
+const cb = rain();
 
 export {
     makeFloor,
     WaterMesh,
-    rafCallbacks,
+    rippleCallbacks,
     rain
 }

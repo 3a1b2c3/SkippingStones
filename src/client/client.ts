@@ -3,7 +3,7 @@ import { VRButton } from 'three/examples/jsm/webxr/VRButton'
 import { OrbitControls } from 'three/examples/jsm/Controls/OrbitControls';
 
 import { models, defaultPositionY, defaultRoationX } from "./lib/meshes";
-import { makeFloor, WaterMesh, rafCallbacks, rain } from "./lib/water";
+import { makeFloor, WaterMesh, rippleCallbacks, rain } from "./lib/water";
 import { makeLights, makeCamera, removeEntity } from "./lib/Scene";
 import { StoneDefault, simulateOneStep, reset } from "./lib/skipping";
 import { stone, RockState, RockHandling} from './types/types'
@@ -17,7 +17,7 @@ const defaultLabel = "labelSprite";
 const defaultLabelFont = 13;
 const minFloorHeight = floorHeight * 1.1;
 const animDelta = 0.02;
-const resetTime = 6000;
+const resetTime = 5000;
 const angleIncr = .03;
 
 const rockHandling : RockHandling = {
@@ -260,10 +260,10 @@ function setupRenderer(documentObj : Document){
           splash = true;
         }
         rockHandling.rockMeshes[0].position.y = res.y + waterHeight;
-        rockHandling.rockMeshes[0].position.z = res.x; //add random?
+        rockHandling.rockMeshes[0].position.z = res.x;
 
          if(splash){
-              rain(.024, 1, 0.02, rockHandling.rockMeshes[0].position.x,
+              rain(.24, 4, 0.03, rockHandling.rockMeshes[0].position.x,
                 rockHandling.rockMeshes[0].position.z);
               addHeadsup(document, "Splash", 300, 300, "splashLabel", 18);
               splash = false;
@@ -289,7 +289,7 @@ function setupRenderer(documentObj : Document){
           }
       }
       Renderer.setAnimationLoop(function (time : number) {
-        rafCallbacks.forEach(cb => cb(time));
+        rippleCallbacks.forEach(cb => cb(time));
         Renderer.render(Scene, Camera);
       });
       Renderer.render(Scene, Camera)

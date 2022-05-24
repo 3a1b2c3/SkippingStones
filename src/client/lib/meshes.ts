@@ -9,9 +9,9 @@ import { mediaPath } from './constants';
 const rockPath = path.join(mediaPath, 'Boulder.glb');
 const rockPath2 = path.join(mediaPath, 'stone.glb');
 
-const loader = new GLTFLoader();
 export const defaultPositionY = 1.3;
 export const defaultRoationX = -.175;
+const loader = new GLTFLoader();
 
 async function loadModels(positionY=defaultPositionY, rotateX=defaultRoationX) {
     //ground rocks
@@ -20,9 +20,8 @@ async function loadModels(positionY=defaultPositionY, rotateX=defaultRoationX) {
     );
     rock2.traverse(function (child : any) {
         if (child.isMesh) {
-            const m = child;
-            m.receiveShadow = true;
-            m.castShadow = true;
+            child.receiveShadow = true;
+            child.castShadow = true;
         }
     })
     rock2.scale.x = 4;
@@ -35,9 +34,8 @@ async function loadModels(positionY=defaultPositionY, rotateX=defaultRoationX) {
     );
     rock.traverse(function (child : any) {
         if (child.isMesh) {
-            const m = child;
-            m.receiveShadow = true;
-            m.castShadow = true;
+            child.receiveShadow = true;
+            child.castShadow = true;
         }
     })
     rock.position.y = positionY;
