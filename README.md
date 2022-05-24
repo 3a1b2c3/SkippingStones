@@ -42,7 +42,10 @@ Then let go of the mouse to send the rock off.
 
 Touch on drag the stone on the screen to rotate it, then lift your finger form the screen. 
 
-The stone will bounce (or not) depending on inital angle it is thrown:
+Use reset button on left to interrupt a run.
+
+
+The stone will bounce (or not) depending on inital tilt angle it is thrown:
 
 ![](Animation2.gif)
 
