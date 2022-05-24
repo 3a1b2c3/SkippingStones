@@ -1,10 +1,10 @@
 const path = require('path');
 import { mediaPath } from './constants';
 
-const imgPath = path.join(mediaPath, 'png-transparent.png');
+const imgPath = path.join(mediaPath, "SeekPng.com_png-circle_99552.png");
 
 export function addButton(documentObj : Document,
-   resetRock: any, objectName="button", x_pos=150, y_pos=250){
+   resetRock: any, objectName="button", x_pos=120, y_pos=170){
    let div = document.getElementById(objectName);
    if (!div){
       div = document.createElement('div')
@@ -13,10 +13,12 @@ export function addButton(documentObj : Document,
     div.style.position = "absolute";
     div.style.left = x_pos+'px';
     div.style.top = y_pos +'px';
-    const button = documentObj.createElement('button');
-    button.innerText = "Restart";
+    const button = documentObj.createElement('button'); 
+    button.style.background = "transparent";
+    button.style.border = "none";
     div.appendChild(button);
-    button.innerHTML = "<img src=\"" + imgPath + "\"/>";
+    
+    button.innerHTML = "<img src=\"" + imgPath + "\" width=\"84\" height=\"84\"/>";
     button.onclick = function() {
       console.error("restart");
       resetRock();
