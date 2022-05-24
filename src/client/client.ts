@@ -52,11 +52,11 @@ function setText(rockState : RockState, stoneObject : stone,
     text = `Drag the mouse to change the stone's tilt angle: ${roundTo((rockHandling.stoneSimulation.theta * 180 / Math.PI), 2)} degree.`;
   }
   else if(rockState.valueOf() == RockState.simulation){
-    text = `${stoneObject.bounces} bounce`
-    if (stoneObject.bounces != 1)
+    text = `${stoneObject.out_bounces} bounce`
+    if (stoneObject.out_bounces != 1)
       text += `s`;
-    if (stoneObject.meters)
-      text += ` and distance: ${roundTo(stoneObject.meters, 2)}  m`;
+    if (stoneObject.out_meters)
+      text += ` and distance: ${roundTo(stoneObject.out_meters, 2)}  m`;
   }
   else if(rockState.valueOf() == RockState.start && objectName==defaultLabel){
     text = "Grab the stone to play";

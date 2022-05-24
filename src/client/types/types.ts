@@ -3,15 +3,15 @@ import {
 } from 'three';
 
 export type stone = {
-    skip : boolean;
+    _skip : boolean;
     mass : number;
     radius : number;
     position : Vector3,  // Average height a human throws a stone
     velocity : Vector3,  // Incident velocity  
     spin : number;
     theta : number;    // Tilt angle (radian)
-    bounces : number;
-    meters : number;
+    out_bounces : number;
+    out_meters : number;
 }
 
 export enum RockState {

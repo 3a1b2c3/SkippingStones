@@ -34,27 +34,27 @@ const thetaDefault = 10 / 180 * Math.PI;    // Tilt angle (radian) 10 degree
 // We assume that the stone is a flat cylinder been thrown out in a small angle relative to the HORIZONTAL direction.
 // Moreover, we set the spin velocity at 7 rev/s && velocity at (6,0,0) m/s in the beginning.
 export const StoneDefault : stone = { 
-    skip : true,
+    _skip : true,
     mass  : massDefault,
     radius  : radiusDefault,
     position : positionDefault.clone(),  // Average height a human throws a stone
     velocity : velocityDefault.clone(),  // Incident velocity in x
     spin : spinDefault,      // Spin angular velocity (rev/s) 
     theta : thetaDefault,    // Tilt angle (radian) 10 degree
-    bounces : 0,
-    meters : 0
+    out_bounces : 0,
+    out_meters : 0
 }
 
 export function reset(Stone : stone){
-    Stone.skip = true;
+    Stone._skip = true;
     Stone.mass = massDefault;
     Stone.radius = radiusDefault,
     Stone.position = positionDefault.clone(),
     Stone.velocity = velocityDefault.clone(),  // Incident velocity in x
     Stone.spin = spinDefault,      // Spin angular velocity (rev/s) 
     Stone.theta = thetaDefault,    // Tilt angle (radian) 10 degree
-    Stone.bounces = 0;
-    Stone.meters = 0
+    Stone.out_bounces = 0;
+    Stone.out_meters = 0
 }
 
 // Specific constants of fluid
@@ -73,8 +73,8 @@ const Viscosity = new Map<string, number>([
 1. In the linear collision, we use the formula in the reference to calculate the loss of the stone's energy
  in the x component, && check the rest energy of the stone. 
  The formula is related to the density && the viscosity of lower fluid,etc.
-2. In the circular collision, we use the formula in the reference to calculate the maximun number of bounces,
-which stone will be stable below. If the bouncing number is larger than the maximun number of bounces, 
+2. In the circular collision, we use the formula in the reference to calculate the maximun number of out_bounces,
+which stone will be stable below. If the bouncing number is larger than the maximun number of out_bounces, 
 the stone will become unstable && cannot skip successfully.
 3. To explain the second point, we quote from the reference.
  If after a collision, the stone is put in rotation around the y axis,that is,theta is ! equal to 0, 
@@ -108,9 +108,9 @@ export function linearCollision(Stone : stone,
     const u = Cx/Cy // u = Fx/Fy 
     
     if (Cy <= 0){
-        Stone.skip = false;
+        Stone._skip = false;
         Stone.velocity.y = -Stone.velocity.y
-        return Stone.skip;
+        return Stone._skip;
     }
     // L is the distance along x traversed by the stone during the collision.
     const l = 2*Math.PI* Math.sqrt(2* Stone.mass*Math.sin(Stone.theta)/(2*Cy*pw*Stone.radius));
@@ -125,24 +125,24 @@ export function linearCollision(Stone : stone,
     
     // Estimate whether the stone will skip or not
     if (final_Energy_x <= 0){
-        Stone.skip = false;
+        Stone._skip = false;
         Stone.velocity.x = 1e-10;
     }
     else{
         Stone.velocity.x = Math.sqrt(2*final_Energy_x / Stone.mass);
     }
-    return Stone.skip;
+    return Stone._skip;
 }
 
-// Calculate the maximun number of bounces, which stone will be stable below.
-function circularCollision(Stone : stone, gravity=GRAVITY, bounces=g_Bounces){ 
+// Calculate the maximun number of out_bounces, which stone will be stable below.
+function circularCollision(Stone : stone, gravity=GRAVITY, out_bounces=g_Bounces){ 
     if (Stone?.spin){
         const ncount = (4*Math.PI*Math.PI* Stone.radius) * Stone.spin * Stone.spin / gravity;
-        if (bounces+1 >= ncount){
-            Stone.skip = false;
+        if (out_bounces+1 >= ncount){
+            Stone._skip = false;
         }
     }
-    return Stone.skip;
+    return Stone._skip;
 }
 
 /*
@@ -293,15 +293,15 @@ export function simulateOneStep(Stone : stone,
     if (Stone.position.y <= 0 && skipping){
         const res = collision(Stone, lowerFluid);
         console.error("res: " + res);
-        if (!Stone.skip){
+        if (!Stone._skip){
             Stone.velocity.y = - Stone.velocity.y;
         }
         else{
-            Stone.bounces++;
+            Stone.out_bounces++;
         }
     }
     if (Stone.position.x)
-        Stone.meters = Stone.position.x;
+        Stone.out_meters = Stone.position.x;
     return Stone.position;
 }
 

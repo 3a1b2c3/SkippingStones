@@ -4,15 +4,31 @@ An app that lets you play the game of skip stones on a cartoony water surface in
 
 The objective of "skipping" is to see how many times a stone can bounce before it sinks into the water.
 
-Here is a nice 2d version of the simulation:
+Here is a nice 2d version of this simulation:
 https://www.glowscript.org/#/user/B06902117/folder/Public/program/FinalProject
 
-Some slides at https://docs.google.com/presentation/d/1JtKs5VajW88dYSgr5EwdCILuMcmJk0QbY2yZ9t8yddc/edit?usp=sharing
+Simulation input parameters are:
+* stone mass and radius
 
-Uses three.js and a simple custome physics engine.
+* Inital position
+
+* Inital velocity or speed
+
+* Inital spin
+
+* Inital tilt angle
+
+At th emoment only tilt angle can be specified.
+
+Some slides are [here](https://docs.google.com/presentation/d/1JtKs5VajW88dYSgr5EwdCILuMcmJk0QbY2yZ9t8yddc/edit?usp=sharing)
+
+Uses [three.js](https://threejs.org) and a simple custome physics engine althought it would be interes.
 
 
 ## How to play: 
+Open the web site (locally from dist/client folder) in chrome, I haven tested other browers yet. 
+Hosted here: 
+
 Use Esc Key to interrupt current run. 
 
 Mouse down drag to configure the stone angle for a run.
@@ -59,12 +75,11 @@ yarn cli
 yarn lint
 
 yarn build
-...
-```
+
 
 
 ## Tests with Jest
 
-Run the tests with `yarn test`, no separate compile step is necessary.
+Run the tests with `yarn test` 
 
 
