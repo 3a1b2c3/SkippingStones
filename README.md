@@ -18,7 +18,7 @@ Simulation input parameters are:
 
 * Inital tilt angle
 
-At th emoment only tilt angle can be specified.
+At the moment only tilt angle can be specified.
 
 Some slides are [here](https://docs.google.com/presentation/d/1JtKs5VajW88dYSgr5EwdCILuMcmJk0QbY2yZ9t8yddc/edit?usp=sharing)
 
@@ -27,7 +27,7 @@ Uses [three.js](https://threejs.org) and a simple custome physics engine althoug
 
 ## How to play: 
 Open the web site (locally from dist/client folder) in chrome, I haven tested other browers yet. 
-Hosted here: 
+Hosted [here](https:/) 
 
 Use Esc Key to interrupt current run. 
 

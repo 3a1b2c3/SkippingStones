@@ -20,7 +20,7 @@ async function loadModels(positionY=defaultPositionY, rotateX=defaultRoationX) {
     );
     rock2.traverse(function (child : any) {
         if (child.isMesh) {
-            let m = child;
+            const m = child;
             m.receiveShadow = true;
             m.castShadow = true;
         }
@@ -35,7 +35,7 @@ async function loadModels(positionY=defaultPositionY, rotateX=defaultRoationX) {
     );
     rock.traverse(function (child : any) {
         if (child.isMesh) {
-            let m = child;
+            const m = child;
             m.receiveShadow = true;
             m.castShadow = true;
         }

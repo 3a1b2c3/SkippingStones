@@ -18,8 +18,8 @@ const HORIZONTAL = new Vector3(1.0, 0, 0);
 const MinCd = 0.05;
 const g_MaxCd = 1.98;
 const g_gap = g_MaxCd - MinCd;
-let g_dt = 0.01;
-let g_Bounces = 0;
+const g_dt = 0.01;
+const g_Bounces = 0;
 
 const defaultVelocity = 5;
 const defaultHeight = 0.5;
@@ -35,8 +35,8 @@ const thetaDefault = 10 / 180 * Math.PI;    // Tilt angle (radian) 10 degree
 // Moreover, we set the spin velocity at 7 rev/s && velocity at (6,0,0) m/s in the beginning.
 export const StoneDefault : stone = { 
     _skip : true,
-    mass  : massDefault,
-    radius  : radiusDefault,
+    mass : massDefault,
+    radius : radiusDefault,
     position : positionDefault.clone(),  // Average height a human throws a stone
     velocity : velocityDefault.clone(),  // Incident velocity in x
     spin : spinDefault,      // Spin angular velocity (rev/s) 
@@ -159,7 +159,7 @@ function circularCollision(Stone : stone, gravity=GRAVITY, out_bounces=g_Bounces
 */
 export function airDrag(Stone : stone, media : string, horizontal=HORIZONTAL,
             MaxCd=g_MaxCd, gap=g_gap) : Vector3{
-    let velocity : Vector3 = Stone.velocity.clone();
+    const velocity : Vector3 = Stone.velocity.clone();
     const vis = Viscosity.get(media) || 1; 
     const rho = Rho.get(media) || 1;
     // Compute angle
@@ -220,7 +220,7 @@ export function waterDrag(Stone : stone,
     horizontal=HORIZONTAL.clone()) : Vector3 {
     // Compute angle
     // alpha is the angle between the +x vector && the direction vector of stone's velocity
-    let velocity : Vector3 = Stone.velocity.clone();
+    const velocity : Vector3 = Stone.velocity.clone();
     const vis = Viscosity.get(media) || 1; 
     const rho = Rho.get(media) || 1; 
     const cos_alpha = velocity.dot(horizontal)/(velocity.length())* (horizontal.length());
@@ -262,23 +262,23 @@ export function waterDrag(Stone : stone,
 
 export function simulateOneStep(Stone : stone, 
                             delta : number = g_dt, 
-                            skipping : boolean = true,
+                            skipping  = true,
                             minHeight=-2,
                             upperFluid = upper_fluid,
                             lowerFluid = lower_fluid,
-                            debug=true,
+                            debug=false,
     ) : Vector3 {
     if (Stone.position.y <= minHeight || delta <= 0){
         return Stone.position;
     }
-    let fGrav = DOWN.clone();
+    const fGrav = DOWN.clone();
     fGrav.multiplyScalar(Stone.mass);
     const fDrag : Vector3 = Stone.position.y > 0 ? airDrag(Stone, upperFluid) 
         : waterDrag(Stone, lowerFluid);
 
     //fNet = fGrav + fDrag
     const fNet : Vector3 = fGrav.add(fDrag);
-    let velocity : Vector3 = Stone.velocity.clone();
+    const velocity : Vector3 = Stone.velocity.clone();
     velocity.multiplyScalar(Stone.mass);
     fNet.multiplyScalar(delta);
     velocity.add(fNet);
