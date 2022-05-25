@@ -293,7 +293,6 @@ export function simulateOneStep(Stone : stone,
     // Stone skipping
     if (Stone.position.y <= 0 && skipping){
         const res = collision(Stone, lowerFluid);
-        console.error("res: " + res);
         if (!Stone._skip){
             Stone.velocity.y = - Stone.velocity.y;
         }

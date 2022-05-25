@@ -237,8 +237,16 @@ function setupRenderer(documentObj : Document){
     Controls.target = new THREE.Vector3(0, 1, 0);
     Controls.update();
 
-    document.body.appendChild(Renderer.domElement)
-    document.body.appendChild(VRButton.createButton(Renderer))
+    document.body.appendChild(Renderer.domElement);
+    document.body.appendChild(VRButton.createButton(Renderer));
+    window.addEventListener('resize', onWindowResize, false);
+ 
+    function onWindowResize() {
+        Camera.aspect = window.innerWidth / window.innerHeight;
+        Camera.updateProjectionMatrix();
+        Renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+    Renderer.setAnimationLoop(render);
   }
 
   function render() {
@@ -297,6 +305,7 @@ function setupRenderer(documentObj : Document){
         Renderer.render(Scene, Camera);
       });
       Renderer.render(Scene, Camera)
+      return Renderer;
 }
 
 function setupScene(documentObj : Document){
@@ -334,20 +343,12 @@ function setupScene(documentObj : Document){
     Scene.add(CameraGroup);
     Scene.add(makeFloor());
     Scene.add(WaterMesh);
-
-    window.addEventListener('resize', onWindowResize, false)
- 
-    function onWindowResize() {
-        Camera.aspect = window.innerWidth / window.innerHeight;
-        Camera.updateProjectionMatrix();
-        Renderer.setSize(window.innerWidth, window.innerHeight);
-    }
-    Renderer.setAnimationLoop(render);
+    return Scene;
 }
 
 function setup(documentObj : Document, resetRockFct : any){
-    setupRenderer(documentObj);
-    setupScene(documentObj);
+    const renderer = setupRenderer(documentObj);
+    const scene = setupScene(documentObj);
     addButton(documentObj, resetRockFct);
 }
 
