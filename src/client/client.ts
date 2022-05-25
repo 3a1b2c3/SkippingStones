@@ -32,7 +32,7 @@ const xrImmersiveRefSpace = null;
 const inlineViewerHelper = null;
 
 // WebGL Scene globals, make object 
-let Renderer : any = null;
+let Renderer : THREE.WebGLRenderer | null | any = null;
 let Scene : THREE.Scene | null = null;
 let Controls : OrbitControls | null = null;
 let Clock: THREE.Clock | null = null;
@@ -243,7 +243,6 @@ function setupRenderer(documentObj : Document){
 
   function render() {
       requestAnimationFrame(render);
-      console.error(Clock && rockHandling.rockMeshes?.length +" sim " + (rockHandling.rockState.valueOf() == RockState.simulation));
       //update simulation
       if(Clock && rockHandling.rockMeshes?.length && 
         rockHandling.rockState.valueOf() == RockState.simulation){
