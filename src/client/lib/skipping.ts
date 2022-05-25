@@ -21,7 +21,7 @@ const g_gap = g_MaxCd - MinCd;
 const g_dt = 0.01;
 const g_Bounces = 0;
 
-const defaultVelocity = 5;
+const defaultVelocity = 5.4;
 const defaultHeight = 0.5;
 const massDefault = 0.1;
 const radiusDefault = 0.05;
