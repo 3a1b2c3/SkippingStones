@@ -8,8 +8,8 @@ import { resetRock, rockHandling } from './rock';
 import { StoneDefault, simulateOneStep, reset } from './skipping';
 import { stone, RockState, RockHandling} from '../types/types'
 import { waterHeight, floorHeight} from './constants';
-import { addHeadsup, addButton } from './headsUp';
-import { roundTo, clamp } from './helper';
+import { addHeadsup } from './headsUp';
+import { clamp } from './helper';
 import { defaultLabel, defaultLabelFont } from './constants';
 import { setText } from './headsUp';
 
@@ -20,13 +20,6 @@ const animDelta = 0.02;
 const resetTime = 5000;
 const angleIncr = .03;
 
-
-// WebGL Scene globals, make object 
-let Renderer : THREE.WebGLRenderer | null | any = null;
-let Scene : THREE.Scene | null = null;
-let Controls : OrbitControls | null = null;
-let Clock: THREE.Clock | null = null;
-let Raycaster : THREE.Raycaster | null = null;
 
 const Pointer = new THREE.Vector2();
 const { Camera, CameraGroup } = makeCamera();
@@ -169,10 +162,10 @@ const addObjectClickListener = (
 
 
 export function setupRenderer(documentObj : Document){
-    Renderer = new THREE.WebGLRenderer({
+    const Renderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: true
-  });
+    });
     Renderer.setPixelRatio(window.devicePixelRatio);
     Renderer.setSize(window.innerWidth, window.innerHeight);
     Renderer.shadowMap.enabled = true;
@@ -183,7 +176,7 @@ export function setupRenderer(documentObj : Document){
     Renderer.xr.enabled = true;
 
     //orbit
-    Controls = new OrbitControls(Camera, Renderer.domElement);
+    const Controls = new OrbitControls(Camera, Renderer.domElement);
     Controls.maxPolarAngle = Math.PI * 0.5;
     Controls.maxDistance = 10;
     Camera.position.set(0, 1.6, -5);
@@ -199,8 +192,9 @@ export function setupRenderer(documentObj : Document){
         Renderer.setSize(window.innerWidth, window.innerHeight);
     }
     Renderer.setAnimationLoop(render);
+    return {  Renderer, Controls };
   }
-
+  /*
   function render() {
       requestAnimationFrame(render);
       //update simulation
@@ -259,11 +253,12 @@ export function setupRenderer(documentObj : Document){
       Renderer.render(Scene, Camera)
       return Renderer;
 }
+*/
 
 export function setupScene(documentObj : Document){
-    Scene = new THREE.Scene();
-    Clock = new THREE.Clock();
-    Raycaster = new THREE.Raycaster();
+    const Scene = new THREE.Scene();
+    const Clock = new THREE.Clock();
+    const Raycaster = new THREE.Raycaster();
     const modelsPromise = (async function () {
         const {
             rock,
@@ -294,5 +289,5 @@ export function setupScene(documentObj : Document){
     Scene.add(CameraGroup);
     Scene.add(makeFloor());
     Scene.add(WaterMesh);
-    return Scene;
+    return { Scene, Clock, Raycaster };
 }

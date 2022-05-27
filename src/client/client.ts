@@ -5,22 +5,24 @@ import { ARButton } from 'three/examples/jsm/webxr/ARButton';
 import { OrbitControls } from 'three/examples/jsm/Controls/OrbitControls';
 
 import { setupRenderer,setupScene } from './lib/setUp';
-import { models, defaultPositionY, defaultRoationX } from './lib/meshes';
-import { makeFloor, WaterMesh, rippleCallbacks, rain } from './lib/water';
 import { makeLights, makeCamera, removeEntity } from './lib/Scene';
 import { StoneDefault, simulateOneStep, reset } from './lib/skipping';
 import { stone, RockState, RockHandling} from './types/types'
-import { waterHeight, floorHeight} from './lib/constants';
+import { waterHeight, floorHeight } from './lib/constants';
 import { addHeadsup, setText, addButton } from './lib/headsUp';
 
+const Pointer = new Vector2();
 
+function onPointerMove( event : any ) {
+  Pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+  Pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
+}
 
 class App {
   // WebGL Scene
   Controls : OrbitControls | null = null;
   Clock: Clock | null = null;
   Raycaster : THREE.Raycaster | null = null;
-  //Pointer : Vector2;
   camera : any;
   scene : any;
   renderer : any;
@@ -50,9 +52,16 @@ class App {
 
   initScene() {
     const { Camera, CameraGroup } = makeCamera();
+    const { Scene, Clock, Raycaster } = setupScene(document);
+    const { Renderer, Controls }  = setupRenderer(document);
+    /*
+      Controls : OrbitControls | null = null;
+  Clock: Clock | null = null;
+  Raycaster : THREE.Raycaster | null = null;
+    */
     this.camera = Camera;
-    this.scene = setupScene(document);
-    this.renderer = setupRenderer(document);
+    this.scene = Scene;
+    this.renderer = Renderer;
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.outputEncoding = sRGBEncoding;
@@ -83,8 +92,66 @@ class App {
       }
     }
 
-    this.renderer.render(this.scene, this.camera);
-  }
+    //this.renderer.render(this.scene, this.camera);
+    requestAnimationFrame(this.renderer);
+    //update simulation
+    /*
+    if(Clock && rockHandling.rockMeshes?.length && 
+      rockHandling.rockState.valueOf() == RockState.simulation){
+      let splash = false;
+      let delta = Clock.getDelta(); 
+      if (delta > animDelta){
+          delta = animDelta;
+      }
+      const res : THREE.Vector3 = simulateOneStep(rockHandling.stoneSimulation,
+          delta, true);
+      rockHandling.rockMeshes[0].position.x = res.z;
+      rockHandling.rockMeshes[0].position.y = res.y + waterHeight;
+      if (rockHandling.rockMeshes[0].position.y > 0 && 
+        res.y + waterHeight <=  waterHeight){
+        splash = true;
+      }
+      rockHandling.rockMeshes[0].position.y = res.y + waterHeight;
+      rockHandling.rockMeshes[0].position.z = res.x;
+
+       if(splash){
+            rain(.25, 4, 0.005, rockHandling.rockMeshes[0].position.x,
+              rockHandling.rockMeshes[0].position.z, .3, .3, 40);
+              splash = false;
+              if(debug)
+              {
+                  addHeadsup(document, 'Splash', 300, 300, 'splashLabel', 18);
+          
+                setTimeout(() => {
+                  addHeadsup(document, '', 300, 300, 'splashLabel', 18);
+                }, 800);
+              }
+        }
+      // update distance label
+      if (Scene){
+          removeEntity(defaultLabel, Scene);
+          setText(rockHandling.rockState, rockHandling.stoneSimulation,
+            rockHandling, defaultLabel, defaultLabelFont);
+        }
+      //done
+      if(rockHandling.rockMeshes[0].position.y <= minFloorHeight ||
+           rockHandling.rockMeshes[0].position.z > 90){
+          if (debug)
+          console.debug('done');
+          rockHandling.rockState = RockState.simulationDone;
+          setTimeout(() => {
+             //resetRock();
+          }, resetTime);
+        }
+    }
+    */
+    this.renderer.setAnimationLoop(function (time : number) {
+      rippleCallbacks.forEach(cb => cb(time));
+      Renderer.render(Scene, Camera);
+    });
+    Renderer.render(Scene, Camera)
+    return Renderer;
+}
 
   onWindowResize() {
     this.camera.aspect = window.innerWidth / window.innerHeight;
