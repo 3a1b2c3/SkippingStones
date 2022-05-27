@@ -31,7 +31,7 @@ Hosted version [here](https://3a1b2c3.github.io/webxr/)
 
 *On a computer use*: 
 
-Esc Key to interrupt current run.
+Esc Key or the circle button to interrupt current run.
 
 Mouse down drag to configure the stone angle for a run.
 
@@ -42,7 +42,7 @@ Then let go of the mouse to send the rock off.
 
 Touch on drag the stone on the screen to rotate it, then lift your finger form the screen. 
 
-Use reset button on left to interrupt a run.
+Use the circular reset button on left half screen to interrupt a run.
 
 
 The stone will bounce (or not) depending on inital tilt angle it is thrown:
