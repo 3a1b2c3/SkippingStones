@@ -1,5 +1,6 @@
-import { Mesh, HemisphereLight, PerspectiveCamera, Scene, WebGLRenderer, BoxGeometry, 
-  MeshStandardMaterial, Color, MeshBasicMaterial, RingGeometry, sRGBEncoding } from 'three';
+import { Mesh, HemisphereLight, Scene, WebGLRenderer, BoxGeometry, 
+  MeshStandardMaterial, MeshBasicMaterial, RingGeometry, sRGBEncoding,
+  Vector2, Clock, Raycaster } from 'three';
 import { ARButton } from 'three/examples/jsm/webxr/ARButton';
 import { OrbitControls } from 'three/examples/jsm/Controls/OrbitControls';
 
@@ -14,6 +15,11 @@ import { roundTo, clamp } from "./lib/helper";
 
 
 class App {
+    // WebGL Scene globals, make object 
+  Controls : OrbitControls | null = null;
+  Clock: Clock | null = null;
+  Raycaster : THREE.Raycaster | null = null;
+  //Pointer : Vector2;
   camera : any;
   scene : any;
   renderer : any;
@@ -22,9 +28,10 @@ class App {
   controller : any;
   reticle : any;
   box : any;
+
   constructor() {
-    this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    this.camera.position.set(0, 1.6, 3);
+    const { Camera, CameraGroup } = makeCamera();
+    this.camera = Camera;
     this.scene = new Scene();
   
     this.renderer = new WebGLRenderer({
