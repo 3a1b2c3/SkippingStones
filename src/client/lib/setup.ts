@@ -1,16 +1,12 @@
 import * as THREE from 'three'; 
 import { OrbitControls } from 'three/examples/jsm/Controls/OrbitControls';
 
-import { models, defaultPositionY, defaultRoationX } from './meshes';
-import { makeFloor, WaterMesh, rippleCallbacks, rain } from './water';
-import { makeLights, makeCamera, removeEntity } from './Scene';
-import { resetRock, rockHandling } from './rock';
-import { waterHeight, floorHeight} from './constants';
+import { models } from './meshes';
+import { makeFloor, WaterMesh } from './water';
+import { makeLights, makeCamera } from './Scene';
+import { rockHandling } from './rock';
+import { floorHeight} from './constants';
 import { addHeadsup } from './headsUp';
-import { clamp } from './helper';
-
-
-const debug = false;
 
 const minFloorHeight = floorHeight * 1.1;
 const animDelta = 0.02;
@@ -71,22 +67,15 @@ export function setupScene(documentObj : Document, addObjectClickListener : any)
         Scene.add(rock2);
     })();
 
-    //resetRock();
-    addHeadsup(document, 'Skip a stone', 100, 50, 'header', 22);
-
     const { Light, Bounce } = makeLights();
     const cameraHelper = new THREE.CameraHelper(Light.shadow.camera);
     Scene.add(cameraHelper);
-
-    const helper = new THREE.DirectionalLightHelper(Light);
-    if (debug)
-    Scene.add(helper)
-
     Scene.add(Bounce);
     Scene.add(Light);
     Scene.add(Camera);
     Scene.add(CameraGroup);
     Scene.add(makeFloor());
     Scene.add(WaterMesh);
+
     return { Scene, Clock, Raycaster };
 }
