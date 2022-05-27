@@ -1,15 +1,20 @@
-import { Mesh, HemisphereLight, Scene, WebGLRenderer, BoxGeometry, 
-  MeshStandardMaterial, MeshBasicMaterial, RingGeometry, sRGBEncoding,
+import { Mesh, Scene, 
+  BoxGeometry, Camera, 
+  MeshStandardMaterial, MeshBasicMaterial, 
+  RingGeometry, sRGBEncoding,
   Vector2, Clock, Raycaster } from 'three';
 import { ARButton } from 'three/examples/jsm/webxr/ARButton';
 import { OrbitControls } from 'three/examples/jsm/Controls/OrbitControls';
 
-import { setupRenderer,setupScene } from './lib/setUp';
-import { makeLights, makeCamera, removeEntity } from './lib/Scene';
+import { resetRock } from './lib/rock';
+import { setupRenderer, setupScene } from './lib/setUp';
+import { makeCamera, removeEntity } from './lib/Scene';
 import { StoneDefault, simulateOneStep, reset } from './lib/skipping';
 import { stone, RockState, RockHandling} from './types/types'
 import { waterHeight, floorHeight } from './lib/constants';
 import { addHeadsup, setText, addButton } from './lib/headsUp';
+import { makeFloor, WaterMesh, rippleCallbacks, rain } from './lib/water';
+import { AnyMxRecord } from 'dns';
 
 const Pointer = new Vector2();
 
@@ -18,19 +23,34 @@ function onPointerMove( event : any ) {
   Pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
 }
 
+document.onkeydown = function(evt) {
+  evt = evt || window.event;
+  let isEscape = false;
+  if ('key' in evt) {
+      isEscape = (evt.key === 'Escape' || evt.key === 'Esc');
+  } else {
+      isEscape = (evt.keyCode === 27);
+  }
+  if (isEscape) {
+   // resetRock(scene);
+  }
+};
+
+
 class App {
   // WebGL Scene
   Controls : OrbitControls | null = null;
   Clock: Clock | null = null;
-  Raycaster : THREE.Raycaster | null = null;
-  camera : any;
-  scene : any;
+  Raycaster : Raycaster | null = null;
+  camera : Camera | any;
+  scene : Scene | any;
   renderer : any;
   hitTestSourceRequested = false;
   hitTestSource : any;
   controller : any;
   reticle : any;
   box : any;
+  rockHandling :  any | RockHandling;
 
   constructor() {
     this.initXR();
@@ -52,13 +72,16 @@ class App {
 
   initScene() {
     const { Camera, CameraGroup } = makeCamera();
-    const { Scene, Clock, Raycaster } = setupScene(document);
+    const { Scene, Clock, Raycaster } = setupScene(document, addObjectClickListener);
     const { Renderer, Controls }  = setupRenderer(document);
-    /*
-      Controls : OrbitControls | null = null;
-  Clock: Clock | null = null;
-  Raycaster : THREE.Raycaster | null = null;
-    */
+    this.rockHandling = 
+    resetRock(this.scene, this.rockHandling);
+    addHeadsup(document, 'Skip a stone', 100, 50, 'header', 22);
+
+    this.Controls = Controls;
+    this.Clock = Clock;
+    this.Raycaster = Raycaster;
+
     this.camera = Camera;
     this.scene = Scene;
     this.renderer = Renderer;
@@ -67,6 +90,7 @@ class App {
     this.renderer.outputEncoding = sRGBEncoding;
     document.body.appendChild(this.renderer.domElement);
   
+    //move to setup
     const geometry = new RingGeometry(0.08, 0.10, 32).rotateX(-Math.PI / 2);
     const material = new MeshBasicMaterial();
     this.reticle = new Mesh(geometry, material);
@@ -79,7 +103,7 @@ class App {
     this.box = new Mesh(geometry1, material1);
     this.box.visible = false;
     this.scene.add(this.box);
-    //addButton(document, resetRock: any, objectName='button', x_pos=120, y_pos=170){
+    addButton(document, resetRock, 'button', 120, 170);
   }
 
   render(_ : any, frame : any) {
@@ -149,8 +173,7 @@ class App {
       rippleCallbacks.forEach(cb => cb(time));
       Renderer.render(Scene, Camera);
     });
-    Renderer.render(Scene, Camera)
-    return Renderer;
+    this.renderer.render(this.scene, this.camera)
 }
 
   onWindowResize() {
@@ -190,6 +213,123 @@ class App {
       this.reticle.visible = false;
     }
   }
+
+  const addObjectClickListener = (
+    Scene : THREE.Scene
+    ) => {
+      let startX = 0;
+      let startY = 0;
+      document.addEventListener('touchstart', function (event) {
+        if (rockHandling.rockMeshes && rockHandling.rockMeshes[0] && rockHandling.intersections &&
+          rockHandling.rockState.valueOf() == RockState.start) {
+          rockHandling.rockState = RockState.configuring;
+          const touch = event.touches[0] || event.changedTouches[0];
+          startX = touch.pageX;
+          startY = touch.pageY;
+          removeEntity(defaultLabel, Scene);
+          setText(rockHandling.rockState, 
+            rockHandling.stoneSimulation, rockHandling,
+            defaultLabel, defaultLabelFont);
+        }
+        else{
+          startX = 0;
+          startY = 0;
+        }
+      })
+      document.addEventListener('touchend', function (event) {
+          if (rockHandling.rockMeshes && rockHandling.rockState.valueOf() == RockState.configuring) {
+              if (debug)
+              console.debug('mouseup:' + rockHandling.rockState);
+              rockHandling.rockState = RockState.simulation;
+              //update label
+              removeEntity(defaultLabel, Scene);
+              setText(rockHandling.rockState, rockHandling.stoneSimulation,
+                rockHandling, defaultLabel, defaultLabelFont);
+              if (Controls)
+                Controls.enableRotate = true;
+          }
+      })
+     
+      document.addEventListener('mousedown', function (event) {
+        if (rockHandling.rockMeshes && rockHandling.rockMeshes[0] && rockHandling.intersections &&
+          rockHandling.rockState.valueOf() == RockState.start) {
+          rockHandling.rockState = RockState.configuring;
+          startX = event.pageX;
+          startY = event.pageY;
+          if (debug)
+            console.debug(startY + 'mousedown' + rockHandling.rockState);
+          removeEntity(defaultLabel, Scene);
+          setText(rockHandling.rockState, rockHandling.stoneSimulation,
+            rockHandling, defaultLabel, defaultLabelFont);
+        }
+        else{
+          startX = 0;
+          startY = 0;
+        }
+      });
+  
+      document.addEventListener('mousemove', function (event) {
+        if (Raycaster){
+          Raycaster.setFromCamera(Pointer, Camera);
+            const intersects = Raycaster.intersectObjects(Scene.children, true);
+            if (intersects.length > 0) {
+              if ( intersects.length > 0 ) {
+                if (rockHandling.intersections != intersects[0].object) {
+                  if (rockHandling.intersections && rockHandling.intersections?.material?.emissive) 
+                    rockHandling.intersections.material.emissive.setHex(rockHandling.intersections.currentHex);
+                  if (intersects[0].object.name == 'boulder' && rockHandling.rockState.valueOf() != RockState.simulation){
+                      rockHandling.intersections = intersects[0].object;
+                  }
+                  else{
+                    rockHandling.intersections = null;
+                  }
+                  if (rockHandling.intersections && rockHandling.intersections?.material?.emissive){
+                    rockHandling.intersections.currentHex = rockHandling.intersections.material.emissive.getHex();
+                    rockHandling.intersections.material.emissive.setHex( 0xff0000 );
+                  }
+                }
+              } else {
+                if (rockHandling.intersections && rockHandling.intersections?.material?.emissive)
+                  rockHandling.intersections.material.emissive.setHex(rockHandling.intersections.currentHex);
+                rockHandling.intersections = null;
+              }
+            }
+          }
+        if (rockHandling.rockMeshes && 
+          rockHandling.rockState.valueOf() == RockState.configuring) {
+          //const diffX = Math.abs(event.pageX - startX);//weight
+          const diffY = Math.abs(event.pageY - startY);
+          const delta = 5;
+          if (Controls){
+            Controls.enableRotate = false;
+          }
+          if (diffY > delta) {
+              const angleDiff = clamp(diffY *.005, -angleIncr,  angleIncr);
+              rockHandling.rockMeshes[0].rotateX(angleDiff);
+              rockHandling.stoneSimulation.theta = rockHandling.rockMeshes[0].rotation.x;
+              //update label
+              removeEntity(defaultLabel, Scene);
+              setText(rockHandling.rockState, rockHandling.stoneSimulation,
+                rockHandling, defaultLabel, defaultLabelFont);
+            }
+          }
+      });
+  
+      document.addEventListener('mouseup', function (event) {
+        if (rockHandling.rockMeshes && rockHandling.rockState.valueOf() == RockState.configuring) {
+            if (debug)
+            console.debug('mouseup:' + rockHandling.rockState);
+            rockHandling.rockState = RockState.simulation;
+            //update label
+            removeEntity(defaultLabel, Scene);
+            setText(rockHandling.rockState, rockHandling.stoneSimulation,
+              rockHandling, defaultLabel, defaultLabelFont);
+            if (Controls)
+              Controls.enableRotate = true;
+        }
+      });
+    };
+  
 }
   
 window.addEventListener('DOMContentLoaded', () => {
