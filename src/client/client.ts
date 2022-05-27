@@ -11,7 +11,7 @@ import { StoneDefault, simulateOneStep, reset } from "./lib/skipping";
 import { stone, RockState, RockHandling} from './types/types'
 import { waterHeight, floorHeight} from "./lib/constants";
 import { addHeadsup, addButton } from "./lib/headsUp";
-import { roundTo, clamp } from "./lib/helper";
+import { setupRenderer,setupScene } from "./lib/setUp";
 
 
 class App {
@@ -30,14 +30,10 @@ class App {
   box : any;
 
   constructor() {
-    const { Camera, CameraGroup } = makeCamera();
+    const { Camera, CameraGroup } = makeCamera();   
     this.camera = Camera;
-    this.scene = new Scene();
-  
-    this.renderer = new WebGLRenderer({
-        antialias: true,
-        alpha: true
-    });
+    this.scene = setupScene(document);
+    this.renderer =  setupRenderer(document);
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.outputEncoding = sRGBEncoding;

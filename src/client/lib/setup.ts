@@ -27,9 +27,6 @@ const rockHandling : RockHandling = {
   stoneSimulation : Object.create(StoneDefault)
 };
 
-// XR globals
-const xrImmersiveRefSpace = null;
-const inlineViewerHelper = null;
 
 // WebGL Scene globals, make object 
 let Renderer : THREE.WebGLRenderer | null | any = null;
@@ -40,10 +37,6 @@ let Raycaster : THREE.Raycaster | null = null;
 
 const Pointer = new THREE.Vector2();
 const { Camera, CameraGroup } = makeCamera();
-
-const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent); 
-
-let mobile = false;
 
 
 //TODO add spin, velocity, incident velocity, weight, height
@@ -219,8 +212,11 @@ const addObjectClickListener = (
     }
   }
 
-function setupRenderer(documentObj : Document){
-    Renderer = new THREE.WebGLRenderer({ antialias: true })
+export function setupRenderer(documentObj : Document){
+    Renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: true
+  });
     Renderer.setPixelRatio(window.devicePixelRatio);
     Renderer.setSize(window.innerWidth, window.innerHeight);
     Renderer.shadowMap.enabled = true;
@@ -310,7 +306,6 @@ function setupRenderer(documentObj : Document){
 }
 
 export function setupScene(documentObj : Document){
-    if (isMobile) { mobile = true; } else{	mobile = false; }
     Scene = new THREE.Scene();
     Clock = new THREE.Clock();
     Raycaster = new THREE.Raycaster();
@@ -353,4 +348,4 @@ function setup(documentObj : Document, resetRockFct : any){
     addButton(documentObj, resetRockFct);
 }
 
-setup(document, resetRock);
+//setup(document, resetRock);
