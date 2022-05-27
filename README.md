@@ -46,7 +46,8 @@ Touch on drag the stone on the screen to rotate it, then lift your finger form t
 Use the circle button to *interrupt current run* and start over.
 
 
-The stone will bounce (or not) depending on inital tilt angle it is thrown:
+
+The **stone will bounce on the water** (or not) depending on inital tilt angle it is thrown:
 
 ![](Animation2.gif)
 
