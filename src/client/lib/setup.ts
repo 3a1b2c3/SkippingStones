@@ -1,5 +1,4 @@
 import * as THREE from 'three'; 
-import { VRButton } from 'three/examples/jsm/webxr/VRButton'
 import { OrbitControls } from 'three/examples/jsm/Controls/OrbitControls';
 
 import { models, defaultPositionY, defaultRoationX } from './meshes';
@@ -12,6 +11,7 @@ import { waterHeight, floorHeight} from './constants';
 import { addHeadsup, addButton } from './headsUp';
 import { roundTo, clamp } from './helper';
 import { defaultLabel, defaultLabelFont } from './constants';
+import { setText } from './headsUp';
 
 const debug = false;
 
@@ -32,31 +32,6 @@ const Pointer = new THREE.Vector2();
 const { Camera, CameraGroup } = makeCamera();
 
 
-//TODO add spin, velocity, incident velocity, weight, height
-function setText(rockState : RockState, stoneObject : stone,
-   objectName='headsUp', fontSize=15, x=100, y=100, documentObj=document) : string {
-  let text = headsUpStartText;
-  if (rockState.valueOf() == RockState.selected ){
-    text = 'Set rock tilt angle by dragging it with the mouse.';
-  }
-  else if (rockHandling.rockState.valueOf() == RockState.configuring){
-    text = `Drag the mouse to change the stone's tilt angle: ${roundTo((rockHandling.stoneSimulation.theta * 180 / Math.PI), 2)} degree.`;
-  }
-  else if(rockState.valueOf() == RockState.simulation){
-    text = `${stoneObject.out_bounces} bounce`
-    if (stoneObject.out_bounces != 1)
-      text += `s`;
-    if (stoneObject.out_meters)
-      text += ` and distance: ${roundTo(stoneObject.out_meters, 2)}  m`;
-  }
-  else if(rockState.valueOf() == RockState.start && objectName==defaultLabel){
-    text = 'Grab the stone to play';
-  }
-  addHeadsup(documentObj, text, x, y, objectName, fontSize);
-  return text;
-}
-
-
 document.onkeydown = function(evt) {
   evt = evt || window.event;
   let isEscape = false;
@@ -66,7 +41,7 @@ document.onkeydown = function(evt) {
       isEscape = (evt.keyCode === 27);
   }
   if (isEscape) {
-    resetRock(scene);
+   // resetRock(scene);
   }
 };
 
@@ -88,7 +63,8 @@ const addObjectClickListener = (
         startX = touch.pageX;
         startY = touch.pageY;
         removeEntity(defaultLabel, Scene);
-        setText(rockHandling.rockState, rockHandling.stoneSimulation,
+        setText(rockHandling.rockState, 
+          rockHandling.stoneSimulation, rockHandling,
           defaultLabel, defaultLabelFont);
       }
       else{
@@ -104,7 +80,7 @@ const addObjectClickListener = (
             //update label
             removeEntity(defaultLabel, Scene);
             setText(rockHandling.rockState, rockHandling.stoneSimulation,
-               defaultLabel, defaultLabelFont);
+              rockHandling, defaultLabel, defaultLabelFont);
             if (Controls)
               Controls.enableRotate = true;
         }
@@ -120,7 +96,7 @@ const addObjectClickListener = (
           console.debug(startY + 'mousedown' + rockHandling.rockState);
         removeEntity(defaultLabel, Scene);
         setText(rockHandling.rockState, rockHandling.stoneSimulation,
-          defaultLabel, defaultLabelFont);
+          rockHandling, defaultLabel, defaultLabelFont);
       }
       else{
         startX = 0;
@@ -170,7 +146,7 @@ const addObjectClickListener = (
             //update label
             removeEntity(defaultLabel, Scene);
             setText(rockHandling.rockState, rockHandling.stoneSimulation,
-               defaultLabel, defaultLabelFont);
+              rockHandling, defaultLabel, defaultLabelFont);
           }
         }
     });
@@ -183,7 +159,7 @@ const addObjectClickListener = (
           //update label
           removeEntity(defaultLabel, Scene);
           setText(rockHandling.rockState, rockHandling.stoneSimulation,
-             defaultLabel, defaultLabelFont);
+            rockHandling, defaultLabel, defaultLabelFont);
           if (Controls)
             Controls.enableRotate = true;
       }
@@ -215,7 +191,6 @@ export function setupRenderer(documentObj : Document){
     Controls.update();
 
     document.body.appendChild(Renderer.domElement);
-    document.body.appendChild(VRButton.createButton(Renderer));
     window.addEventListener('resize', onWindowResize, false);
  
     function onWindowResize() {
@@ -264,7 +239,7 @@ export function setupRenderer(documentObj : Document){
         if (Scene){
             removeEntity(defaultLabel, Scene);
             setText(rockHandling.rockState, rockHandling.stoneSimulation,
-            defaultLabel, defaultLabelFont);
+              rockHandling, defaultLabel, defaultLabelFont);
           }
         //done
         if(rockHandling.rockMeshes[0].position.y <= minFloorHeight ||
@@ -302,7 +277,7 @@ export function setupScene(documentObj : Document){
         Scene.add(rock2);
     })();
 
-    resetRock();
+    //resetRock();
     addHeadsup(document, 'Skip a stone', 100, 50, 'header', 22);
 
     const { Light, Bounce } = makeLights();

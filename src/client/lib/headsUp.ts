@@ -3,7 +3,7 @@ const path = require('path');
 import { mediaPath } from './constants';
 import { roundTo } from './helper';
 import { stone, RockState, RockHandling} from '../types/types'
-import { defaultLabel } from './rock';
+import { defaultLabel } from './constants';
 
 export const headsUpStartText = 'Skip a stone';
 const imgPath = path.join(mediaPath, 'SeekPng.com_png-circle_99552.png');

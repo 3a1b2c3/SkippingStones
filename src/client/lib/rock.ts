@@ -23,7 +23,7 @@ export function resetRock(Scene : any, rockHandling :any){
     removeEntity(defaultLabel, Scene);
     setText(rockHandling.rockState, rockHandling.stoneSimulation, 
       rockHandling,
-       defaultLabel, defaultLabelFont);
+      defaultLabel, defaultLabelFont);
   }
   if (rockHandling.rockMeshes && rockHandling.rockMeshes[0]){
     rockHandling.rockMeshes[0].position.set(0, defaultPositionY, 0);

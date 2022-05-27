@@ -31,18 +31,8 @@ class App {
   box : any;
 
   constructor() {
-    const { Camera, CameraGroup } = makeCamera();   
-    this.camera = Camera;
-    this.scene = setupScene(document);
-    this.renderer = setupRenderer(document);
-    this.renderer.setPixelRatio(window.devicePixelRatio);
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.renderer.outputEncoding = sRGBEncoding;
-    document.body.appendChild(this.renderer.domElement);
-  
     this.initXR();
     this.initScene();
-  
     window.addEventListener('resize', this.onWindowResize.bind(this), false);
     this.renderer.setAnimationLoop(this.render.bind(this));
   }
@@ -59,23 +49,28 @@ class App {
   }
 
   initScene() {
+    const { Camera, CameraGroup } = makeCamera();
+    this.camera = Camera;
+    this.scene = setupScene(document);
+    this.renderer = setupRenderer(document);
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.outputEncoding = sRGBEncoding;
+    document.body.appendChild(this.renderer.domElement);
+  
     const geometry = new RingGeometry(0.08, 0.10, 32).rotateX(-Math.PI / 2);
     const material = new MeshBasicMaterial();
     this.reticle = new Mesh(geometry, material);
     this.reticle.matrixAutoUpdate = false;
     this.reticle.visible = false;
     this.scene.add(this.reticle);
-    //addButton(document, resetRock: any, objectName='button', x_pos=120, y_pos=170){
 
-    geometry = new BoxGeometry(0.1, 0.1, 0.1);
+    const geometry1 = new BoxGeometry(0.1, 0.1, 0.1);
     const material1 = new MeshStandardMaterial({ color: 0x5853e6 });
-    this.box = new Mesh(geometry, material1);
+    this.box = new Mesh(geometry1, material1);
     this.box.visible = false;
     this.scene.add(this.box);
-
-    const light = new HemisphereLight(0xffffff, 0xbbbbff, 1);
-    light.position.set(0.5, 1, 0.25);
-    this.scene.add(light);
+    //addButton(document, resetRock: any, objectName='button', x_pos=120, y_pos=170){
   }
 
   render(_ : any, frame : any) {
