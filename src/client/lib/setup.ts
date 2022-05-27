@@ -1,7 +1,6 @@
 import * as THREE from 'three'; 
 import { OrbitControls } from 'three/examples/jsm/Controls/OrbitControls';
 
-//import { XRAnimationLoopCallback } from './webxr/WebXR';
 import { models, defaultPositionY, defaultRoationX } from './meshes';
 import { makeFloor, WaterMesh, rippleCallbacks, rain } from './water';
 import { makeLights, makeCamera, removeEntity } from './Scene';
@@ -50,7 +49,7 @@ export function setupRenderer(documentObj : Document){
         Camera.updateProjectionMatrix();
         Renderer.setSize(window.innerWidth, window.innerHeight);
     }
-    Renderer.setAnimationLoop(Renderer);//XRAnimationLoopCallback
+    //Renderer.setAnimationLoop(Renderer);//XRAnimationLoopCallback
     return {  Renderer, Controls };
   }
 
@@ -91,65 +90,3 @@ export function setupScene(documentObj : Document, addObjectClickListener : any)
     Scene.add(WaterMesh);
     return { Scene, Clock, Raycaster };
 }
-
-
-  /*
-  function render() {
-      requestAnimationFrame(render);
-      //update simulation
-      if(Clock && rockHandling.rockMeshes?.length && 
-        rockHandling.rockState.valueOf() == RockState.simulation){
-        let splash = false;
-        let delta = Clock.getDelta(); 
-        if (delta > animDelta){
-            delta = animDelta;
-        }
-        const res : THREE.Vector3 = simulateOneStep(rockHandling.stoneSimulation,
-            delta, true);
-        rockHandling.rockMeshes[0].position.x = res.z;
-        rockHandling.rockMeshes[0].position.y = res.y + waterHeight;
-        if (rockHandling.rockMeshes[0].position.y > 0 && 
-          res.y + waterHeight <=  waterHeight){
-          splash = true;
-        }
-        rockHandling.rockMeshes[0].position.y = res.y + waterHeight;
-        rockHandling.rockMeshes[0].position.z = res.x;
-
-         if(splash){
-              rain(.25, 4, 0.005, rockHandling.rockMeshes[0].position.x,
-                rockHandling.rockMeshes[0].position.z, .3, .3, 40);
-                splash = false;
-                if(debug)
-                {
-                    addHeadsup(document, 'Splash', 300, 300, 'splashLabel', 18);
-            
-                  setTimeout(() => {
-                    addHeadsup(document, '', 300, 300, 'splashLabel', 18);
-                  }, 800);
-                }
-          }
-        // update distance label
-        if (Scene){
-            removeEntity(defaultLabel, Scene);
-            setText(rockHandling.rockState, rockHandling.stoneSimulation,
-              rockHandling, defaultLabel, defaultLabelFont);
-          }
-        //done
-        if(rockHandling.rockMeshes[0].position.y <= minFloorHeight ||
-             rockHandling.rockMeshes[0].position.z > 90){
-            if (debug)
-            console.debug('done');
-            rockHandling.rockState = RockState.simulationDone;
-            setTimeout(() => {
-               //resetRock();
-            }, resetTime);
-          }
-      }
-      Renderer.setAnimationLoop(function (time : number) {
-        rippleCallbacks.forEach(cb => cb(time));
-        Renderer.render(Scene, Camera);
-      });
-      Renderer.render(Scene, Camera)
-      return Renderer;
-}
-*/
