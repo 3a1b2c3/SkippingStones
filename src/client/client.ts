@@ -4,18 +4,19 @@ import { Mesh, HemisphereLight, Scene, WebGLRenderer, BoxGeometry,
 import { ARButton } from 'three/examples/jsm/webxr/ARButton';
 import { OrbitControls } from 'three/examples/jsm/Controls/OrbitControls';
 
-import { models, defaultPositionY, defaultRoationX } from "./lib/meshes";
-import { makeFloor, WaterMesh, rippleCallbacks, rain } from "./lib/water";
-import { makeLights, makeCamera, removeEntity } from "./lib/Scene";
-import { StoneDefault, simulateOneStep, reset } from "./lib/skipping";
+import { setupRenderer,setupScene } from './lib/setUp';
+import { models, defaultPositionY, defaultRoationX } from './lib/meshes';
+import { makeFloor, WaterMesh, rippleCallbacks, rain } from './lib/water';
+import { makeLights, makeCamera, removeEntity } from './lib/Scene';
+import { StoneDefault, simulateOneStep, reset } from './lib/skipping';
 import { stone, RockState, RockHandling} from './types/types'
-import { waterHeight, floorHeight} from "./lib/constants";
-import { addHeadsup, addButton } from "./lib/headsUp";
-import { setupRenderer,setupScene } from "./lib/setUp";
+import { waterHeight, floorHeight} from './lib/constants';
+import { addHeadsup, setText, addButton } from './lib/headsUp';
+
 
 
 class App {
-    // WebGL Scene globals, make object 
+  // WebGL Scene
   Controls : OrbitControls | null = null;
   Clock: Clock | null = null;
   Raycaster : THREE.Raycaster | null = null;
@@ -33,7 +34,7 @@ class App {
     const { Camera, CameraGroup } = makeCamera();   
     this.camera = Camera;
     this.scene = setupScene(document);
-    this.renderer =  setupRenderer(document);
+    this.renderer = setupRenderer(document);
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.outputEncoding = sRGBEncoding;
@@ -58,12 +59,13 @@ class App {
   }
 
   initScene() {
-    let geometry = new RingGeometry(0.08, 0.10, 32).rotateX(-Math.PI / 2);
+    const geometry = new RingGeometry(0.08, 0.10, 32).rotateX(-Math.PI / 2);
     const material = new MeshBasicMaterial();
     this.reticle = new Mesh(geometry, material);
     this.reticle.matrixAutoUpdate = false;
     this.reticle.visible = false;
     this.scene.add(this.reticle);
+    //addButton(document, resetRock: any, objectName='button', x_pos=120, y_pos=170){
 
     geometry = new BoxGeometry(0.1, 0.1, 0.1);
     const material1 = new MeshStandardMaterial({ color: 0x5853e6 });

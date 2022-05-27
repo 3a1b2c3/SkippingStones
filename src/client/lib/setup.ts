@@ -2,30 +2,23 @@ import * as THREE from 'three';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton'
 import { OrbitControls } from 'three/examples/jsm/Controls/OrbitControls';
 
-import { models, defaultPositionY, defaultRoationX } from "./meshes";
-import { makeFloor, WaterMesh, rippleCallbacks, rain } from "./water";
-import { makeLights, makeCamera, removeEntity } from "./Scene";
-import { StoneDefault, simulateOneStep, reset } from "./skipping";
+import { models, defaultPositionY, defaultRoationX } from './meshes';
+import { makeFloor, WaterMesh, rippleCallbacks, rain } from './water';
+import { makeLights, makeCamera, removeEntity } from './Scene';
+import { resetRock, rockHandling } from './rock';
+import { StoneDefault, simulateOneStep, reset } from './skipping';
 import { stone, RockState, RockHandling} from '../types/types'
-import { waterHeight, floorHeight} from "./constants";
-import { addHeadsup, addButton } from "./headsUp";
-import { roundTo, clamp } from "./helper";
+import { waterHeight, floorHeight} from './constants';
+import { addHeadsup, addButton } from './headsUp';
+import { roundTo, clamp } from './helper';
+import { defaultLabel, defaultLabelFont } from './constants';
 
 const debug = false;
-const headsUpStartText = "Skip a stone";
-const defaultLabel = "labelSprite";
-const defaultLabelFont = 13;
+
 const minFloorHeight = floorHeight * 1.1;
 const animDelta = 0.02;
 const resetTime = 5000;
 const angleIncr = .03;
-
-const rockHandling : RockHandling = {
-  rockState: RockState.start,
-  rockMeshes: Array<THREE.Mesh>(),
-  intersections : null,
-  stoneSimulation : Object.create(StoneDefault)
-};
 
 
 // WebGL Scene globals, make object 
@@ -41,10 +34,10 @@ const { Camera, CameraGroup } = makeCamera();
 
 //TODO add spin, velocity, incident velocity, weight, height
 function setText(rockState : RockState, stoneObject : stone,
-   objectName="headsUp", fontSize=15, x=100, y=100, documentObj=document) : string {
+   objectName='headsUp', fontSize=15, x=100, y=100, documentObj=document) : string {
   let text = headsUpStartText;
   if (rockState.valueOf() == RockState.selected ){
-    text = "Set rock tilt angle by dragging it with the mouse.";
+    text = 'Set rock tilt angle by dragging it with the mouse.';
   }
   else if (rockHandling.rockState.valueOf() == RockState.configuring){
     text = `Drag the mouse to change the stone's tilt angle: ${roundTo((rockHandling.stoneSimulation.theta * 180 / Math.PI), 2)} degree.`;
@@ -57,7 +50,7 @@ function setText(rockState : RockState, stoneObject : stone,
       text += ` and distance: ${roundTo(stoneObject.out_meters, 2)}  m`;
   }
   else if(rockState.valueOf() == RockState.start && objectName==defaultLabel){
-    text = "Grab the stone to play";
+    text = 'Grab the stone to play';
   }
   addHeadsup(documentObj, text, x, y, objectName, fontSize);
   return text;
@@ -67,13 +60,13 @@ function setText(rockState : RockState, stoneObject : stone,
 document.onkeydown = function(evt) {
   evt = evt || window.event;
   let isEscape = false;
-  if ("key" in evt) {
-      isEscape = (evt.key === "Escape" || evt.key === "Esc");
+  if ('key' in evt) {
+      isEscape = (evt.key === 'Escape' || evt.key === 'Esc');
   } else {
       isEscape = (evt.keyCode === 27);
   }
   if (isEscape) {
-    resetRock();
+    resetRock(scene);
   }
 };
 
@@ -87,7 +80,7 @@ const addObjectClickListener = (
   ) => {
     let startX = 0;
     let startY = 0;
-    document.addEventListener("touchstart", function (event) {
+    document.addEventListener('touchstart', function (event) {
       if (rockHandling.rockMeshes && rockHandling.rockMeshes[0] && rockHandling.intersections &&
         rockHandling.rockState.valueOf() == RockState.start) {
         rockHandling.rockState = RockState.configuring;
@@ -103,10 +96,10 @@ const addObjectClickListener = (
         startY = 0;
       }
     })
-    document.addEventListener("touchend", function (event) {
+    document.addEventListener('touchend', function (event) {
         if (rockHandling.rockMeshes && rockHandling.rockState.valueOf() == RockState.configuring) {
             if (debug)
-            console.debug("mouseup:" + rockHandling.rockState);
+            console.debug('mouseup:' + rockHandling.rockState);
             rockHandling.rockState = RockState.simulation;
             //update label
             removeEntity(defaultLabel, Scene);
@@ -185,7 +178,7 @@ const addObjectClickListener = (
     document.addEventListener('mouseup', function (event) {
       if (rockHandling.rockMeshes && rockHandling.rockState.valueOf() == RockState.configuring) {
           if (debug)
-          console.debug("mouseup:" + rockHandling.rockState);
+          console.debug('mouseup:' + rockHandling.rockState);
           rockHandling.rockState = RockState.simulation;
           //update label
           removeEntity(defaultLabel, Scene);
@@ -198,19 +191,6 @@ const addObjectClickListener = (
    
   };
 
-  function resetRock(){
-    reset(rockHandling.stoneSimulation);
-    rockHandling.rockState = RockState.start;
-    if (Scene){
-      removeEntity(defaultLabel, Scene);
-      setText(rockHandling.rockState, rockHandling.stoneSimulation,
-         defaultLabel, defaultLabelFont);
-    }
-    if (rockHandling.rockMeshes && rockHandling.rockMeshes[0]){
-      rockHandling.rockMeshes[0].position.set(0, defaultPositionY, 0);
-      rockHandling.rockMeshes[0].rotateX(defaultRoationX);
-    }
-  }
 
 export function setupRenderer(documentObj : Document){
     Renderer = new THREE.WebGLRenderer({
@@ -273,10 +253,10 @@ export function setupRenderer(documentObj : Document){
                 splash = false;
                 if(debug)
                 {
-                    addHeadsup(document, "Splash", 300, 300, "splashLabel", 18);
+                    addHeadsup(document, 'Splash', 300, 300, 'splashLabel', 18);
             
                   setTimeout(() => {
-                    addHeadsup(document, "", 300, 300, "splashLabel", 18);
+                    addHeadsup(document, '', 300, 300, 'splashLabel', 18);
                   }, 800);
                 }
           }
@@ -290,10 +270,10 @@ export function setupRenderer(documentObj : Document){
         if(rockHandling.rockMeshes[0].position.y <= minFloorHeight ||
              rockHandling.rockMeshes[0].position.z > 90){
             if (debug)
-            console.debug("done");
+            console.debug('done');
             rockHandling.rockState = RockState.simulationDone;
             setTimeout(() => {
-               resetRock();
+               //resetRock();
             }, resetTime);
           }
       }
@@ -323,7 +303,7 @@ export function setupScene(documentObj : Document){
     })();
 
     resetRock();
-    addHeadsup(document, "Skip a stone", 100, 50, "header", 22);
+    addHeadsup(document, 'Skip a stone', 100, 50, 'header', 22);
 
     const { Light, Bounce } = makeLights();
     const cameraHelper = new THREE.CameraHelper(Light.shadow.camera);
@@ -341,11 +321,3 @@ export function setupScene(documentObj : Document){
     Scene.add(WaterMesh);
     return Scene;
 }
-
-function setup(documentObj : Document, resetRockFct : any){
-    const renderer = setupRenderer(documentObj);
-    const scene = setupScene(documentObj);
-    addButton(documentObj, resetRockFct);
-}
-
-//setup(document, resetRock);

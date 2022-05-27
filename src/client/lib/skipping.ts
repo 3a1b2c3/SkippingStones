@@ -82,7 +82,7 @@ its orientation would change by an appreciable amount during free flight{ the in
     for the next collision has little chance to still be in a favorable situation. 
     There is therefore a need for a stabilizing angular motion. This is the role of the spin of the stone.
   A spin motion around normal vector of stone induces a stabilizing torque{ this is the well-known gyroscopic effect.
- Spin motion induces a stabilizing torque that can maintain theta around its initial value."
+ Spin motion induces a stabilizing torque that can maintain theta around its initial value.'
  If after a collision, the stone is put in rotation around the y axis
 */
 export function collision(Stone : stone, media : string){
@@ -288,7 +288,7 @@ export function simulateOneStep(Stone : stone,
     Stone.position.add(velocity);
     if(debug){
         console.error(JSON.stringify(Stone.position)
-         + "Stone.position: " + JSON.stringify(Stone.velocity));
+         + 'Stone.position: ' + JSON.stringify(Stone.velocity));
     }
     // Stone skipping
     if (Stone.position.y <= 0 && skipping){

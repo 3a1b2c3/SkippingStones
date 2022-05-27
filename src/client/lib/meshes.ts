@@ -2,7 +2,7 @@ const path = require('path');
 import {
     MeshPhongMaterial
 } from 'three';
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 import { mediaPath } from './constants';
 
