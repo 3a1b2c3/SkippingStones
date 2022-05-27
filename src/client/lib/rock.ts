@@ -1,4 +1,4 @@
-import * as THREE from 'three'; 
+import { Scene } from 'three';
 
 import { StoneDefault, reset } from './skipping';
 import { RockState, RockHandling} from '../types/types'
@@ -16,11 +16,11 @@ export const rockHandling : RockHandling = {
 };
 
 
-export function resetRock(Scene : any, rockHandling :any){
+export function resetRock(scene : Scene, rockHandling : RockHandling){
   reset(rockHandling.stoneSimulation);
   rockHandling.rockState = RockState.start;
-  if (Scene){
-    removeEntity(defaultLabel, Scene);
+  if (scene){
+    removeEntity(defaultLabel, scene);
     setText(rockHandling.rockState, rockHandling.stoneSimulation, 
       rockHandling,
       defaultLabel, defaultLabelFont);
