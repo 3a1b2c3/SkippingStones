@@ -1,7 +1,7 @@
 import * as THREE from 'three'; 
 import { VRButton } from 'three/examples/jsm/webxr/VRButton';
 import { ARButton } from 'three/examples/jsm/webxr/ARButton';
-import { OrbitControls } from 'three/examples/jsm/Controls/OrbitControls';
+import { OrbitCameraControls } from 'three/examples/jsm/CameraControls/OrbitCameraControls';
 
 import { models } from "./lib/meshes";
 import { makeFloor, WaterMesh, rippleCallbacks, rain } from "./lib/water";
@@ -30,7 +30,7 @@ const rockHandling : RockHandling = {
 // WebGL Scene globals, make object 
 let Renderer : THREE.WebGLRenderer | null | any = null;
 let Scene : THREE.Scene | null = null;
-let Controls : OrbitControls | null = null;
+let CameraControls : OrbitCameraControls | null = null;
 let Clock: THREE.Clock | null = null;
 let Raycaster : THREE.Raycaster | null = null;
 
@@ -87,8 +87,8 @@ const addObjectClickListener = (
             removeEntity(defaultLabel, Scene);
             setText(rockHandling.rockState, rockHandling.stoneSimulation,
                rockHandling, defaultLabel, defaultLabelFont);
-            if (Controls)
-              Controls.enableRotate = true;
+            if (CameraControls)
+              CameraControls.enableRotate = true;
         }
     })
    
@@ -142,8 +142,8 @@ const addObjectClickListener = (
         //const diffX = Math.abs(event.pageX - startX);//weight
         const diffY = Math.abs(event.pageY - startY);
         const delta = 5;
-        if (Controls){
-          Controls.enableRotate = false;
+        if (CameraControls){
+          CameraControls.enableRotate = false;
         }
         if (diffY > delta) {
             const angleDiff = clamp(diffY *.005, -angleIncr,  angleIncr);
@@ -166,8 +166,8 @@ const addObjectClickListener = (
           removeEntity(defaultLabel, Scene);
           setText(rockHandling.rockState, rockHandling.stoneSimulation,
              rockHandling, defaultLabel, defaultLabelFont);
-          if (Controls)
-            Controls.enableRotate = true;
+          if (CameraControls)
+            CameraControls.enableRotate = true;
       }
     });
    
@@ -181,16 +181,17 @@ function setupRenderer(documentObj : Document){
     Renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     //Renderer.outputEncoding = THREE.sRGBEncoding;
     Renderer.setSize(window.innerWidth, window.innerHeight);
-    
+    Renderer.setPixelRatio(window.devicePixelRatio);
+
     Renderer.xr.enabled = true;
 
     //orbit
-    Controls = new OrbitControls(Camera, Renderer.domElement);
-    Controls.maxPolarAngle = Math.PI * 0.5;
-    Controls.maxDistance = 10;
+    CameraControls = new OrbitCameraControls(Camera, Renderer.domElement);
+    CameraControls.maxPolarAngle = Math.PI * 0.5;
+    CameraControls.maxDistance = 10;
     Camera.position.set(0, 1.6, -5);
-    Controls.target = new THREE.Vector3(0, 1, 0);
-    Controls.update();
+    CameraControls.target = new THREE.Vector3(0, 1, 0);
+    CameraControls.update();
 
     document.body.appendChild(Renderer.domElement);
     document.body.appendChild(VRButton.createButton(Renderer));
@@ -295,10 +296,14 @@ function setupScene(documentObj : Document){
     return Scene;
 }
 
-//TODO
-function initSimulation(){
+
+function initSimulation(rockh : RockHandling){
   if (Scene)
-  resetRock(Scene, rockHandling);
+  resetRock(Scene, rockh);
+  rockh.rockState = RockState.start;
+  rockh.rockMeshes = Array<THREE.Mesh>(),
+  rockh.intersections = null;
+  rockh.stoneSimulation = Object.create(StoneDefault);
 }
 
 function initUI(documentObj : Document) {
@@ -311,7 +316,7 @@ function initUI(documentObj : Document) {
 function setup(documentObj : Document, resetRockFct : any){
     const renderer = setupRenderer(documentObj);
     const scene = setupScene(documentObj);
-    initSimulation();
+    initSimulation(rockHandling);
     initUI(documentObj);
     addObjectClickListener(scene);
 }
