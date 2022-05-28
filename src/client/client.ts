@@ -8,8 +8,8 @@ import { makeLights, makeCamera, removeEntity } from "./lib/Scene";
 import { StoneDefault, simulateOneStep, reset } from "./lib/skipping";
 import { stone, RockState, RockHandling} from './types/types'
 import { waterHeight, floorHeight} from "./lib/constants";
-import { addHeadsup, addButton } from "./lib/headsUp";
-import { roundTo, clamp } from "./lib/helper";
+import { addHeadsup, addButton, setText } from "./lib/headsUp";
+import { clamp } from "./lib/helper";
 
 const debug = false;
 const headsUpStartText = "Skip a stone";
@@ -40,35 +40,6 @@ let Raycaster : THREE.Raycaster | null = null;
 
 const Pointer = new THREE.Vector2();
 const { Camera, CameraGroup } = makeCamera();
-const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent); 
-
-let mobile = false;
-
-
-//TODO add spin, velocity, incident velocity, weight, height
-function setText(rockState : RockState, stoneObject : stone,
-   objectName="headsUp", fontSize=15, x=100, y=100, documentObj=document) : string {
-  let text = headsUpStartText;
-  if (rockState.valueOf() == RockState.selected ){
-    text = "Set rock tilt angle by dragging it with the mouse.";
-  }
-  else if (rockHandling.rockState.valueOf() == RockState.configuring){
-    text = `Drag the mouse to change the stone's tilt angle: ${roundTo((rockHandling.stoneSimulation.theta * 180 / Math.PI), 2)} degree.`;
-  }
-  else if(rockState.valueOf() == RockState.simulation){
-    text = `${stoneObject.out_bounces} bounce`
-    if (stoneObject.out_bounces != 1)
-      text += `s`;
-    if (stoneObject.out_meters)
-      text += ` and distance: ${roundTo(stoneObject.out_meters, 2)}  m`;
-  }
-  else if(rockState.valueOf() == RockState.start && objectName==defaultLabel){
-    text = "Grab the stone to play";
-  }
-  addHeadsup(documentObj, text, x, y, objectName, fontSize);
-  return text;
-}
-
 
 document.onkeydown = function(evt) {
   evt = evt || window.event;
@@ -102,7 +73,7 @@ const addObjectClickListener = (
         startY = touch.pageY;
         removeEntity(defaultLabel, Scene);
         setText(rockHandling.rockState, rockHandling.stoneSimulation,
-          defaultLabel, defaultLabelFont);
+          rockHandling, defaultLabel, defaultLabelFont);
       }
       else{
         startX = 0;
@@ -117,7 +88,7 @@ const addObjectClickListener = (
             //update label
             removeEntity(defaultLabel, Scene);
             setText(rockHandling.rockState, rockHandling.stoneSimulation,
-               defaultLabel, defaultLabelFont);
+               rockHandling, defaultLabel, defaultLabelFont);
             if (Controls)
               Controls.enableRotate = true;
         }
@@ -133,7 +104,7 @@ const addObjectClickListener = (
           console.debug(startY + 'mousedown' + rockHandling.rockState);
         removeEntity(defaultLabel, Scene);
         setText(rockHandling.rockState, rockHandling.stoneSimulation,
-          defaultLabel, defaultLabelFont);
+          rockHandling, defaultLabel, defaultLabelFont);
       }
       else{
         startX = 0;
@@ -183,7 +154,7 @@ const addObjectClickListener = (
             //update label
             removeEntity(defaultLabel, Scene);
             setText(rockHandling.rockState, rockHandling.stoneSimulation,
-               defaultLabel, defaultLabelFont);
+               rockHandling, defaultLabel, defaultLabelFont);
           }
         }
     });
@@ -196,7 +167,7 @@ const addObjectClickListener = (
           //update label
           removeEntity(defaultLabel, Scene);
           setText(rockHandling.rockState, rockHandling.stoneSimulation,
-             defaultLabel, defaultLabelFont);
+             rockHandling, defaultLabel, defaultLabelFont);
           if (Controls)
             Controls.enableRotate = true;
       }
@@ -210,7 +181,7 @@ const addObjectClickListener = (
     if (Scene){
       removeEntity(defaultLabel, Scene);
       setText(rockHandling.rockState, rockHandling.stoneSimulation,
-         defaultLabel, defaultLabelFont);
+         rockHandling, defaultLabel, defaultLabelFont);
     }
     if (rockHandling.rockMeshes && rockHandling.rockMeshes[0]){
       rockHandling.rockMeshes[0].position.set(0, defaultPositionY, 0);
@@ -287,7 +258,7 @@ function setupRenderer(documentObj : Document){
         if (Scene){
             removeEntity(defaultLabel, Scene);
             setText(rockHandling.rockState, rockHandling.stoneSimulation,
-            defaultLabel, defaultLabelFont);
+            rockHandling, defaultLabel, defaultLabelFont);
           }
         //done
         if(rockHandling.rockMeshes[0].position.y <= minFloorHeight ||
@@ -309,7 +280,6 @@ function setupRenderer(documentObj : Document){
 }
 
 function setupScene(documentObj : Document){
-    if (isMobile) { mobile = true; } else{	mobile = false; }
     Scene = new THREE.Scene();
     Clock = new THREE.Clock();
     Raycaster = new THREE.Raycaster();
