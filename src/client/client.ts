@@ -12,19 +12,11 @@ import { addHeadsup, addButton, setText } from "./lib/headsUp";
 import { resetRock } from "./lib/rock";
 import { clamp } from "./lib/helper";
 
-
 const debug = false;
 const minFloorHeight = floorHeight * 1.1;
 const animDelta = 0.02;
 const resetTime = 5000;
 const angleIncr = .03;
-
-const rockHandling : RockHandling = {
-  rockState: RockState.start,
-  rockMeshes: Array<THREE.Mesh>(),
-  intersections : null,
-  stoneSimulation : Object.create(StoneDefault)
-};
 
 const Pointer = new THREE.Vector2();
 
@@ -42,6 +34,122 @@ let Raycaster : THREE.Raycaster | null = null;
 
 const { Camera, CameraGroup } = makeCamera();
 
+const rockHandling : RockHandling = {
+  rockState: RockState.start,
+  rockMeshes: Array<THREE.Mesh>(),
+  intersections : null,
+  stoneSimulation : Object.create(StoneDefault)
+};
+
+function render() {
+      requestAnimationFrame(render);
+      //update simulation
+      if(Clock && rockHandling.rockMeshes?.length && 
+        rockHandling.rockState.valueOf() == RockState.simulation){
+        let splash = false;
+        let delta = Clock.getDelta(); 
+        if (delta > animDelta){
+            delta = animDelta;
+        }
+        const res : THREE.Vector3 = simulateOneStep(rockHandling.stoneSimulation,
+            delta, true);
+        rockHandling.rockMeshes[0].position.x = res.z;
+        rockHandling.rockMeshes[0].position.y = res.y + waterHeight;
+        if (rockHandling.rockMeshes[0].position.y > 0 && 
+          res.y + waterHeight <=  waterHeight){
+          splash = true;
+        }
+        rockHandling.rockMeshes[0].position.y = res.y + waterHeight;
+        rockHandling.rockMeshes[0].position.z = res.x;
+
+         if(splash){
+              rain(.25, 4, 0.005, rockHandling.rockMeshes[0].position.x,
+                rockHandling.rockMeshes[0].position.z, .3, .3, 40);
+                splash = false;
+                if(debug)
+                {
+                  addHeadsup(document, "Splash", 300, 300, "splashLabel", 18);
+                  setTimeout(() => {
+                    addHeadsup(document, "", 300, 300, "splashLabel", 18);
+                  }, 1200);
+                }
+                //callback for splashes and ripples
+                Renderer.setAnimationLoop(function (time : number) {
+                  rippleCallbacks.forEach(cb => cb(time));
+                  Renderer.render(Scene, Camera);
+                });
+          }
+        // update distance label
+        if (Scene){
+            removeEntity(defaultLabel, Scene);
+            setText(rockHandling.rockState, rockHandling.stoneSimulation,
+            rockHandling, defaultLabel, defaultLabelFont);
+          }
+        //done
+        if(rockHandling.rockMeshes[0].position.y <= minFloorHeight ||
+             rockHandling.rockMeshes[0].position.z > 90){
+            if (debug)
+            console.debug("done");
+            rockHandling.rockState = RockState.simulationDone;
+            setTimeout(() => {
+                if (Scene)
+                resetRock(Scene, rockHandling);
+            }, resetTime);
+          }
+      }
+      Renderer.setAnimationLoop(function (time : number) {
+        rippleCallbacks.forEach(cb => cb(time));
+        Renderer.render(Scene, Camera);
+      });
+      Renderer.render(Scene, Camera)
+}
+
+function setupScene(documentObj : Document){
+    Scene = new THREE.Scene();
+    Clock = new THREE.Clock();
+    Raycaster = new THREE.Raycaster();
+    const modelsPromise = (async function () {
+        const {
+            rock,
+            rock2,
+        } = await models;
+        rockHandling.rockMeshes.push(rock);
+        Scene.add(rock);
+        Scene.add(rock2);
+    })();
+
+    const { Light, Bounce } = makeLights();
+    const cameraHelper = new THREE.CameraHelper(Light.shadow.camera);
+    const sky = makeSky();
+    Scene.add(cameraHelper);;
+    const helper = new THREE.DirectionalLightHelper(Light);
+    if (debug)
+    Scene.add(helper)
+    Scene.add(sky);
+    Scene.add(Bounce);
+    Scene.add(Light);
+    Scene.add(Camera);
+    Scene.add(CameraGroup);
+    Scene.add(makeFloor());
+    Scene.add(WaterMesh);
+    return Scene;
+}
+
+
+function initSimulation(rockh : RockHandling){
+  if (Scene)
+  resetRock(Scene, rockh);
+  rockh.rockState = RockState.start;
+  rockh.rockMeshes = Array<THREE.Mesh>(),
+  rockh.intersections = null;
+  rockh.stoneSimulation = Object.create(StoneDefault);
+}
+
+function initUI(documentObj : Document) {
+  if (Scene)
+  addButton(documentObj, resetRock, Scene, rockHandling);
+  addHeadsup(documentObj, 'Skip a stone', 100, 50, 'header', 22);
+}
 
 //callbacks
 const addObjectClickListener = (
@@ -171,7 +279,7 @@ const addObjectClickListener = (
       }
     });
    
-  };
+};
 
 function setupRenderer(documentObj : Document){
     Renderer = new THREE.WebGLRenderer({
@@ -207,116 +315,6 @@ function setupRenderer(documentObj : Document){
     }
     Renderer.setAnimationLoop(render);
   }
-
-  function render() {
-      requestAnimationFrame(render);
-      //update simulation
-      if(Clock && rockHandling.rockMeshes?.length && 
-        rockHandling.rockState.valueOf() == RockState.simulation){
-        let splash = false;
-        let delta = Clock.getDelta(); 
-        if (delta > animDelta){
-            delta = animDelta;
-        }
-        const res : THREE.Vector3 = simulateOneStep(rockHandling.stoneSimulation,
-            delta, true);
-        rockHandling.rockMeshes[0].position.x = res.z;
-        rockHandling.rockMeshes[0].position.y = res.y + waterHeight;
-        if (rockHandling.rockMeshes[0].position.y > 0 && 
-          res.y + waterHeight <=  waterHeight){
-          splash = true;
-        }
-        rockHandling.rockMeshes[0].position.y = res.y + waterHeight;
-        rockHandling.rockMeshes[0].position.z = res.x;
-
-         if(splash){
-              rain(.25, 4, 0.005, rockHandling.rockMeshes[0].position.x,
-                rockHandling.rockMeshes[0].position.z, .3, .3, 40);
-                splash = false;
-                if(debug)
-                {
-                  addHeadsup(document, "Splash", 300, 300, "splashLabel", 18);
-                  setTimeout(() => {
-                    addHeadsup(document, "", 300, 300, "splashLabel", 18);
-                  }, 1200);
-                }
-                //callback for splashes and ripples
-                Renderer.setAnimationLoop(function (time : number) {
-                  rippleCallbacks.forEach(cb => cb(time));
-                  Renderer.render(Scene, Camera);
-                });
-          }
-        // update distance label
-        if (Scene){
-            removeEntity(defaultLabel, Scene);
-            setText(rockHandling.rockState, rockHandling.stoneSimulation,
-            rockHandling, defaultLabel, defaultLabelFont);
-          }
-        //done
-        if(rockHandling.rockMeshes[0].position.y <= minFloorHeight ||
-             rockHandling.rockMeshes[0].position.z > 90){
-            if (debug)
-            console.debug("done");
-            rockHandling.rockState = RockState.simulationDone;
-            setTimeout(() => {
-                if (Scene)
-                resetRock(Scene, rockHandling);
-            }, resetTime);
-          }
-      }
-      Renderer.setAnimationLoop(function (time : number) {
-        rippleCallbacks.forEach(cb => cb(time));
-        Renderer.render(Scene, Camera);
-      });
-      Renderer.render(Scene, Camera)
-}
-
-function setupScene(documentObj : Document){
-    Scene = new THREE.Scene();
-    Clock = new THREE.Clock();
-    Raycaster = new THREE.Raycaster();
-    const modelsPromise = (async function () {
-        const {
-            rock,
-            rock2,
-        } = await models;
-        rockHandling.rockMeshes.push(rock);
-        Scene.add(rock);
-        Scene.add(rock2);
-    })();
-
-    const { Light, Bounce } = makeLights();
-    const cameraHelper = new THREE.CameraHelper(Light.shadow.camera);
-    const sky = makeSky();
-    Scene.add(cameraHelper);;
-    const helper = new THREE.DirectionalLightHelper(Light);
-    if (debug)
-    Scene.add(helper)
-    Scene.add(sky);
-    Scene.add(Bounce);
-    Scene.add(Light);
-    Scene.add(Camera);
-    Scene.add(CameraGroup);
-    Scene.add(makeFloor());
-    Scene.add(WaterMesh);
-    return Scene;
-}
-
-
-function initSimulation(rockh : RockHandling){
-  if (Scene)
-  resetRock(Scene, rockh);
-  rockh.rockState = RockState.start;
-  rockh.rockMeshes = Array<THREE.Mesh>(),
-  rockh.intersections = null;
-  rockh.stoneSimulation = Object.create(StoneDefault);
-}
-
-function initUI(documentObj : Document) {
-  if (Scene)
-  addButton(documentObj, resetRock, Scene, rockHandling);
-  addHeadsup(documentObj, 'Skip a stone', 100, 50, 'header', 22);
-}
 
 
 function setup(documentObj : Document, resetRockFct : any){
