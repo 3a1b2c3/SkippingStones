@@ -3,21 +3,18 @@ import { VRButton } from 'three/examples/jsm/webxr/VRButton';
 import { ARButton } from 'three/examples/jsm/webxr/ARButton';
 import { OrbitControls } from 'three/examples/jsm/Controls/OrbitControls';
 
-import { models, defaultPositionY, defaultRoationX } from "./lib/meshes";
+import { models } from "./lib/meshes";
 import { makeFloor, WaterMesh, rippleCallbacks, rain } from "./lib/water";
 import { makeLights, makeCamera, removeEntity } from "./lib/Scene";
-import { StoneDefault, simulateOneStep, reset } from "./lib/skipping";
-import { stone, RockState, RockHandling} from './types/types'
-import { waterHeight, floorHeight} from "./lib/constants";
+import { StoneDefault, simulateOneStep } from "./lib/skipping";
+import { RockState, RockHandling} from './types/types'
+import { waterHeight, floorHeight, defaultLabel, defaultLabelFont} from "./lib/constants";
 import { addHeadsup, addButton, setText } from "./lib/headsUp";
 import { resetRock } from "./lib/rock";
 import { clamp } from "./lib/helper";
 
 
 const debug = false;
-const headsUpStartText = "Skip a stone";
-const defaultLabel = "labelSprite";
-const defaultLabelFont = 13;
 const minFloorHeight = floorHeight * 1.1;
 const animDelta = 0.02;
 const resetTime = 5000;
@@ -283,8 +280,6 @@ function setupScene(documentObj : Document){
         Scene.add(rock);
         Scene.add(rock2);
     })();
-
-    //addHeadsup(document, "Skip a stone", 100, 50, "header", 22);
 
     const { Light, Bounce } = makeLights();
     const cameraHelper = new THREE.CameraHelper(Light.shadow.camera);
