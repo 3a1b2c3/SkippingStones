@@ -274,9 +274,6 @@ function setupScene(documentObj : Document){
             rock2,
         } = await models;
         rockHandling.rockMeshes.push(rock);
-        addObjectClickListener(
-          Scene
-        );
         Scene.add(rock);
         Scene.add(rock2);
     })();
@@ -316,6 +313,7 @@ function setup(documentObj : Document, resetRockFct : any){
     const scene = setupScene(documentObj);
     initSimulation();
     initUI(documentObj);
+    addObjectClickListener(scene);
 }
 
 
