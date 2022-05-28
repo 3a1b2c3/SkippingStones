@@ -1,7 +1,5 @@
-import { Mesh, Scene, CameraHelper,
-  BoxGeometry, WebGLRenderer, PCFSoftShadowMap,
-  MeshStandardMaterial, MeshBasicMaterial, 
-  sRGBEncoding,
+import { Scene, CameraHelper,
+  WebGLRenderer, PCFSoftShadowMap,
   Vector3, Clock, Raycaster } from 'three'; 
 import { OrbitControls } from 'three/examples/jsm/Controls/OrbitControls';
 
@@ -9,13 +7,6 @@ import { models } from './meshes';
 import { makeFloor, WaterMesh } from './water';
 import { makeLights, makeCamera } from './Scene';
 import { rockHandling } from './rock';
-import { floorHeight} from './constants';
-import { addHeadsup } from './headsUp';
-
-const minFloorHeight = floorHeight * 1.1;
-const animDelta = 0.02;
-const resetTime = 5000;
-const angleIncr = .03;
 
 const { Camera, CameraGroup } = makeCamera();
 
@@ -30,7 +21,6 @@ export function setupRenderer(documentObj : Document){
     Renderer.shadowMap.type = PCFSoftShadowMap;
     //Renderer.outputEncoding = sRGBEncoding;
     Renderer.setSize(window.innerWidth, window.innerHeight);
-    
     Renderer.xr.enabled = true;
 
     //orbit
