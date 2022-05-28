@@ -1,4 +1,4 @@
-import { Scene } from 'three';
+import { Scene, Mesh } from 'three';
 
 import { StoneDefault, reset } from './skipping';
 import { RockState, RockHandling} from '../types/types'
@@ -10,7 +10,7 @@ import { defaultLabel, defaultLabelFont } from './constants';
 
 export const rockHandling : RockHandling = {
   rockState: RockState.start,
-  rockMeshes: Array<THREE.Mesh>(),
+  rockMeshes: Array<Mesh>(),
   intersections : null,
   stoneSimulation : Object.create(StoneDefault)
 };
