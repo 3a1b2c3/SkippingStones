@@ -8,10 +8,17 @@ import { resetRock } from './lib/rock';
 import { setupRenderer, setupScene } from './lib/setUp';
 import { removeEntity } from './lib/Scene';
 import { StoneDefault, simulateOneStep, reset } from './lib/skipping';
-import { stone, RockState, RockHandling} from './types/types'
+import { RockState, RockHandling} from './types/types'
 import { waterHeight, floorHeight } from './lib/constants';
 import { addHeadsup, setText, addButton } from './lib/headsUp';
 import { rippleCallbacks, rain } from './lib/water';
+import { defaultLabel, defaultLabelFont } from './lib/constants';
+import { clamp } from './lib/helper';
+
+const debug = false;
+const animDelta = 0.02;
+const resetTime = 5000;
+const angleIncr = .03;
 
 const Pointer = new Vector2();
 
@@ -89,7 +96,8 @@ class App {
     this.initSimulation();
     this.Clock = clock;
     this.Raycaster = raycaster;
-    this.addObjectClickListener();
+    this.addObjectClickListener(this.rockHandling, this.scene,
+         this.controls, this.camera, this.Raycaster);
     this.renderer.setAnimationLoop(function (time : number) {
       rippleCallbacks.forEach(cb => cb(time));
         //this.renderer.render(this.scene, this.camera);
@@ -162,9 +170,11 @@ class App {
     }
   }
 
-  addObjectClickListener = () => {
+  addObjectClickListener = (rockHandling : any, scene :any, 
+    controls : any, camera :any, raycaster :any) => {
     let startX = 0;
-    let startY = 0;  /*
+    let startY = 0;
+
     document.addEventListener("touchstart", function (event) {
       if (rockHandling.rockMeshes && rockHandling.rockMeshes[0] && rockHandling.intersections &&
         rockHandling.rockState.valueOf() == RockState.start) {
@@ -172,9 +182,9 @@ class App {
         const touch = event.touches[0] || event.changedTouches[0];
         startX = touch.pageX;
         startY = touch.pageY;
-        removeEntity(defaultLabel, Scene);
+        removeEntity(defaultLabel, scene);
         setText(rockHandling.rockState, rockHandling.stoneSimulation,
-          defaultLabel, defaultLabelFont);
+          rockHandling, defaultLabel, defaultLabelFont);
       }
       else{
         startX = 0;
@@ -187,11 +197,11 @@ class App {
             console.debug("mouseup:" + rockHandling.rockState);
             rockHandling.rockState = RockState.simulation;
             //update label
-            removeEntity(defaultLabel, Scene);
+            removeEntity(defaultLabel, scene);
             setText(rockHandling.rockState, rockHandling.stoneSimulation,
-               defaultLabel, defaultLabelFont);
-            if (Controls)
-              Controls.enableRotate = true;
+              rockHandling, defaultLabel, defaultLabelFont);
+            if (controls)
+              controls.enableRotate = true;
         }
     })
    
@@ -203,9 +213,9 @@ class App {
         startY = event.pageY;
         if (debug)
           console.debug(startY + 'mousedown' + rockHandling.rockState);
-        removeEntity(defaultLabel, Scene);
+        removeEntity(defaultLabel, scene);
         setText(rockHandling.rockState, rockHandling.stoneSimulation,
-          defaultLabel, defaultLabelFont);
+          rockHandling, defaultLabel, defaultLabelFont);
       }
       else{
         startX = 0;
@@ -214,9 +224,9 @@ class App {
     });
 
     document.addEventListener('mousemove', function (event) {
-      if (Raycaster){
-        Raycaster.setFromCamera(Pointer, Camera);
-          const intersects = Raycaster.intersectObjects(Scene.children, true);
+      if (raycaster){
+        raycaster.setFromCamera(Pointer, camera);
+          const intersects = raycaster.intersectObjects(scene.children, true);
           if (intersects.length > 0) {
             if ( intersects.length > 0 ) {
               if (rockHandling.intersections != intersects[0].object) {
@@ -245,17 +255,17 @@ class App {
         //const diffX = Math.abs(event.pageX - startX);//weight
         const diffY = Math.abs(event.pageY - startY);
         const delta = 5;
-        if (Controls){
-          Controls.enableRotate = false;
+        if (controls){
+          controls.enableRotate = false;
         }
         if (diffY > delta) {
             const angleDiff = clamp(diffY *.005, -angleIncr,  angleIncr);
             rockHandling.rockMeshes[0].rotateX(angleDiff);
             rockHandling.stoneSimulation.theta = rockHandling.rockMeshes[0].rotation.x;
             //update label
-            removeEntity(defaultLabel, Scene);
+            removeEntity(defaultLabel, scene);
             setText(rockHandling.rockState, rockHandling.stoneSimulation,
-               defaultLabel, defaultLabelFont);
+              rockHandling, defaultLabel, defaultLabelFont);
           }
         }
     });
@@ -266,14 +276,14 @@ class App {
           console.debug("mouseup:" + rockHandling.rockState);
           rockHandling.rockState = RockState.simulation;
           //update label
-          removeEntity(defaultLabel, Scene);
+          removeEntity(defaultLabel, scene);
           setText(rockHandling.rockState, rockHandling.stoneSimulation,
-             defaultLabel, defaultLabelFont);
-          if (Controls)
-            Controls.enableRotate = true;
+            rockHandling, defaultLabel, defaultLabelFont);
+          if (controls)
+            controls.enableRotate = true;
       }
     });
-     */
+
   };
 
 };
