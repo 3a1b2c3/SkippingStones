@@ -33,20 +33,6 @@ function onPointerMove( event : any ) {
   Pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
 }
 
-// reset game
-document.onkeydown = function(evt) {
-  evt = evt || window.event;
-  let isEscape = false;
-  if ("key" in evt) {
-      isEscape = (evt.key === "Escape" || evt.key === "Esc");
-  } else {
-      isEscape = (evt.keyCode === 27);
-  }
-  if (isEscape && Scene) {
-    resetRock(Scene, rockHandling);
-  }
-};
-
 // WebGL Scene globals, make object 
 let Renderer : THREE.WebGLRenderer | null | any = null;
 let Scene : THREE.Scene | null = null;
@@ -57,13 +43,25 @@ let Raycaster : THREE.Raycaster | null = null;
 const { Camera, CameraGroup } = makeCamera();
 
 
-
 //callbacks
 const addObjectClickListener = (
   Scene : THREE.Scene
   ) => {
     let startX = 0;
     let startY = 0;
+    // reset game
+    document.onkeydown = function(evt) {
+      evt = evt || window.event;
+      let isEscape = false;
+      if ("key" in evt) {
+          isEscape = (evt.key === "Escape" || evt.key === "Esc");
+      } else {
+          isEscape = (evt.keyCode === 27);
+      }
+      if (isEscape && Scene) {
+        resetRock(Scene, rockHandling);
+      }
+    };
     document.addEventListener("touchstart", function (event) {
       if (rockHandling.rockMeshes && rockHandling.rockMeshes[0] && rockHandling.intersections &&
         rockHandling.rockState.valueOf() == RockState.start) {
