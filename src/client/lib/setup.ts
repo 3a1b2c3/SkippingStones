@@ -36,7 +36,7 @@ export function setupRenderer(documentObj : Document, renderer: WebGLRenderer){
         renderer.setSize(window.innerWidth, window.innerHeight);
     }
     //Renderer.setAnimationLoop(Renderer);//XRAnimationLoopCallback
-    return Controls;
+    return { Controls, Camera };
   }
 
 
@@ -57,9 +57,7 @@ export function setupScene(documentObj : Document, scene : Scene){
     const cameraHelper = new CameraHelper(Light.shadow.camera);
     scene.add(cameraHelper);
     scene.add(Bounce);
-    scene.add(Light);
-    scene.add(Camera);
-    scene.add(CameraGroup);
+    scene.add(Light);;
     scene.add(makeFloor());
     scene.add(WaterMesh);
 

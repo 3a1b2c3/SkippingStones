@@ -34,17 +34,17 @@ class App {
   controller : any;
   reticle : any;
   box : any;
+  controls : any;
 
   constructor() {
-    const { Camera, CameraGroup } = makeCamera();
-    this.camera = Camera;
     this.scene = new Scene();
-  
     this.renderer = new WebGLRenderer({
         antialias: true,
         alpha: true
     });
-    const Controls = setupRenderer(document, this.renderer);
+    const { Camera, Controls } = setupRenderer(document, this.renderer);
+    this.camera = Camera;
+    this.controls = Controls;
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.outputEncoding = sRGBEncoding;
