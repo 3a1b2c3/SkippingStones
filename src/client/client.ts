@@ -25,12 +25,22 @@ function onPointerMove( event : any ) {
   Pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
 }
 
-// WebGL Scene globals, make object 
-let Renderer : THREE.WebGLRenderer | null | any = null;
-let Scene : THREE.Scene | null = null;
-let CameraControls : OrbitControls | null = null;
-let Clock: THREE.Clock | null = null;
-let Raycaster : THREE.Raycaster | null = null;
+let app : any = null;
+
+class App {
+  // WebGL Scene globals
+  Renderer : THREE.WebGLRenderer | null | any = null;
+  Scene : THREE.Scene | null = null;
+  CameraControls : OrbitControls | null = null;
+  Clock: THREE.Clock | null = null;
+  Raycaster : THREE.Raycaster | null = null;
+  hitTestSourceRequested = false;
+  hitTestSource : any;
+  controller : any;
+  reticle : any;
+  box : any;
+  rockHandling : any;
+}
 
 const { Camera, CameraGroup } = makeCamera();
 
@@ -44,10 +54,10 @@ const rockHandling : RockHandling = {
 function render() {
       requestAnimationFrame(render);
       //update simulation
-      if(Clock && rockHandling.rockMeshes?.length && 
+      if(app.Clock && rockHandling.rockMeshes?.length && 
         rockHandling.rockState.valueOf() == RockState.simulation){
         let splash = false;
-        let delta = Clock.getDelta(); 
+        let delta = app.Clock.getDelta(); 
         if (delta > animDelta){
             delta = animDelta;
         }
@@ -74,14 +84,14 @@ function render() {
                   }, 1200);
                 }
                 //callback for splashes and ripples
-                Renderer.setAnimationLoop(function (time : number) {
+                app.Renderer.setAnimationLoop(function (time : number) {
                   rippleCallbacks.forEach(cb => cb(time));
-                  Renderer.render(Scene, Camera);
+                  app.Renderer.render(app.Scene, Camera);
                 });
           }
         // update distance label
-        if (Scene){
-            removeEntity(defaultLabel, Scene);
+        if (app.Scene){
+            removeEntity(defaultLabel, app.Scene);
             setText(rockHandling.rockState, rockHandling.stoneSimulation,
             rockHandling, defaultLabel, defaultLabelFont);
           }
@@ -92,53 +102,53 @@ function render() {
             console.debug("done");
             rockHandling.rockState = RockState.simulationDone;
             setTimeout(() => {
-                if (Scene)
-                resetRock(Scene, rockHandling);
+                if (app.Scene)
+                resetRock(app.Scene, rockHandling);
             }, resetTime);
           }
       }
-      Renderer.setAnimationLoop(function (time : number) {
+      app.Renderer.setAnimationLoop(function (time : number) {
         rippleCallbacks.forEach(cb => cb(time));
-        Renderer.render(Scene, Camera);
+        app.Renderer.render(app.Scene, Camera);
       });
-      Renderer.render(Scene, Camera)
+      app.Renderer.render(app.Scene, Camera)
 }
 
 function setupScene(documentObj : Document){
-    Scene = new THREE.Scene();
-    Clock = new THREE.Clock();
-    Raycaster = new THREE.Raycaster();
+    app.Scene = new THREE.Scene();
+    app.Clock = new THREE.Clock();
+    app.Raycaster = new THREE.Raycaster();
     const modelsPromise = (async function () {
         const {
             rock,
             rock2,
         } = await models;
         rockHandling.rockMeshes.push(rock);
-        Scene.add(rock);
-        Scene.add(rock2);
+        app.Scene.add(rock);
+        app.Scene.add(rock2);
     })();
 
     const { Light, Bounce } = makeLights();
     const cameraHelper = new THREE.CameraHelper(Light.shadow.camera);
     const sky = makeSky();
-    Scene.add(cameraHelper);;
+    app.Scene.add(cameraHelper);;
     const helper = new THREE.DirectionalLightHelper(Light);
     if (debug)
-    Scene.add(helper)
-    Scene.add(sky);
-    Scene.add(Bounce);
-    Scene.add(Light);
-    Scene.add(Camera);
-    Scene.add(CameraGroup);
-    Scene.add(makeFloor());
-    Scene.add(WaterMesh);
-    return Scene;
+    app.Scene.add(helper)
+    app.Scene.add(sky);
+    app.Scene.add(Bounce);
+    app.Scene.add(Light);
+    app.Scene.add(Camera);
+    app.Scene.add(CameraGroup);
+    app. Scene.add(makeFloor());
+    app.Scene.add(WaterMesh);
+    return app.Scene;
 }
 
 
 function initSimulation(rockh : RockHandling){
-  if (Scene)
-  resetRock(Scene, rockh);
+  if (app.Scene)
+  resetRock(app.Scene, rockh);
   rockh.rockState = RockState.start;
   rockh.rockMeshes = Array<THREE.Mesh>(),
   rockh.intersections = null;
@@ -146,8 +156,8 @@ function initSimulation(rockh : RockHandling){
 }
 
 function initUI(documentObj : Document) {
-  if (Scene)
-  addButton(documentObj, resetRock, Scene, rockHandling);
+  if (app.Scene)
+  addButton(documentObj, resetRock, app.Scene, rockHandling);
   addHeadsup(documentObj, 'Skip a stone', 100, 50, 'header', 22);
 }
 
@@ -195,8 +205,8 @@ const addObjectClickListener = (
             removeEntity(defaultLabel, Scene);
             setText(rockHandling.rockState, rockHandling.stoneSimulation,
                rockHandling, defaultLabel, defaultLabelFont);
-            if (CameraControls)
-              CameraControls.enableRotate = true;
+            if (app.CameraControls)
+            app.CameraControls.enableRotate = true;
         }
     })
    
@@ -219,9 +229,9 @@ const addObjectClickListener = (
     });
 
     document.addEventListener('mousemove', function (event) {
-      if (Raycaster){
-        Raycaster.setFromCamera(Pointer, Camera);
-          const intersects = Raycaster.intersectObjects(Scene.children, true);
+      if (app.Raycaster){
+        app.Raycaster.setFromCamera(Pointer, Camera);
+          const intersects = app.Raycaster.intersectObjects(Scene.children, true);
           if (intersects.length > 0) {
             if ( intersects.length > 0 ) {
               if (rockHandling.intersections != intersects[0].object) {
@@ -250,8 +260,8 @@ const addObjectClickListener = (
         //const diffX = Math.abs(event.pageX - startX);//weight
         const diffY = Math.abs(event.pageY - startY);
         const delta = 5;
-        if (CameraControls){
-          CameraControls.enableRotate = false;
+        if (app.CameraControls){
+          app.CameraControls.enableRotate = false;
         }
         if (diffY > delta) {
             const angleDiff = clamp(diffY *.005, -angleIncr,  angleIncr);
@@ -274,59 +284,59 @@ const addObjectClickListener = (
           removeEntity(defaultLabel, Scene);
           setText(rockHandling.rockState, rockHandling.stoneSimulation,
              rockHandling, defaultLabel, defaultLabelFont);
-          if (CameraControls)
-            CameraControls.enableRotate = true;
+          if (app.CameraControls)
+          app.CameraControls.enableRotate = true;
       }
     });
    
 };
 
 function setupRenderer(documentObj : Document){
-    Renderer = new THREE.WebGLRenderer({
+  app.Renderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: true
    });
-    Renderer.setPixelRatio(window.devicePixelRatio);
-    Renderer.setSize(window.innerWidth, window.innerHeight);
-    Renderer.shadowMap.enabled = true;
-    Renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    //Renderer.outputEncoding = THREE.sRGBEncoding;
-    Renderer.setSize(window.innerWidth, window.innerHeight);
-    Renderer.setPixelRatio(window.devicePixelRatio);
+   app.Renderer.setPixelRatio(window.devicePixelRatio);
+   app.Renderer.setSize(window.innerWidth, window.innerHeight);
+   app.Renderer.shadowMap.enabled = true;
+   app.Renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    //app.Renderer.outputEncoding = THREE.sRGBEncoding;
+    app.Renderer.setSize(window.innerWidth, window.innerHeight);
+    app.Renderer.setPixelRatio(window.devicePixelRatio);
 
-    Renderer.xr.enabled = true;
+    app.Renderer.xr.enabled = true;
 
     //orbit
-    CameraControls = new OrbitControls(Camera, Renderer.domElement);
-    CameraControls.maxPolarAngle = Math.PI * 0.5;
-    CameraControls.maxDistance = 10;
+    app.CameraControls = new OrbitControls(Camera, app.Renderer.domElement);
+    app.CameraControls.maxPolarAngle = Math.PI * 0.5;
+    app.CameraControls.maxDistance = 10;
     Camera.position.set(0, 1.6, -5);
-    CameraControls.target = new THREE.Vector3(0, 1, 0);
-    CameraControls.update();
+    app.CameraControls.target = new THREE.Vector3(0, 1, 0);
+    app.CameraControls.update();
 
-    document.body.appendChild(Renderer.domElement);
-    document.body.appendChild(ARButton.createButton(Renderer));
+    document.body.appendChild(app.Renderer.domElement);
+    document.body.appendChild(ARButton.createButton(app.Renderer));
     window.addEventListener('resize', onWindowResize, false);
  
     function onWindowResize() {
         Camera.aspect = window.innerWidth / window.innerHeight;
         Camera.updateProjectionMatrix();
-        Renderer.setSize(window.innerWidth, window.innerHeight);
+        app.Renderer.setSize(window.innerWidth, window.innerHeight);
     }
-    Renderer.setAnimationLoop(render);
+    app.Renderer.setAnimationLoop(render);
   }
 
-
 function setup(documentObj : Document, resetRockFct : any){
-    const renderer = setupRenderer(documentObj);
-    const scene = setupScene(documentObj);
-    initSimulation(rockHandling);
-    initUI(documentObj);
-    addObjectClickListener(scene);
+      const renderer = setupRenderer(documentObj);
+      const scene = setupScene(documentObj);
+      initSimulation(rockHandling);
+      initUI(documentObj);
+      addObjectClickListener(scene);
 }
 
 
 window.addEventListener('DOMContentLoaded', () => {
+  app = new App();
   setup(document, resetRock);
 });
 
