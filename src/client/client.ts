@@ -1,13 +1,12 @@
-import { Mesh, Scene, WebGLRenderer, BoxGeometry, 
-  MeshStandardMaterial, MeshBasicMaterial, RingGeometry, sRGBEncoding,
+import { Mesh, Scene, WebGLRenderer, Vector3, sRGBEncoding,
   Vector2, Clock, Raycaster } from 'three';
 import { ARButton } from 'three/examples/jsm/webxr/ARButton';
-import { OrbitControls } from 'three/examples/jsm/Controls/OrbitControls';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 import { resetRock } from './lib/rock';
 import { setupRenderer, setupScene } from './lib/setUp';
 import { removeEntity } from './lib/Scene';
-import { StoneDefault, simulateOneStep, reset } from './lib/skipping';
+import { StoneDefault, simulateOneStep } from './lib/skipping';
 import { RockState, RockHandling} from './types/types'
 import { waterHeight, floorHeight } from './lib/constants';
 import { addHeadsup, setText, addButton } from './lib/headsUp';
@@ -15,10 +14,12 @@ import { rippleCallbacks, rain } from './lib/water';
 import { defaultLabel, defaultLabelFont } from './lib/constants';
 import { clamp } from './lib/helper';
 
-const debug = false;
+
+const debug = true;
 const animDelta = 0.02;
 const resetTime = 5000;
 const angleIncr = .03;
+const minFloorHeight = floorHeight * 1.1;
 
 const Pointer = new Vector2();
 
@@ -28,11 +29,10 @@ function onPointerMove( event : any ) {
 }
 
 class App {
-    // WebGL Scene globals, make object 
-  Controls : OrbitControls | null = null;
-  Clock: Clock | null = null;
-  Raycaster : Raycaster | null = null;
-  //Pointer : Vector2;
+  // WebGL Scene globals
+  controls : OrbitControls | null = null;
+  clock: Clock | null = null;
+  raycaster : Raycaster | null = null;
   camera : any;
   scene : any;
   renderer : any;
@@ -41,7 +41,6 @@ class App {
   controller : any;
   reticle : any;
   box : any;
-  controls : any;
   rockHandling : any;
 
   constructor() {
@@ -79,44 +78,32 @@ class App {
   initSimulation(){
     this.rockHandling = {
       rockState: RockState.start,
-      rockMeshes: Array<THREE.Mesh>(),
+      rockMeshes: Array<Mesh>(),
       intersections : null,
       stoneSimulation : Object.create(StoneDefault)
     };
     resetRock(this.scene, this.rockHandling);
   }
+
   initUI() {
     addButton(document, resetRock);
     addHeadsup(document, 'Skip a stone', 100, 50, 'header', 22);
   }
+  
   initScene() {
     const { clock, raycaster, reticle, box } = setupScene(document, this.scene);
     this.reticle = reticle;
     this.box = box;
+    this.clock = clock;
+    this.raycaster = raycaster;
+
     this.initSimulation();
-    this.Clock = clock;
-    this.Raycaster = raycaster;
     this.addObjectClickListener(this.rockHandling, this.scene,
-         this.controls, this.camera, this.Raycaster);
+         this.controls, this.camera, this.raycaster);
     this.renderer.setAnimationLoop(function (time : number) {
       rippleCallbacks.forEach(cb => cb(time));
         //this.renderer.render(this.scene, this.camera);
     });
-  
-    //move
-    let geometry = new RingGeometry(0.08, 0.10, 32).rotateX(-Math.PI / 2);
-    const material = new MeshBasicMaterial();
-    this.reticle = new Mesh(geometry, material);
-    this.reticle.matrixAutoUpdate = false;
-    this.reticle.visible = false;
-    this.scene.add(this.reticle);
-
-    geometry = new BoxGeometry(0.1, 0.1, 0.1);
-    const material1 = new MeshStandardMaterial({ color: 0x5853e6 });
-    this.box = new Mesh(geometry, material1);
-    this.box.visible = false;
-    this.scene.add(this.box);
-
   }
 
   render(_ : any, frame : any) {
@@ -128,7 +115,63 @@ class App {
         this.getHitTestResults(frame);
       }
     }
+    //requestAnimationFrame(this.renderer);
+    //update simulation
+       /*
+    if(this.clock && this.rockHandling.rockMeshes?.length && 
+        this.rockHandling.rockState.valueOf() == RockState.simulation){ss
+        let splash = false;
+        let delta = this.clock.getDelta(); 
+        if (delta > animDelta){//frame
+            delta = animDelta;
+        }
+        const res : Vector3 = simulateOneStep(this.rockHandling.stoneSimulation,
+            delta, true);
+        this.rockHandling.rockMeshes[0].position.x = res.z;
+        this.rockHandling.rockMeshes[0].position.y = res.y + waterHeight;
+        if (this.rockHandling.rockMeshes[0].position.y > 0 && 
+          res.y + waterHeight <=  waterHeight){
+          splash = true;
+        }
+        this.rockHandling.rockMeshes[0].position.y = res.y + waterHeight;
+        this.rockHandling.rockMeshes[0].position.z = res.x;
+    
+         if(splash){
+              rain(.25, 4, 0.005, this.rockHandling.rockMeshes[0].position.x,
+                this.rockHandling.rockMeshes[0].position.z, .3, .3, 40);
+                splash = false;
+                if(debug)
+                {
+                  addHeadsup(document, "Splash", 300, 300, "splashLabel", 18);
+                  setTimeout(() => {
+                    addHeadsup(document, "", 300, 300, "splashLabel", 18);
+                  }, 800);
+                }
+          }
+        // update distance label
+        if (Scene){
+            removeEntity(defaultLabel, this.scene);
+            setText(this.rockHandling.rockState, this.rockHandling.stoneSimulation,
+              this.rockHandling, defaultLabel, defaultLabelFont);
+          }
+        //done
+        if(this.rockHandling.rockMeshes[0].position.y <= minFloorHeight ||
+            this.rockHandling.rockMeshes[0].position.z > 90){
+            if (debug)
+            console.debug("done");
+            this.rockHandling.rockState = RockState.simulationDone;
+            setTimeout(() => {
+               resetRock(this.scene, this.rockHandling);
+            }, resetTime);
+          }
 
+      }
+      this.renderer.setAnimationLoop(function (time : number) {
+        rippleCallbacks.forEach(cb => cb(time));
+          //.render ( scene : Object3D, camera : Camera 
+          //this.renderer.render(this.scene, this.camera);
+      });
+          */
     this.renderer.render(this.scene, this.camera);
   }
 
@@ -269,6 +312,18 @@ class App {
           }
         }
     });
+    document.onkeydown = function(evt) {
+      evt = evt || window.event;
+      let isEscape = false;
+      if ('key' in evt) {
+          isEscape = (evt.key === 'Escape' || evt.key === 'Esc');
+      } else {
+          isEscape = (evt.keyCode === 27);
+      }
+      if (isEscape) {
+        resetRock(scene, rockHandling);
+      }
+    };
 
     document.addEventListener('mouseup', function (event) {
       if (rockHandling.rockMeshes && rockHandling.rockState.valueOf() == RockState.configuring) {
