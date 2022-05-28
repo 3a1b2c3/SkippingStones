@@ -8,7 +8,7 @@ import { makeLights, makeSky, makeCamera, removeEntity } from "./lib/Scene";
 import { StoneDefault, simulateOneStep } from "./lib/skipping";
 import { RockState, RockHandling} from './types/types'
 import { waterHeight, floorHeight, defaultLabel, defaultLabelFont} from "./lib/constants";
-import { addHeadsup, addButton, setText } from "./lib/headsUp";
+import { addHeadsup, addButton, setText, headsUpStartText } from "./lib/headsUp";
 import { resetRock } from "./lib/rock";
 import { clamp } from "./lib/helper";
 
@@ -39,42 +39,44 @@ class App {
   controller : any;
   reticle : any;
   box : any;
-  rockHandling : any;
+  rockHandling : RockHandling | any;
+  constructor() {
+    this.rockHandling = {
+        rockState: RockState.start,
+        rockMeshes: Array<THREE.Mesh>(),
+        intersections : null,
+        stoneSimulation : Object.create(StoneDefault)
+    };
+  }
 }
 
 const { Camera, CameraGroup } = makeCamera();
 
-const rockHandling : RockHandling = {
-  rockState: RockState.start,
-  rockMeshes: Array<THREE.Mesh>(),
-  intersections : null,
-  stoneSimulation : Object.create(StoneDefault)
-};
 
 function render() {
       requestAnimationFrame(render);
       //update simulation
-      if(app.Clock && rockHandling.rockMeshes?.length && 
-        rockHandling.rockState.valueOf() == RockState.simulation){
+      if(app.Clock && app.rockHandling.rockMeshes?.length && 
+        app.rockHandling.rockState.valueOf() == RockState.simulation){
         let splash = false;
         let delta = app.Clock.getDelta(); 
         if (delta > animDelta){
             delta = animDelta;
         }
-        const res : THREE.Vector3 = simulateOneStep(rockHandling.stoneSimulation,
+        const res : THREE.Vector3 = simulateOneStep(app.rockHandling.stoneSimulation,
             delta, true);
-        rockHandling.rockMeshes[0].position.x = res.z;
-        rockHandling.rockMeshes[0].position.y = res.y + waterHeight;
-        if (rockHandling.rockMeshes[0].position.y > 0 && 
+            app.rockHandling.rockMeshes[0].position.x = res.z;
+        app.rockHandling.rockMeshes[0].position.y = res.y + waterHeight;
+        if (app.rockHandling.rockMeshes[0].position.y > 0 && 
           res.y + waterHeight <=  waterHeight){
           splash = true;
         }
-        rockHandling.rockMeshes[0].position.y = res.y + waterHeight;
-        rockHandling.rockMeshes[0].position.z = res.x;
+        app.rockHandling.rockMeshes[0].position.y = res.y + waterHeight;
+        app.rockHandling.rockMeshes[0].position.z = res.x;
 
-         if(splash){
-              rain(.25, 4, 0.005, rockHandling.rockMeshes[0].position.x,
-                rockHandling.rockMeshes[0].position.z, .3, .3, 40);
+        if(splash){
+              rain(.25, 4, 0.005, app.rockHandling.rockMeshes[0].position.x,
+                app.rockHandling.rockMeshes[0].position.z, .3, .3, 40);
                 splash = false;
                 if(debug)
                 {
@@ -92,18 +94,18 @@ function render() {
         // update distance label
         if (app.Scene){
             removeEntity(defaultLabel, app.Scene);
-            setText(rockHandling.rockState, rockHandling.stoneSimulation,
-            rockHandling, defaultLabel, defaultLabelFont);
+            setText(app.rockHandling.rockState, app.rockHandling.stoneSimulation,
+            app.rockHandling, defaultLabel, defaultLabelFont);
           }
         //done
-        if(rockHandling.rockMeshes[0].position.y <= minFloorHeight ||
-             rockHandling.rockMeshes[0].position.z > 90){
+        if(app.rockHandling.rockMeshes[0].position.y <= minFloorHeight ||
+            app.rockHandling.rockMeshes[0].position.z > 90){
             if (debug)
             console.debug("done");
-            rockHandling.rockState = RockState.simulationDone;
+            app.rockHandling.rockState = RockState.simulationDone;
             setTimeout(() => {
                 if (app.Scene)
-                resetRock(app.Scene, rockHandling);
+                resetRock(app.Scene, app.rockHandling);
             }, resetTime);
           }
       }
@@ -123,7 +125,7 @@ function setupScene(documentObj : Document){
             rock,
             rock2,
         } = await models;
-        rockHandling.rockMeshes.push(rock);
+        app.rockHandling.rockMeshes.push(rock);
         app.Scene.add(rock);
         app.Scene.add(rock2);
     })();
@@ -145,7 +147,6 @@ function setupScene(documentObj : Document){
     return app.Scene;
 }
 
-
 function initSimulation(rockh : RockHandling){
   if (app.Scene)
   resetRock(app.Scene, rockh);
@@ -157,8 +158,8 @@ function initSimulation(rockh : RockHandling){
 
 function initUI(documentObj : Document) {
   if (app.Scene)
-  addButton(documentObj, resetRock, app.Scene, rockHandling);
-  addHeadsup(documentObj, 'Skip a stone', 100, 50, 'header', 22);
+  addButton(documentObj, resetRock, app.Scene, app.rockHandling);
+  addHeadsup(documentObj, headsUpStartText, 100, 50, 'header', 22);
 }
 
 //callbacks
@@ -177,19 +178,19 @@ const addObjectClickListener = (
           isEscape = (evt.keyCode === 27);
       }
       if (isEscape && Scene) {
-        resetRock(Scene, rockHandling);
+        resetRock(Scene, app.rockHandling);
       }
     };
     document.addEventListener("touchstart", function (event) {
-      if (rockHandling.rockMeshes && rockHandling.rockMeshes[0] && rockHandling.intersections &&
-        rockHandling.rockState.valueOf() == RockState.start) {
-        rockHandling.rockState = RockState.configuring;
+      if (app.rockHandling.rockMeshes && app.rockHandling.rockMeshes[0] && app.rockHandling.intersections &&
+        app.rockHandling.rockState.valueOf() == RockState.start) {
+        app.rockHandling.rockState = RockState.configuring;
         const touch = event.touches[0] || event.changedTouches[0];
         startX = touch.pageX;
         startY = touch.pageY;
         removeEntity(defaultLabel, Scene);
-        setText(rockHandling.rockState, rockHandling.stoneSimulation,
-          rockHandling, defaultLabel, defaultLabelFont);
+        setText(app.rockHandling.rockState, app.rockHandling.stoneSimulation,
+          app.rockHandling, app.rockHandling.defaultLabel, defaultLabelFont);
       }
       else{
         startX = 0;
@@ -197,30 +198,30 @@ const addObjectClickListener = (
       }
     })
     document.addEventListener("touchend", function (event) {
-        if (rockHandling.rockMeshes && rockHandling.rockState.valueOf() == RockState.configuring) {
+        if (app.rockHandling.rockMeshes && app.rockHandling.rockState.valueOf() == RockState.configuring) {
             if (debug)
-            console.debug("mouseup:" + rockHandling.rockState);
-            rockHandling.rockState = RockState.simulation;
+            console.debug("mouseup:" + app.rockHandling.rockState);
+            app.rockHandling.rockState = RockState.simulation;
             //update label
             removeEntity(defaultLabel, Scene);
-            setText(rockHandling.rockState, rockHandling.stoneSimulation,
-               rockHandling, defaultLabel, defaultLabelFont);
+            setText(app.rockHandling.rockState, app.rockHandling.stoneSimulation,
+              app.rockHandling, app.rockHandling.defaultLabel, defaultLabelFont);
             if (app.CameraControls)
             app.CameraControls.enableRotate = true;
         }
     })
    
     document.addEventListener('mousedown', function (event) {
-      if (rockHandling.rockMeshes && rockHandling.rockMeshes[0] && rockHandling.intersections &&
-        rockHandling.rockState.valueOf() == RockState.start) {
-        rockHandling.rockState = RockState.configuring;
+      if (app.rockHandling.rockMeshes && app.app.rockHandling.rockMeshes[0] && app.rockHandling.intersections &&
+        app.rockHandling.rockState.valueOf() == RockState.start) {
+        app.rockHandling.rockState = RockState.configuring;
         startX = event.pageX;
         startY = event.pageY;
         if (debug)
-          console.debug(startY + 'mousedown' + rockHandling.rockState);
+          console.debug(startY + 'mousedown' + app.rockHandling.rockState);
         removeEntity(defaultLabel, Scene);
-        setText(rockHandling.rockState, rockHandling.stoneSimulation,
-          rockHandling, defaultLabel, defaultLabelFont);
+        setText(app.rockHandling.rockState, app.rockHandling.stoneSimulation,
+          app.rockHandling, app.rockHandling.defaultLabel, defaultLabelFont);
       }
       else{
         startX = 0;
@@ -234,29 +235,29 @@ const addObjectClickListener = (
           const intersects = app.Raycaster.intersectObjects(Scene.children, true);
           if (intersects.length > 0) {
             if ( intersects.length > 0 ) {
-              if (rockHandling.intersections != intersects[0].object) {
-                if (rockHandling.intersections && rockHandling.intersections?.material?.emissive) 
-                  rockHandling.intersections.material.emissive.setHex(rockHandling.intersections.currentHex);
-                if (intersects[0].object.name == 'boulder' && rockHandling.rockState.valueOf() != RockState.simulation){
-                    rockHandling.intersections = intersects[0].object;
+              if (app.rockHandling.intersections != intersects[0].object) {
+                if (app.rockHandling.intersections && app.rockHandling.intersections?.material?.emissive) 
+                  app.rockHandling.intersections.material.emissive.setHex(app.rockHandling.intersections.currentHex);
+                if (intersects[0].object.name == 'boulder' && app.rockHandling.rockState.valueOf() != RockState.simulation){
+                    app.rockHandling.intersections = intersects[0].object;
                 }
                 else{
-                  rockHandling.intersections = null;
+                  app.rockHandling.intersections = null;
                 }
-                if (rockHandling.intersections && rockHandling.intersections?.material?.emissive){
-                  rockHandling.intersections.currentHex = rockHandling.intersections.material.emissive.getHex();
-                  rockHandling.intersections.material.emissive.setHex( 0xff0000 );
+                if (app.rockHandling.intersections && app.rockHandling.intersections?.material?.emissive){
+                  app.rockHandling.intersections.currentHex = app.rockHandling.intersections.material.emissive.getHex();
+                  app.rockHandling.intersections.material.emissive.setHex( 0xff0000 );
                 }
               }
             } else {
-              if (rockHandling.intersections && rockHandling.intersections?.material?.emissive)
-                rockHandling.intersections.material.emissive.setHex(rockHandling.intersections.currentHex);
-              rockHandling.intersections = null;
+              if (app.rockHandling.intersections && app.rockHandling.intersections?.material?.emissive)
+                app.rockHandling.intersections.material.emissive.setHex(app.rockHandling.intersections.currentHex);
+              app.rockHandling.intersections = null;
             }
           }
         }
-      if (rockHandling.rockMeshes && 
-        rockHandling.rockState.valueOf() == RockState.configuring) {
+      if (app.rockHandling.rockMeshes && 
+        app.rockHandling.rockState.valueOf() == RockState.configuring) {
         //const diffX = Math.abs(event.pageX - startX);//weight
         const diffY = Math.abs(event.pageY - startY);
         const delta = 5;
@@ -265,46 +266,48 @@ const addObjectClickListener = (
         }
         if (diffY > delta) {
             const angleDiff = clamp(diffY *.005, -angleIncr,  angleIncr);
-            rockHandling.rockMeshes[0].rotateX(angleDiff);
-            rockHandling.stoneSimulation.theta = rockHandling.rockMeshes[0].rotation.x;
+            app.rockHandling.rockMeshes[0].rotateX(angleDiff);
+            app.rockHandling.stoneSimulation.theta = app.rockHandling.rockMeshes[0].rotation.x;
             //update label
             removeEntity(defaultLabel, Scene);
-            setText(rockHandling.rockState, rockHandling.stoneSimulation,
-               rockHandling, defaultLabel, defaultLabelFont);
+            setText(app.rockHandling.rockState, app.rockHandling.stoneSimulation,
+              app.rockHandling, app.rockHandling.defaultLabel, defaultLabelFont);
           }
         }
     });
 
     document.addEventListener('mouseup', function (event) {
-      if (rockHandling.rockMeshes && rockHandling.rockState.valueOf() == RockState.configuring) {
+      if (app.rockHandling.rockMeshes && app.rockHandling.rockState.valueOf() == RockState.configuring) {
           if (debug)
-          console.debug("mouseup:" + rockHandling.rockState);
-          rockHandling.rockState = RockState.simulation;
+          console.debug("mouseup:" + app.rockHandling.rockState);
+          app.rockHandling.rockState = RockState.simulation;
           //update label
           removeEntity(defaultLabel, Scene);
-          setText(rockHandling.rockState, rockHandling.stoneSimulation,
-             rockHandling, defaultLabel, defaultLabelFont);
+          setText(app.rockHandling.rockState, app.rockHandling.stoneSimulation,
+            app.rockHandling, app.rockHandling.defaultLabel, defaultLabelFont);
           if (app.CameraControls)
           app.CameraControls.enableRotate = true;
       }
     });
    
 };
+function setupAR(documentObj : Document){
+  app.Renderer.xr.enabled = true;
+  document.body.appendChild(ARButton.createButton(app.Renderer));
+}
 
 function setupRenderer(documentObj : Document){
   app.Renderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: true
    });
-   app.Renderer.setPixelRatio(window.devicePixelRatio);
-   app.Renderer.setSize(window.innerWidth, window.innerHeight);
-   app.Renderer.shadowMap.enabled = true;
-   app.Renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    app.Renderer.setPixelRatio(window.devicePixelRatio);
+    app.Renderer.setSize(window.innerWidth, window.innerHeight);
+    app.Renderer.shadowMap.enabled = true;
+    app.Renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     //app.Renderer.outputEncoding = THREE.sRGBEncoding;
     app.Renderer.setSize(window.innerWidth, window.innerHeight);
     app.Renderer.setPixelRatio(window.devicePixelRatio);
-
-    app.Renderer.xr.enabled = true;
 
     //orbit
     app.CameraControls = new OrbitControls(Camera, app.Renderer.domElement);
@@ -313,9 +316,9 @@ function setupRenderer(documentObj : Document){
     Camera.position.set(0, 1.6, -5);
     app.CameraControls.target = new THREE.Vector3(0, 1, 0);
     app.CameraControls.update();
-
     document.body.appendChild(app.Renderer.domElement);
-    document.body.appendChild(ARButton.createButton(app.Renderer));
+    document.body.appendChild(app.Renderer.domElement);
+
     window.addEventListener('resize', onWindowResize, false);
  
     function onWindowResize() {
@@ -324,12 +327,13 @@ function setupRenderer(documentObj : Document){
         app.Renderer.setSize(window.innerWidth, window.innerHeight);
     }
     app.Renderer.setAnimationLoop(render);
-  }
+}
 
 function setup(documentObj : Document, resetRockFct : any){
       const renderer = setupRenderer(documentObj);
+      setupAR(documentObj);
       const scene = setupScene(documentObj);
-      initSimulation(rockHandling);
+      initSimulation(app.rockHandling);
       initUI(documentObj);
       addObjectClickListener(scene);
 }
