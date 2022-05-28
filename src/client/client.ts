@@ -235,8 +235,12 @@ function setupRenderer(documentObj : Document){
             
                   setTimeout(() => {
                     addHeadsup(document, "", 300, 300, "splashLabel", 18);
-                  }, 800);
+                  }, 2000);
                 }
+                Renderer.setAnimationLoop(function (time : number) {
+                  rippleCallbacks.forEach(cb => cb(time));
+                  Renderer.render(Scene, Camera);
+                });
           }
         // update distance label
         if (Scene){
@@ -256,10 +260,7 @@ function setupRenderer(documentObj : Document){
             }, resetTime);
           }
       }
-      Renderer.setAnimationLoop(function (time : number) {
-        rippleCallbacks.forEach(cb => cb(time));
-        Renderer.render(Scene, Camera);
-      });
+
       Renderer.render(Scene, Camera)
       return Renderer;
 }
@@ -305,7 +306,8 @@ function initSimulation(){
 }
 
 function initUI(documentObj : Document) {
-  addButton(documentObj, resetRock);
+  if (Scene)
+  addButton(documentObj, resetRock, Scene, rockHandling);
   addHeadsup(documentObj, 'Skip a stone', 100, 50, 'header', 22);
 }
 

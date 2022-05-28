@@ -1,4 +1,5 @@
 const path = require('path');
+import { Scene } from 'three';
 
 import { mediaPath } from './constants';
 import { roundTo } from './helper';
@@ -37,7 +38,8 @@ export function setText(rockState : RockState, stoneObject : stone,
 
 
 export function addButton(documentObj : Document,
-   resetRock: any, objectName='button', x_pos=120, y_pos=170){
+   resetRock: any, scene : Scene, rockHandling : RockHandling, 
+   objectName='button', x_pos=120, y_pos=170){
    let div = document.getElementById(objectName);
    if (!div){
       div = document.createElement('div')
@@ -53,7 +55,7 @@ export function addButton(documentObj : Document,
     
     button.innerHTML = '<img src=\'' + imgPath + '\' width=\'44\'/>';
     button.onclick = function() {
-      resetRock();
+      resetRock(scene, rockHandling);
     };
     document.body.appendChild(div);
     return div;
