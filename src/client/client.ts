@@ -26,14 +26,6 @@ const rockHandling : RockHandling = {
   stoneSimulation : Object.create(StoneDefault)
 };
 
-// WebGL Scene globals, make object 
-let Renderer : THREE.WebGLRenderer | null | any = null;
-let Scene : THREE.Scene | null = null;
-let CameraControls : OrbitControls | null = null;
-let Clock: THREE.Clock | null = null;
-let Raycaster : THREE.Raycaster | null = null;
-
-const { Camera, CameraGroup } = makeCamera();
 const Pointer = new THREE.Vector2();
 
 function onPointerMove( event : any ) {
@@ -54,6 +46,17 @@ document.onkeydown = function(evt) {
     resetRock(Scene, rockHandling);
   }
 };
+
+// WebGL Scene globals, make object 
+let Renderer : THREE.WebGLRenderer | null | any = null;
+let Scene : THREE.Scene | null = null;
+let CameraControls : OrbitControls | null = null;
+let Clock: THREE.Clock | null = null;
+let Raycaster : THREE.Raycaster | null = null;
+
+const { Camera, CameraGroup } = makeCamera();
+
+
 
 //callbacks
 const addObjectClickListener = (
