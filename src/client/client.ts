@@ -231,11 +231,10 @@ function setupRenderer(documentObj : Document){
                 splash = false;
                 if(debug)
                 {
-                    addHeadsup(document, "Splash", 300, 300, "splashLabel", 18);
-            
+                  addHeadsup(document, "Splash", 300, 300, "splashLabel", 18);
                   setTimeout(() => {
                     addHeadsup(document, "", 300, 300, "splashLabel", 18);
-                  }, 2000);
+                  }, 1200);
                 }
                 Renderer.setAnimationLoop(function (time : number) {
                   rippleCallbacks.forEach(cb => cb(time));
