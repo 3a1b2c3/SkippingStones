@@ -35,6 +35,7 @@ class App {
   reticle : any;
   box : any;
   controls : any;
+  rockHandling : any;
 
   constructor() {
     this.scene = new Scene();
@@ -68,14 +69,24 @@ class App {
     this.controller = this.renderer.xr.getController(0);
     this.controller.addEventListener('select', this.onSelect.bind(this));
   }
-
+  initSimulation() {
+  }
+  initUI() {
+  }
   initScene() {
-    const { scene, clock, raycaster } = setupScene(document, this.scene);
+    const { clock, raycaster } = setupScene(document, this.scene);
     //this.addObjectClickListener(scene);
-    /*
-      Clock: Clock | null = null;
-  Raycaster : THREE.Raycaster | null = null;
-  */
+    this.Clock = clock;
+    this.Raycaster = raycaster;
+  
+    this.rockHandling = {
+        rockState: RockState.start,
+        rockMeshes: Array<THREE.Mesh>(),
+        intersections : null,
+        stoneSimulation : Object.create(StoneDefault)
+    };
+    resetRock(this.scene, this.rockHandling);
+    addHeadsup(document, 'Skip a stone', 100, 50, 'header', 22);
     //move
     let geometry = new RingGeometry(0.08, 0.10, 32).rotateX(-Math.PI / 2);
     const material = new MeshBasicMaterial();

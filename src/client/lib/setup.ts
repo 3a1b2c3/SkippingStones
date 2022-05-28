@@ -61,5 +61,5 @@ export function setupScene(documentObj : Document, scene : Scene){
     scene.add(makeFloor());
     scene.add(WaterMesh);
 
-    return { scene, clock, raycaster };
+    return { clock, raycaster };
 }
