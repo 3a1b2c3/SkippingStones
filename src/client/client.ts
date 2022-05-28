@@ -1,4 +1,4 @@
-import { Mesh, HemisphereLight, Scene, WebGLRenderer, BoxGeometry, 
+import { Mesh, Scene, WebGLRenderer, BoxGeometry, 
   MeshStandardMaterial, MeshBasicMaterial, RingGeometry, sRGBEncoding,
   Vector2, Clock, Raycaster } from 'three';
 import { ARButton } from 'three/examples/jsm/webxr/ARButton';
@@ -6,12 +6,12 @@ import { OrbitControls } from 'three/examples/jsm/Controls/OrbitControls';
 
 import { resetRock } from './lib/rock';
 import { setupRenderer, setupScene } from './lib/setUp';
-import { makeCamera, removeEntity } from './lib/Scene';
+import { removeEntity } from './lib/Scene';
 import { StoneDefault, simulateOneStep, reset } from './lib/skipping';
 import { stone, RockState, RockHandling} from './types/types'
 import { waterHeight, floorHeight } from './lib/constants';
 import { addHeadsup, setText, addButton } from './lib/headsUp';
-import { makeFloor, WaterMesh, rippleCallbacks, rain } from './lib/water';
+import { rippleCallbacks, rain } from './lib/water';
 
 const Pointer = new Vector2();
 
@@ -24,7 +24,7 @@ class App {
     // WebGL Scene globals, make object 
   Controls : OrbitControls | null = null;
   Clock: Clock | null = null;
-  Raycaster : THREE.Raycaster | null = null;
+  Raycaster : Raycaster | null = null;
   //Pointer : Vector2;
   camera : any;
   scene : any;
@@ -54,7 +54,7 @@ class App {
   
     this.initXR();
     this.initScene();
-  
+    this.initUI();
     window.addEventListener('resize', this.onWindowResize.bind(this), false);
     this.renderer.setAnimationLoop(this.render.bind(this));
   }
@@ -69,24 +69,32 @@ class App {
     this.controller = this.renderer.xr.getController(0);
     this.controller.addEventListener('select', this.onSelect.bind(this));
   }
-  initSimulation() {
-  }
-  initUI() {
-  }
-  initScene() {
-    const { clock, raycaster } = setupScene(document, this.scene);
-    //this.addObjectClickListener(scene);
-    this.Clock = clock;
-    this.Raycaster = raycaster;
-  
+  initSimulation(){
     this.rockHandling = {
-        rockState: RockState.start,
-        rockMeshes: Array<THREE.Mesh>(),
-        intersections : null,
-        stoneSimulation : Object.create(StoneDefault)
+      rockState: RockState.start,
+      rockMeshes: Array<THREE.Mesh>(),
+      intersections : null,
+      stoneSimulation : Object.create(StoneDefault)
     };
     resetRock(this.scene, this.rockHandling);
+  }
+  initUI() {
+    addButton(document, resetRock);
     addHeadsup(document, 'Skip a stone', 100, 50, 'header', 22);
+  }
+  initScene() {
+    const { clock, raycaster, reticle, box } = setupScene(document, this.scene);
+    this.reticle = reticle;
+    this.box = box;
+    this.initSimulation();
+    this.Clock = clock;
+    this.Raycaster = raycaster;
+    this.addObjectClickListener();
+    this.renderer.setAnimationLoop(function (time : number) {
+      rippleCallbacks.forEach(cb => cb(time));
+        //this.renderer.render(this.scene, this.camera);
+    });
+  
     //move
     let geometry = new RingGeometry(0.08, 0.10, 32).rotateX(-Math.PI / 2);
     const material = new MeshBasicMaterial();
@@ -153,12 +161,10 @@ class App {
       this.reticle.visible = false;
     }
   }
-  /*
-  const addObjectClickListener = (
-  Scene : THREE.Scene
-  ) => {
+
+  addObjectClickListener = () => {
     let startX = 0;
-    let startY = 0;
+    let startY = 0;  /*
     document.addEventListener("touchstart", function (event) {
       if (rockHandling.rockMeshes && rockHandling.rockMeshes[0] && rockHandling.intersections &&
         rockHandling.rockState.valueOf() == RockState.start) {
@@ -267,9 +273,9 @@ class App {
             Controls.enableRotate = true;
       }
     });
-   
+     */
   };
-  */
+
 };
   
 window.addEventListener('DOMContentLoaded', () => {

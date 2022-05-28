@@ -1,6 +1,7 @@
 import { Scene, CameraHelper,
   WebGLRenderer, PCFSoftShadowMap,
-  Vector3, Clock, Raycaster } from 'three'; 
+  Vector3, Clock, Raycaster, Mesh, BoxGeometry, 
+  MeshStandardMaterial, MeshBasicMaterial, RingGeometry } from 'three';
 import { OrbitControls } from 'three/examples/jsm/Controls/OrbitControls';
 
 import { models } from './meshes';
@@ -56,10 +57,25 @@ export function setupScene(documentObj : Document, scene : Scene){
     const { Light, Bounce } = makeLights();
     const cameraHelper = new CameraHelper(Light.shadow.camera);
     scene.add(cameraHelper);
+    scene.add(CameraGroup);
     scene.add(Bounce);
-    scene.add(Light);;
+    scene.add(Light);
     scene.add(makeFloor());
     scene.add(WaterMesh);
 
-    return { clock, raycaster };
+    let geometry = new RingGeometry(0.08, 0.10, 32).rotateX(-Math.PI / 2);
+    const material = new MeshBasicMaterial();
+    const reticle = new Mesh(geometry, material);
+    reticle.matrixAutoUpdate = false;
+    reticle.visible = false;
+    scene.add(reticle);
+
+    geometry = new BoxGeometry(0.1, 0.1, 0.1);
+    const material1 = new MeshStandardMaterial({ color: 0x5853e6 });
+    const box = new Mesh(geometry, material1);
+    box.visible = false;
+    scene.add(box);
+
+    return { clock, raycaster, reticle, box };
 }
+
