@@ -117,16 +117,17 @@ class App {
     }
     //requestAnimationFrame(this.renderer);
     //update simulation
-       /*
     if(this.clock && this.rockHandling.rockMeshes?.length && 
-        this.rockHandling.rockState.valueOf() == RockState.simulation){ss
+        this.rockHandling.rockState.valueOf() == RockState.simulation){
         let splash = false;
         let delta = this.clock.getDelta(); 
         if (delta > animDelta){//frame
             delta = animDelta;
         }
+        console.debug(frame, delta);
         const res : Vector3 = simulateOneStep(this.rockHandling.stoneSimulation,
             delta, true);
+        /*
         this.rockHandling.rockMeshes[0].position.x = res.z;
         this.rockHandling.rockMeshes[0].position.y = res.y + waterHeight;
         if (this.rockHandling.rockMeshes[0].position.y > 0 && 
@@ -172,6 +173,7 @@ class App {
           //this.renderer.render(this.scene, this.camera);
       });
           */
+    }
     this.renderer.render(this.scene, this.camera);
   }
 
