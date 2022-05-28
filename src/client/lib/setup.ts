@@ -10,42 +10,37 @@ import { rockHandling } from './rock';
 
 const { Camera, CameraGroup } = makeCamera();
 
-export function setupRenderer(documentObj : Document){
-    const Renderer = new WebGLRenderer({
-      antialias: true,
-      alpha: true
-    });
-    Renderer.setPixelRatio(window.devicePixelRatio);
-    Renderer.setSize(window.innerWidth, window.innerHeight);
-    Renderer.shadowMap.enabled = true;
-    Renderer.shadowMap.type = PCFSoftShadowMap;
+export function setupRenderer(documentObj : Document, renderer: WebGLRenderer){
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = PCFSoftShadowMap;
     //Renderer.outputEncoding = sRGBEncoding;
-    Renderer.setSize(window.innerWidth, window.innerHeight);
-    Renderer.xr.enabled = true;
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.xr.enabled = true;
 
     //orbit
-    const Controls = new OrbitControls(Camera, Renderer.domElement);
+    const Controls = new OrbitControls(Camera, renderer.domElement);
     Controls.maxPolarAngle = Math.PI * 0.5;
     Controls.maxDistance = 10;
     Camera.position.set(0, 1.6, -5);
     Controls.target = new Vector3(0, 1, 0);
     Controls.update();
 
-    document.body.appendChild(Renderer.domElement);
+    document.body.appendChild(renderer.domElement);
     //window.addEventListener('resize', onWindowResize, false);
  
     function onWindowResize() {
         Camera.aspect = window.innerWidth / window.innerHeight;
         Camera.updateProjectionMatrix();
-        Renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setSize(window.innerWidth, window.innerHeight);
     }
     //Renderer.setAnimationLoop(Renderer);//XRAnimationLoopCallback
-    return {  Renderer, Controls };
+    return Controls;
   }
 
 
-export function setupScene(documentObj : Document, addObjectClickListener : any){
-    const scene = new Scene();
+export function setupScene(documentObj : Document, scene : Scene){
     const clock = new Clock();
     const raycaster = new Raycaster();
     const modelsPromise = (async function () {
@@ -54,9 +49,6 @@ export function setupScene(documentObj : Document, addObjectClickListener : any)
             rock2,
         } = await models;
         rockHandling.rockMeshes.push(rock);
-        addObjectClickListener(
-          scene
-        );
         scene.add(rock);
         scene.add(rock2);
     })();

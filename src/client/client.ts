@@ -4,14 +4,14 @@ import { Mesh, HemisphereLight, Scene, WebGLRenderer, BoxGeometry,
 import { ARButton } from 'three/examples/jsm/webxr/ARButton';
 import { OrbitControls } from 'three/examples/jsm/Controls/OrbitControls';
 
-import { models, defaultPositionY, defaultRoationX } from "./lib/meshes";
-import { makeFloor, WaterMesh, rippleCallbacks, rain } from "./lib/water";
-import { makeLights, makeCamera, removeEntity } from "./lib/Scene";
-import { StoneDefault, simulateOneStep, reset } from "./lib/skipping";
+import { resetRock } from './lib/rock';
+import { setupRenderer, setupScene } from './lib/setUp';
+import { makeCamera, removeEntity } from './lib/Scene';
+import { StoneDefault, simulateOneStep, reset } from './lib/skipping';
 import { stone, RockState, RockHandling} from './types/types'
-import { waterHeight, floorHeight} from "./lib/constants";
-import { addHeadsup, addButton } from "./lib/headsUp";
-import { roundTo, clamp } from "./lib/helper";
+import { waterHeight, floorHeight } from './lib/constants';
+import { addHeadsup, setText, addButton } from './lib/headsUp';
+import { makeFloor, WaterMesh, rippleCallbacks, rain } from './lib/water';
 
 const Pointer = new Vector2();
 
@@ -44,9 +44,11 @@ class App {
         antialias: true,
         alpha: true
     });
+    const Controls = setupRenderer(document, this.renderer);
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.outputEncoding = sRGBEncoding;
+
     document.body.appendChild(this.renderer.domElement);
   
     this.initXR();
@@ -68,6 +70,13 @@ class App {
   }
 
   initScene() {
+    const { scene, clock, raycaster } = setupScene(document, this.scene);
+    //this.addObjectClickListener(scene);
+    /*
+      Clock: Clock | null = null;
+  Raycaster : THREE.Raycaster | null = null;
+  */
+    //move
     let geometry = new RingGeometry(0.08, 0.10, 32).rotateX(-Math.PI / 2);
     const material = new MeshBasicMaterial();
     this.reticle = new Mesh(geometry, material);
@@ -81,9 +90,6 @@ class App {
     this.box.visible = false;
     this.scene.add(this.box);
 
-    const light = new HemisphereLight(0xffffff, 0xbbbbff, 1);
-    light.position.set(0.5, 1, 0.25);
-    this.scene.add(light);
   }
 
   render(_ : any, frame : any) {
