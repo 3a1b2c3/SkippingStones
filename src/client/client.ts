@@ -1,7 +1,6 @@
 import * as THREE from 'three'; 
-import { VRButton } from 'three/examples/jsm/webxr/VRButton';
 import { ARButton } from 'three/examples/jsm/webxr/ARButton';
-import { OrbitCameraControls } from 'three/examples/jsm/CameraControls/OrbitCameraControls';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 import { models } from "./lib/meshes";
 import { makeFloor, WaterMesh, rippleCallbacks, rain } from "./lib/water";
@@ -30,7 +29,7 @@ const rockHandling : RockHandling = {
 // WebGL Scene globals, make object 
 let Renderer : THREE.WebGLRenderer | null | any = null;
 let Scene : THREE.Scene | null = null;
-let CameraControls : OrbitCameraControls | null = null;
+let CameraControls : OrbitControls | null = null;
 let Clock: THREE.Clock | null = null;
 let Raycaster : THREE.Raycaster | null = null;
 
@@ -42,7 +41,7 @@ function onPointerMove( event : any ) {
   Pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
 }
 
-
+// reset game
 document.onkeydown = function(evt) {
   evt = evt || window.event;
   let isEscape = false;
@@ -56,7 +55,7 @@ document.onkeydown = function(evt) {
   }
 };
 
-
+//callbacks
 const addObjectClickListener = (
   Scene : THREE.Scene
   ) => {
@@ -174,7 +173,10 @@ const addObjectClickListener = (
   };
 
 function setupRenderer(documentObj : Document){
-    Renderer = new THREE.WebGLRenderer({ antialias: true })
+    Renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: true
+   });
     Renderer.setPixelRatio(window.devicePixelRatio);
     Renderer.setSize(window.innerWidth, window.innerHeight);
     Renderer.shadowMap.enabled = true;
@@ -186,7 +188,7 @@ function setupRenderer(documentObj : Document){
     Renderer.xr.enabled = true;
 
     //orbit
-    CameraControls = new OrbitCameraControls(Camera, Renderer.domElement);
+    CameraControls = new OrbitControls(Camera, Renderer.domElement);
     CameraControls.maxPolarAngle = Math.PI * 0.5;
     CameraControls.maxDistance = 10;
     Camera.position.set(0, 1.6, -5);
@@ -194,7 +196,7 @@ function setupRenderer(documentObj : Document){
     CameraControls.update();
 
     document.body.appendChild(Renderer.domElement);
-    document.body.appendChild(VRButton.createButton(Renderer));
+    document.body.appendChild(ARButton.createButton(Renderer));
     window.addEventListener('resize', onWindowResize, false);
  
     function onWindowResize() {
@@ -237,6 +239,7 @@ function setupRenderer(documentObj : Document){
                     addHeadsup(document, "", 300, 300, "splashLabel", 18);
                   }, 1200);
                 }
+                //callback for splashes and ripples
                 Renderer.setAnimationLoop(function (time : number) {
                   rippleCallbacks.forEach(cb => cb(time));
                   Renderer.render(Scene, Camera);
@@ -262,7 +265,6 @@ function setupRenderer(documentObj : Document){
       }
 
       Renderer.render(Scene, Camera)
-      return Renderer;
 }
 
 function setupScene(documentObj : Document){
