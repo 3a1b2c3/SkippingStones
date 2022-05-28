@@ -4,7 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 import { models } from "./lib/meshes";
 import { makeFloor, WaterMesh, rippleCallbacks, rain } from "./lib/water";
-import { makeLights, makeCamera, removeEntity } from "./lib/Scene";
+import { makeLights, makeSky, makeCamera, removeEntity } from "./lib/Scene";
 import { StoneDefault, simulateOneStep } from "./lib/skipping";
 import { RockState, RockHandling} from './types/types'
 import { waterHeight, floorHeight, defaultLabel, defaultLabelFont} from "./lib/constants";
@@ -286,16 +286,8 @@ function setupScene(documentObj : Document){
 
     const { Light, Bounce } = makeLights();
     const cameraHelper = new THREE.CameraHelper(Light.shadow.camera);
-    Scene.add(cameraHelper);
-
-    const skyGeo = new THREE.SphereGeometry(1500, 25, 25);
-    var material = new THREE.MeshPhongMaterial({
-            shininess: 0,
-            color: 0x03a9f4
-        });
-    var sky = new THREE.Mesh(skyGeo, material);
-    sky.material.side = THREE.BackSide;
-
+    const sky = makeSky();
+    Scene.add(cameraHelper);;
     const helper = new THREE.DirectionalLightHelper(Light);
     if (debug)
     Scene.add(helper)

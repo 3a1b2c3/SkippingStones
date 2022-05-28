@@ -6,21 +6,31 @@ import {
     Mesh,
     MeshBasicMaterial,
     Group,
+    BackSide, Scene
 } from 'three';
 import { sceneRadius as sceneRadiusDefault } from './constants';
 
-export function removeEntity(name: string, scene : THREE.Scene) {
+export function removeEntity(name: string, scene : Scene) {
     const selectedObject = scene.getObjectByName(name);
     if (selectedObject)
       scene.remove(selectedObject);
 }
 
-export function makeCamera(far=1000){
+export function makeCamera(far=sceneRadiusDefault *2.5){
     const CameraGroup = new Group();
     const Camera = new PerspectiveCamera();
     Camera.far = far;
     CameraGroup.add(Camera);
     return {Camera, CameraGroup};
+}
+export function makeSky(radius=sceneRadiusDefault *2.4){
+    const skyGeo = new SphereGeometry(radius, 25, 25);
+    const material = new MeshBasicMaterial({
+            color: 0xADD8E6
+        });
+    const sky = new Mesh(skyGeo, material);
+    sky.material.side = BackSide;
+    return sky;
 }
 
 export function makeLights(intensity=2.3, sceneRadius=sceneRadiusDefault){
