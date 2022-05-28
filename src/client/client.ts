@@ -1,5 +1,6 @@
 import * as THREE from 'three'; 
-import { VRButton } from 'three/examples/jsm/webxr/VRButton'
+import { VRButton } from 'three/examples/jsm/webxr/VRButton';
+import { ARButton } from 'three/examples/jsm/webxr/ARButton';
 import { OrbitControls } from 'three/examples/jsm/Controls/OrbitControls';
 
 import { models, defaultPositionY, defaultRoationX } from "./lib/meshes";
@@ -9,7 +10,9 @@ import { StoneDefault, simulateOneStep, reset } from "./lib/skipping";
 import { stone, RockState, RockHandling} from './types/types'
 import { waterHeight, floorHeight} from "./lib/constants";
 import { addHeadsup, addButton, setText } from "./lib/headsUp";
+import { resetRock } from "./lib/rock";
 import { clamp } from "./lib/helper";
+
 
 const debug = false;
 const headsUpStartText = "Skip a stone";
@@ -27,10 +30,6 @@ const rockHandling : RockHandling = {
   stoneSimulation : Object.create(StoneDefault)
 };
 
-// XR globals
-const xrImmersiveRefSpace = null;
-const inlineViewerHelper = null;
-
 // WebGL Scene globals, make object 
 let Renderer : THREE.WebGLRenderer | null | any = null;
 let Scene : THREE.Scene | null = null;
@@ -38,8 +37,14 @@ let Controls : OrbitControls | null = null;
 let Clock: THREE.Clock | null = null;
 let Raycaster : THREE.Raycaster | null = null;
 
-const Pointer = new THREE.Vector2();
 const { Camera, CameraGroup } = makeCamera();
+const Pointer = new THREE.Vector2();
+
+function onPointerMove( event : any ) {
+  Pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+  Pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
+}
+
 
 document.onkeydown = function(evt) {
   evt = evt || window.event;
@@ -49,15 +54,11 @@ document.onkeydown = function(evt) {
   } else {
       isEscape = (evt.keyCode === 27);
   }
-  if (isEscape) {
-    resetRock();
+  if (isEscape && Scene) {
+    resetRock(Scene, rockHandling);
   }
 };
 
-function onPointerMove( event : any ) {
-  Pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-  Pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
-}
 
 const addObjectClickListener = (
   Scene : THREE.Scene
@@ -175,20 +176,6 @@ const addObjectClickListener = (
    
   };
 
-  function resetRock(){
-    reset(rockHandling.stoneSimulation);
-    rockHandling.rockState = RockState.start;
-    if (Scene){
-      removeEntity(defaultLabel, Scene);
-      setText(rockHandling.rockState, rockHandling.stoneSimulation,
-         rockHandling, defaultLabel, defaultLabelFont);
-    }
-    if (rockHandling.rockMeshes && rockHandling.rockMeshes[0]){
-      rockHandling.rockMeshes[0].position.set(0, defaultPositionY, 0);
-      rockHandling.rockMeshes[0].rotateX(defaultRoationX);
-    }
-  }
-
 function setupRenderer(documentObj : Document){
     Renderer = new THREE.WebGLRenderer({ antialias: true })
     Renderer.setPixelRatio(window.devicePixelRatio);
@@ -267,7 +254,8 @@ function setupRenderer(documentObj : Document){
             console.debug("done");
             rockHandling.rockState = RockState.simulationDone;
             setTimeout(() => {
-               resetRock();
+                if (Scene)
+                resetRock(Scene, rockHandling);
             }, resetTime);
           }
       }
@@ -296,8 +284,7 @@ function setupScene(documentObj : Document){
         Scene.add(rock2);
     })();
 
-    resetRock();
-    addHeadsup(document, "Skip a stone", 100, 50, "header", 22);
+    //addHeadsup(document, "Skip a stone", 100, 50, "header", 22);
 
     const { Light, Bounce } = makeLights();
     const cameraHelper = new THREE.CameraHelper(Light.shadow.camera);
@@ -316,10 +303,28 @@ function setupScene(documentObj : Document){
     return Scene;
 }
 
+//TODO
+function initSimulation(){
+  if (Scene)
+  resetRock(Scene, rockHandling);
+}
+
+function initUI(documentObj : Document) {
+  addButton(documentObj, resetRock);
+  addHeadsup(documentObj, 'Skip a stone', 100, 50, 'header', 22);
+}
+
+
 function setup(documentObj : Document, resetRockFct : any){
     const renderer = setupRenderer(documentObj);
     const scene = setupScene(documentObj);
-    addButton(documentObj, resetRockFct);
+    initSimulation();
+    initUI(documentObj);
 }
 
-setup(document, resetRock);
+
+window.addEventListener('DOMContentLoaded', () => {
+  setup(document, resetRock);
+});
+
+
