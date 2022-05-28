@@ -263,7 +263,10 @@ function setupRenderer(documentObj : Document){
             }, resetTime);
           }
       }
-
+      Renderer.setAnimationLoop(function (time : number) {
+        rippleCallbacks.forEach(cb => cb(time));
+        Renderer.render(Scene, Camera);
+      });
       Renderer.render(Scene, Camera)
 }
 
@@ -285,10 +288,18 @@ function setupScene(documentObj : Document){
     const cameraHelper = new THREE.CameraHelper(Light.shadow.camera);
     Scene.add(cameraHelper);
 
+    const skyGeo = new THREE.SphereGeometry(1500, 25, 25);
+    var material = new THREE.MeshPhongMaterial({
+            shininess: 0,
+            color: 0x03a9f4
+        });
+    var sky = new THREE.Mesh(skyGeo, material);
+    sky.material.side = THREE.BackSide;
+
     const helper = new THREE.DirectionalLightHelper(Light);
     if (debug)
     Scene.add(helper)
-
+    Scene.add(sky);
     Scene.add(Bounce);
     Scene.add(Light);
     Scene.add(Camera);
