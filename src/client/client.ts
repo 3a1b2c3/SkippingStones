@@ -53,8 +53,9 @@ class App {
   };
 
   initSimulation(){
-    if (this.Scene)
-    resetRock(this.Scene, this.rockHandling);
+    if (this.Scene){
+      resetRock(this.Scene, this.rockHandling);
+    }
     this.rockHandling.rockState = RockState.start;
     this.rockHandling.rockMeshes = Array<THREE.Mesh>(),
     this.rockHandling.intersections = null;
@@ -63,6 +64,8 @@ class App {
   
   renderXR(_ : any, frame : any) {
     if (frame) {
+      if (this.Sky)
+        this.Sky.visible = false;
       if (this.hitTestSourceRequested === false) {
         this.requestHitTestSource();
       }
@@ -114,8 +117,9 @@ class App {
     document.body.appendChild(ARButton.createButton(this.Renderer));
   }
   initUI(documentObj : Document) {
-    if (this.Scene)
-    addButton(documentObj, resetRock, this.Scene, this.rockHandling);
+    if (this.Scene){
+      addButton(documentObj, resetRock, this.Scene, this.rockHandling);
+    }
     addHeadsup(documentObj, headsUpStartText, 100, 50, 'header', 22);
   }
   
@@ -167,26 +171,25 @@ class App {
         app.Scene.add(rock2);
     })();
 
-    const { Light, Bounce } = makeLights();
-    const cameraHelper = new THREE.CameraHelper(Light.shadow.camera);
     this.Sky = makeSky();
-    this.Scene.add(cameraHelper);;
+    const { Light, Bounce } = makeLights();
     const helper = new THREE.DirectionalLightHelper(Light);
-    if (debug)
-    this.Scene.add(helper)
-    this.Scene.add(this.Sky);
-    this.Scene.add(Bounce);
-    this.Scene.add(Light);
+    const cameraHelper = new THREE.CameraHelper(Light.shadow.camera);
+    this.box = makeBox();
+    this.reticle = makeReticle();
     if (this.Camera)
       this.Scene.add(this.Camera);
     if (this.CameraGroup)
       this.Scene.add(this.CameraGroup);
+    this.Scene.add(cameraHelper);
+    if (debug)
+      this.Scene.add(helper)
+    this.Scene.add(this.Sky);
+    this.Scene.add(Bounce);
+    this.Scene.add(Light);
     this. Scene.add(makeFloor());
     this.Scene.add(WaterMesh);
-  
-    this.reticle = makeReticle();
     this.Scene.add(this.reticle);
-    this.box = makeBox();
     this.Scene.add(this.box);
 
     return this.Scene;
@@ -245,12 +248,14 @@ function render() {
         // simulation finished
         if(app.rockHandling.rockMeshes[0].position.y <= minFloorHeight ||
              app.rockHandling.rockMeshes[0].position.z > 90){
-            if (debug)
-            console.debug("done");
+            if (debug){
+              console.debug("done");
+            }
             app.rockHandling.rockState = RockState.simulationDone;
             setTimeout(() => {
-                if (app.Scene)
-                resetRock(app.Scene, app.rockHandling);
+                if (app.Scene){
+                  resetRock(app.Scene, app.rockHandling);
+                }
             }, resetTime);
           }
       }
@@ -281,7 +286,7 @@ const addObjectClickListener = (
       } else {
           isEscape = (evt.keyCode === 27);
       }
-      if (isEscape && Scene) {
+      if (isEscape && Scene){
         resetRock(Scene, rockHandling);
       }
     };
@@ -302,25 +307,25 @@ const addObjectClickListener = (
     })
     document.addEventListener("touchend", function (event) {
         if (rockHandling.rockMeshes && rockHandling.rockState.valueOf() == RockState.configuring) {
-            if (debug)
-            console.debug("mouseup:" + rockHandling.rockState);
             rockHandling.rockState = RockState.simulation;
             //update label
             removeEntity(defaultLabel, Scene);
             setText(rockHandling, defaultLabel, defaultLabelFont);
-            if (CameraControls)
-            CameraControls.enableRotate = true;
+            if (CameraControls){
+              CameraControls.enableRotate = true;
+            }
         }
     })
    
     document.addEventListener('mousedown', function (event) {
       if (rockHandling.rockMeshes && rockHandling.rockMeshes[0] && rockHandling.intersections &&
-        rockHandling.rockState.valueOf() == RockState.start) {
+        rockHandling.rockState.valueOf() == RockState.start){
         rockHandling.rockState = RockState.configuring;
         startX = event.pageX;
         startY = event.pageY;
-        if (debug)
+        if (debug){
           console.debug(startY + 'mousedown' + rockHandling.rockState);
+        }
         removeEntity(defaultLabel, Scene);
         setText(rockHandling, defaultLabel, defaultLabelFont);
       }
@@ -334,8 +339,7 @@ const addObjectClickListener = (
       if (Raycaster){
         Raycaster.setFromCamera(g_Pointer, Camera);
           const intersects = Raycaster.intersectObjects(Scene.children, true);
-          if (intersects.length > 0) {
-            if ( intersects.length > 0 ) {
+          if ( intersects.length > 0 ) {
               if (rockHandling.intersections != intersects[0].object) {
                 if (rockHandling.intersections && rockHandling.intersections?.material?.emissive) 
                   rockHandling.intersections.material.emissive.setHex(rockHandling.intersections.currentHex);
@@ -355,7 +359,6 @@ const addObjectClickListener = (
                 rockHandling.intersections.material.emissive.setHex(rockHandling.intersections.currentHex);
               rockHandling.intersections = null;
             }
-          }
         }
       if (rockHandling.rockMeshes && 
         rockHandling.rockState.valueOf() == RockState.configuring) {
