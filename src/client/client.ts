@@ -2,15 +2,15 @@ import * as THREE from 'three';
 import { ARButton } from 'three/examples/jsm/webxr/ARButton';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-import { models } from "./lib/meshes";
-import { makeFloor, WaterMesh, rippleCallbacks, rain } from "./lib/water";
-import { makeLights, makeSky, makeCamera, removeEntity, makeReticle, makeBox } from "./lib/scene";
-import { StoneDefault, simulateOneStep } from "./lib/skipping";
+import { models } from './lib/meshes';
+import { makeFloor, WaterMesh, rippleCallbacks, rain } from './lib/water';
+import { makeLights, makeSky, makeCamera, removeEntity, makeReticle, makeBox } from './lib/scene';
+import { StoneDefault, simulateOneStep } from './lib/skipping';
 import { RockState, RockHandling} from './types/types'
-import { waterHeight, floorHeight, defaultLabel, defaultLabelFont} from "./lib/constants";
-import { addHeadsup, addButton, setText, headsUpStartText } from "./lib/headsUp";
-import { resetRock } from "./lib/rock";
-import { clamp } from "./lib/helper";
+import { waterHeight, floorHeight, defaultLabel, defaultLabelFont} from './lib/constants';
+import { addHeadsup, addButton, setText, headsUpStartText } from './lib/headsUp';
+import { resetRock } from './lib/rock';
+import { clamp } from './lib/helper';
 
 const debug = false;
 const minFloorHeight = floorHeight * 1.1;
@@ -205,7 +205,8 @@ class App {
     this.initUI(documentObj);
     this.initXR(documentObj);
     if (this.Raycaster && this.CameraControls && this.Camera){
-      addObjectClickListener(scene, this.rockHandling, this.Raycaster, this.Camera, this.CameraControls);
+      addObjectClickListener(scene, this.rockHandling, 
+        this.Raycaster, this.Camera, this.CameraControls, g_Pointer);
     }
   }
 };
@@ -243,9 +244,9 @@ function render() {
                 splash = false;
                 if(debug)
                 {
-                  addHeadsup(document, "Splash", 300, 300, "splashLabel", 18);
+                  addHeadsup(document, 'Splash', 300, 300, 'splashLabel', 18);
                   setTimeout(() => {
-                    addHeadsup(document, "", 300, 300, "splashLabel", 18);
+                    addHeadsup(document, '', 300, 300, 'splashLabel', 18);
                   }, 1200);
             }
           }
@@ -258,7 +259,7 @@ function render() {
         if(app.rockHandling.rockMeshes[0].position.y <= minFloorHeight ||
              app.rockHandling.rockMeshes[0].position.z > 90){
             if (debug){
-              console.debug("done");
+              console.debug('done');
             }
             app.rockHandling.rockState = RockState.simulationDone;
             setTimeout(() => {
@@ -282,7 +283,8 @@ const addObjectClickListener = (
   rockHandling : RockHandling,
   Raycaster : THREE.Raycaster,
   Camera : THREE.Camera,
-  CameraControls : OrbitControls
+  CameraControls : OrbitControls,
+  Pointer : THREE.Vector2
   ) => {
     let startX = 0;
     let startY = 0;
@@ -290,8 +292,8 @@ const addObjectClickListener = (
     document.onkeydown = function(evt) {
       evt = evt || window.event;
       let isEscape = false;
-      if ("key" in evt) {
-          isEscape = (evt.key === "Escape" || evt.key === "Esc");
+      if ('key' in evt) {
+          isEscape = (evt.key === 'Escape' || evt.key === 'Esc');
       } else {
           isEscape = (evt.keyCode === 27);
       }
@@ -299,7 +301,7 @@ const addObjectClickListener = (
         resetRock(Scene, rockHandling);
       }
     };
-    document.addEventListener("touchstart", function (event) {
+    document.addEventListener('touchstart', function (event) {
       if (rockHandling.rockMeshes && rockHandling.rockMeshes[0] && rockHandling.intersections &&
         rockHandling.rockState.valueOf() == RockState.start) {
         rockHandling.rockState = RockState.configuring;
@@ -314,7 +316,7 @@ const addObjectClickListener = (
         startY = 0;
       }
     })
-    document.addEventListener("touchend", function (event) {
+    document.addEventListener('touchend', function (event) {
         if (rockHandling.rockMeshes && rockHandling.rockState.valueOf() == RockState.configuring) {
             rockHandling.rockState = RockState.simulation;
             //update label
@@ -346,7 +348,7 @@ const addObjectClickListener = (
 
     document.addEventListener('mousemove', function (event) {
       if (Raycaster){
-        Raycaster.setFromCamera(g_Pointer, Camera);
+        Raycaster.setFromCamera(Pointer, Camera);
           const intersects = Raycaster.intersectObjects(Scene.children, true);
           if ( intersects.length > 0 ) {
               if (rockHandling.intersections != intersects[0].object) {
@@ -391,7 +393,7 @@ const addObjectClickListener = (
     document.addEventListener('mouseup', function (event) {
       if (rockHandling.rockMeshes && rockHandling.rockState.valueOf() == RockState.configuring) {
           if (debug)
-            console.debug("mouseup:" + rockHandling.rockState);
+            console.debug('mouseup:' + rockHandling.rockState);
           rockHandling.rockState = RockState.simulation;
           //update label
           removeEntity(defaultLabel, Scene);
