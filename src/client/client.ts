@@ -40,8 +40,8 @@ class App {
   hitTestSourceRequested = false;
   hitTestSource : any;
   controller : any;
-  reticle : any;
-  box : any;
+  reticle: THREE.Mesh | null = null;
+  box : THREE.Mesh | null = null;
   rockHandling : RockHandling | any;
   constructor() {
     this.rockHandling = {
@@ -63,21 +63,45 @@ class App {
   
   renderXR(_ : any, frame : any) {
     if (frame) {
-      /*
       if (this.hitTestSourceRequested === false) {
         this.requestHitTestSource();
       }
       if (this.hitTestSource) {
         this.getHitTestResults(frame);
-      }*/
+      }
     }
     this.Renderer.render(this.Scene, this.Camera);
   }
 
+  async requestHitTestSource() {
+    const session = this.Renderer.xr.getSession();
+    session.addEventListener('end', () => {
+      this.hitTestSourceRequested = false;
+      this.hitTestSource = null;
+    });
+    const referenceSpace = await session.requestReferenceSpace('viewer');
+    this.hitTestSource = await session.requestHitTestSource({ space: referenceSpace, entityTypes: ['plane'] });
+    this.hitTestSourceRequested = true;
+  }
+
+  getHitTestResults(frame : any) {
+    const hitTestResults = frame.getHitTestResults(this.hitTestSource);
+    if (hitTestResults.length) {
+      const hit = hitTestResults[0];
+      const pose = hit.getPose(this.Renderer.xr.getReferenceSpace());
+      if (this.reticle){
+      this.reticle.visible = true;
+      this.reticle.matrix.fromArray(pose.transform.matrix);
+      }
+    } else if (this.reticle){
+      this.reticle.visible = false;
+    }
+  }
+
   onSelect() {
-    if (this.reticle.visible) {
+    if (this?.reticle?.visible && this.box) {
       this.box.position.setFromMatrixPosition(this.reticle.matrix);
-      this.box.position.y += this.box.geometry.parameters.height / 2;
+      //this.box.position.y += this.box.geometry.parameters.height / 2;
       this.box.visible = true;
     } 
   }
