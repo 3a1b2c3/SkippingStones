@@ -44,7 +44,48 @@ class App {
   box : any;
   rockHandling : RockHandling | any;
   constructor() {
+    this.rockHandling = {
+      rockState: RockState.start,
+      rockMeshes: Array<THREE.Mesh>(),
+      intersections : null,
+      stoneSimulation : Object.create(StoneDefault)
+    };
   };
+
+  render(_ : any, frame : any) {
+    /*
+    if (frame) {
+      if (this.hitTestSourceRequested === false) {
+        this.requestHitTestSource();
+      }
+      if (this.hitTestSource) {
+        this.getHitTestResults(frame);
+      }
+    }
+    this.renderer.render(this.scene, this.camera);
+    */
+  }
+
+  onSelect() {
+    if (this.reticle.visible) {
+      this.box.position.setFromMatrixPosition(this.reticle.matrix);
+      this.box.position.y += this.box.geometry.parameters.height / 2;
+      this.box.visible = true;
+    } 
+  }
+  initXR(){
+    app.Renderer.xr.enabled = true;
+    app.hitTestSourceRequested = false;
+    app.hitTestSource = null;
+    app.controller = app.Renderer.xr.getController(0);
+    app.controller.addEventListener('select', app.onSelect.bind(app));
+    document.body.appendChild(ARButton.createButton(app.Renderer));
+  }
+  initUI(documentObj : Document) {
+    if (this.Scene)
+    addButton(documentObj, resetRock, this.Scene, rockHandling);
+    addHeadsup(documentObj, headsUpStartText, 100, 50, 'header', 22);
+  }
 }
 
 const rockHandling : RockHandling = {
@@ -76,8 +117,8 @@ function render() {
         rockHandling.rockMeshes[0].position.z = res.x;
 
          if(splash){
-              rain(.25, 4, 0.005, rockHandling.rockMeshes[0].position.x,
-                rockHandling.rockMeshes[0].position.z, .3, .3, 40);
+            rain(.25, 12, 0.005, rockHandling.rockMeshes[0].position.x,
+                rockHandling.rockMeshes[0].position.z, .3, .3, 100);
                 splash = false;
                 if(debug)
                 {
@@ -85,19 +126,14 @@ function render() {
                   setTimeout(() => {
                     addHeadsup(document, "", 300, 300, "splashLabel", 18);
                   }, 1200);
-                }
-                //callback for ripples
-                app.Renderer.setAnimationLoop(function (time : number) {
-                  rippleCallbacks.forEach(cb => cb(time));
-                  app.Renderer.render(app.Scene, app.Camera);
-                });
+            }
           }
         // update distance label
         if (app.Scene){
             removeEntity(defaultLabel, app.Scene);
             setText(rockHandling, defaultLabel, defaultLabelFont);
-          }
-        //done
+        }
+        // simulation finished
         if(rockHandling.rockMeshes[0].position.y <= minFloorHeight ||
              rockHandling.rockMeshes[0].position.z > 90){
             if (debug)
@@ -144,16 +180,23 @@ function setupScene(documentObj : Document){
     app.Scene.add(app.CameraGroup);
     app. Scene.add(makeFloor());
     app.Scene.add(WaterMesh);
+   
+    let geometry = new THREE.RingGeometry(0.08, 0.10, 32).rotateX(-Math.PI / 2);
+    const material = new THREE.MeshBasicMaterial;
+    app.reticle = new THREE.Mesh(geometry, material);
+    app.reticle.matrixAutoUpdate = false;
+    app.reticle.visible = false;
+    app.Scene.add(app.reticle);
+  
+    const geometry1 = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+    const material1 = new THREE.MeshStandardMaterial({ color: 0x5853e6 });
+    app.box = new THREE.Mesh(geometry1, material1);
+    app.box.visible = false;
+    app.Scene.add(app.box);
+ 
     return app.Scene;
 }
 
-function initXR(){
-  app.Renderer.xr.enabled = true;
-  app.hitTestSourceRequested = false;
-  app.hitTestSource = null;
-  app.controller = app.renderer.xr.getController(0);
-  app.controller.addEventListener('select', app.onSelect.bind(app));
-}
 
 function initSimulation(rockh : RockHandling){
   if (app.Scene)
@@ -164,11 +207,7 @@ function initSimulation(rockh : RockHandling){
   rockh.stoneSimulation = Object.create(StoneDefault);
 }
 
-function initUI(documentObj : Document) {
-  if (app.Scene)
-  addButton(documentObj, resetRock, app.Scene, rockHandling);
-  addHeadsup(documentObj, headsUpStartText, 100, 50, 'header', 22);
-}
+
 
 //callbacks
 const addObjectClickListener = (
@@ -303,27 +342,25 @@ function setupRenderer(documentObj : Document){
       antialias: true,
       alpha: true
    });
-   app.Renderer.setPixelRatio(window.devicePixelRatio);
-   app.Renderer.setSize(window.innerWidth, window.innerHeight);
-   app.Renderer.shadowMap.enabled = true;
-   app.Renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    //app.Renderer.outputEncoding = THREE.sRGBEncoding;
-    app.Renderer.setSize(window.innerWidth, window.innerHeight);
-    app.Renderer.setPixelRatio(window.devicePixelRatio);
+  app.Renderer.setPixelRatio(window.devicePixelRatio);
+  app.Renderer.setSize(window.innerWidth, window.innerHeight);
+  app.Renderer.shadowMap.enabled = true;
+  app.Renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  //app.Renderer.outputEncoding = THREE.sRGBEncoding;
+  app.Renderer.setSize(window.innerWidth, window.innerHeight);
 
-    //orbit
-    app.CameraControls = new OrbitControls(Camera, app.Renderer.domElement);
-    app.CameraControls.maxPolarAngle = Math.PI * 0.5;
-    app.CameraControls.maxDistance = 10;
-    Camera.position.set(0, 1.6, -5);
-    app.CameraControls.target = new THREE.Vector3(0, 1, 0);
-    app.CameraControls.update();
+  //orbit
+  app.CameraControls = new OrbitControls(Camera, app.Renderer.domElement);
+  app.CameraControls.maxPolarAngle = Math.PI * 0.5;
+  app.CameraControls.maxDistance = 10;
+  Camera.position.set(0, 1.6, -5);
+  app.CameraControls.target = new THREE.Vector3(0, 1, 0);
+  app.CameraControls.update();
 
-    document.body.appendChild(app.Renderer.domElement);
-    document.body.appendChild(ARButton.createButton(app.Renderer));
-    window.addEventListener('resize', onWindowResize, false);
+  document.body.appendChild(app.Renderer.domElement);
+  window.addEventListener('resize', onWindowResize, false);
  
-    function onWindowResize() {
+  function onWindowResize() {
         app.Camera.aspect = window.innerWidth / window.innerHeight;
         app.Camera.updateProjectionMatrix();
         app.Renderer.setSize(window.innerWidth, window.innerHeight);
@@ -332,12 +369,12 @@ function setupRenderer(documentObj : Document){
   }
 
 function setup(documentObj : Document, resetRockFct : any){
-      const renderer = setupRenderer(documentObj);
-      const scene = setupScene(documentObj);
-      initSimulation(rockHandling);
-      initUI(documentObj);
-      addObjectClickListener(scene);
-      initXR();
+  const renderer = setupRenderer(documentObj);
+  const scene = setupScene(documentObj);
+  initSimulation(rockHandling);
+  app.initUI(documentObj);
+  app.initXR();
+  addObjectClickListener(scene);
 }
 
 
