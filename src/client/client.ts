@@ -239,7 +239,7 @@ function render() {
 
          if(splash){
             rain(.25, maxRipples, 0.005, app.rockHandling.rockMeshes[0].position.x,
-                app.rockHandling.rockMeshes[0].position.z, .3, .3, 100);
+                app.rockHandling.rockMeshes[0].position.z, .3, .3, 60);
                 splash = false;
                 if(debug)
                 {
@@ -272,7 +272,7 @@ function render() {
         rippleCallbacks.forEach(cb => cb(time));
         app.Renderer.render(app.Scene, app.Camera);
       });
-      app.Renderer.render(app.Scene, app.Camera)
+      //app.Renderer.render(app.Scene, app.Camera)
 }
 
 
