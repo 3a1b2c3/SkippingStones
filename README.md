@@ -53,11 +53,11 @@ The **stone will bounce on the water** (or not) depending on inital tilt angle i
 
 ## TODOs:
 ### Things still missing or bad: 
-* 3d ui can be difficult to use
-teh 
+* 3d ui can be difficult to use, rayintersection in flat viewing angles is unreliable
+
 * Make it easier to see which way the stone will fly 
 
-* Add sound effects and feedback (i.e ripples) when stone touches water, needs shadow to make movement visually more clear
+* Add sound effects, needs shadow to make movement visually more clear
 
 
 ### Later

@@ -40,8 +40,8 @@ class App {
   Raycaster : THREE.Raycaster | null = null;
   hitTestSourceRequested = false;
   hitTestSource : any;
-  controller : any;
-  session : any;
+  XRController : any;
+  XRSession : any;
   reticle: THREE.Mesh | null = null;
   box : THREE.Mesh | null = null;
   rockHandling : RockHandling | any;
@@ -79,13 +79,13 @@ class App {
   }
 
   async requestHitTestSource() {
-    this.session = this.Renderer.xr.getSession();
-    this.session.addEventListener('end', () => {
+    this.XRSession = this.Renderer.xr.getSession();
+    this.XRSession.addEventListener('end', () => {
       this.hitTestSourceRequested = false;
       this.hitTestSource = null;
     });
-    const referenceSpace = await this.session.requestReferenceSpace('viewer');
-    this.hitTestSource = await this.session.requestHitTestSource({ space: referenceSpace, entityTypes: ['plane'] });
+    const referenceSpace = await this.XRSession.requestReferenceSpace('viewer');
+    this.hitTestSource = await this.XRSession.requestHitTestSource({ space: referenceSpace, entityTypes: ['plane'] });
     this.hitTestSourceRequested = true;
   }
 
@@ -114,8 +114,8 @@ class App {
     this.Renderer.xr.enabled = true;
     this.hitTestSourceRequested = false;
     this.hitTestSource = null;
-    this.controller = this.Renderer.xr.getController(0);
-    this.controller.addEventListener('select', this.onSelect.bind(this));
+    this.XRController = this.Renderer.xr.getController(0);
+    this.XRController.addEventListener('select', this.onSelect.bind(this));
     documentObj.body.appendChild(ARButton.createButton(this.Renderer));
   }
 
@@ -213,7 +213,7 @@ class App {
 
 function render() {
       requestAnimationFrame(render);
-      if (app.session && app.Sky.visible){
+      if (app.XRSession && app.Sky.visible){
         app.Sky.visible = false;
       }
       else if (!app.Sky.visible){
