@@ -51,6 +51,7 @@ class App {
       stoneSimulation : Object.create(StoneDefault)
     };
   };
+
   initSimulation(){
     if (this.Scene)
     resetRock(this.Scene, this.rockHandling);
@@ -94,7 +95,41 @@ class App {
     addButton(documentObj, resetRock, this.Scene, this.rockHandling);
     addHeadsup(documentObj, headsUpStartText, 100, 50, 'header', 22);
   }
-}
+  
+  setupRenderer(documentObj : Document){
+    const { Camera, CameraGroup } = makeCamera();
+    this.Camera = Camera;
+    this.CameraGroup = CameraGroup;
+    this.Renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true
+     });
+    this.Renderer.setPixelRatio(window.devicePixelRatio);
+    this.Renderer.setSize(window.innerWidth, window.innerHeight);
+    this.Renderer.shadowMap.enabled = true;
+    this.Renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    //this.Renderer.outputEncoding = THREE.sRGBEncoding;
+    this.Renderer.setSize(window.innerWidth, window.innerHeight);
+  
+    //orbit
+    this.CameraControls = new OrbitControls(Camera, this.Renderer.domElement);
+    this.CameraControls.maxPolarAngle = Math.PI * 0.5;
+    this.CameraControls.maxDistance = 10;
+    Camera.position.set(0, 1.6, -5);
+    this.CameraControls.target = new THREE.Vector3(0, 1, 0);
+    this.CameraControls.update();
+  
+    document.body.appendChild(this.Renderer.domElement);
+    window.addEventListener('resize', onWindowResize, false);
+   
+    function onWindowResize() {
+          app.Camera.aspect = window.innerWidth / window.innerHeight;
+          app.Camera.updateProjectionMatrix();
+          app.Renderer.setSize(window.innerWidth, window.innerHeight);
+      }
+      this.Renderer.setAnimationLoop(render);
+    }
+};
 
 
 function render() {
@@ -322,45 +357,10 @@ const addObjectClickListener = (
           app.CameraControls.enableRotate = true;
       }
     });
-   
-};
-
-function setupRenderer(documentObj : Document){
-  const { Camera, CameraGroup } = makeCamera();
-  app.Camera = Camera;
-  app.CameraGroup = CameraGroup;
-  app.Renderer = new THREE.WebGLRenderer({
-      antialias: true,
-      alpha: true
-   });
-  app.Renderer.setPixelRatio(window.devicePixelRatio);
-  app.Renderer.setSize(window.innerWidth, window.innerHeight);
-  app.Renderer.shadowMap.enabled = true;
-  app.Renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  //app.Renderer.outputEncoding = THREE.sRGBEncoding;
-  app.Renderer.setSize(window.innerWidth, window.innerHeight);
-
-  //orbit
-  app.CameraControls = new OrbitControls(Camera, app.Renderer.domElement);
-  app.CameraControls.maxPolarAngle = Math.PI * 0.5;
-  app.CameraControls.maxDistance = 10;
-  Camera.position.set(0, 1.6, -5);
-  app.CameraControls.target = new THREE.Vector3(0, 1, 0);
-  app.CameraControls.update();
-
-  document.body.appendChild(app.Renderer.domElement);
-  window.addEventListener('resize', onWindowResize, false);
- 
-  function onWindowResize() {
-        app.Camera.aspect = window.innerWidth / window.innerHeight;
-        app.Camera.updateProjectionMatrix();
-        app.Renderer.setSize(window.innerWidth, window.innerHeight);
-    }
-    app.Renderer.setAnimationLoop(render);
   }
 
 function setup(documentObj : Document, resetRockFct : any){
-  const renderer = setupRenderer(documentObj);
+  app.setupRenderer(documentObj);
   const scene = setupScene(documentObj);
   app.initSimulation();
   app.initUI(documentObj);
