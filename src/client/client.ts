@@ -87,12 +87,10 @@ function render() {
                   }, 1200);
                 }
                 //callback for ripples
-                /*
                 app.Renderer.setAnimationLoop(function (time : number) {
                   rippleCallbacks.forEach(cb => cb(time));
-                  app.Renderer.render(app.Scene, Camera);
+                  app.Renderer.render(app.Scene, app.Camera);
                 });
-                */
           }
         // update distance label
         if (app.Scene){
@@ -149,6 +147,13 @@ function setupScene(documentObj : Document){
     return app.Scene;
 }
 
+function initXR(){
+  app.Renderer.xr.enabled = true;
+  app.hitTestSourceRequested = false;
+  app.hitTestSource = null;
+  app.controller = app.renderer.xr.getController(0);
+  app.controller.addEventListener('select', app.onSelect.bind(app));
+}
 
 function initSimulation(rockh : RockHandling){
   if (app.Scene)
@@ -306,8 +311,6 @@ function setupRenderer(documentObj : Document){
     app.Renderer.setSize(window.innerWidth, window.innerHeight);
     app.Renderer.setPixelRatio(window.devicePixelRatio);
 
-    app.Renderer.xr.enabled = true;
-
     //orbit
     app.CameraControls = new OrbitControls(Camera, app.Renderer.domElement);
     app.CameraControls.maxPolarAngle = Math.PI * 0.5;
@@ -334,6 +337,7 @@ function setup(documentObj : Document, resetRockFct : any){
       initSimulation(rockHandling);
       initUI(documentObj);
       addObjectClickListener(scene);
+      initXR();
 }
 
 
