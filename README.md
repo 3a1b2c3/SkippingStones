@@ -59,7 +59,9 @@ The **stone will bounce on the water** (or not) depending on inital tilt angle i
 
 * Make it easier to see which way the stone will fly 
 
-* Add sound effects, needs shadow to make movement visually more clear
+* Needs shadow to make movement visually more clear
+
+* Add sound effects
 
 
 ### Later
