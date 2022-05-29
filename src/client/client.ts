@@ -176,6 +176,15 @@ class App {
 
     return this.Scene;
   }
+
+  setup(documentObj : Document){
+    this.setupRenderer(documentObj);
+    const scene = this.setupScene(documentObj);
+    this.initSimulation();
+    this.initUI(documentObj);
+    this.initXR();
+    addObjectClickListener(scene, this.rockHandling);
+  }
 };
 
 function render() {
@@ -362,19 +371,9 @@ const addObjectClickListener = (
     });
   }
 
-function setup(documentObj : Document, resetRockFct : any){
-  app.setupRenderer(documentObj);
-  const scene = app.setupScene(documentObj);
-  app.initSimulation();
-  app.initUI(documentObj);
-  app.initXR();
-  addObjectClickListener(scene, app.rockHandling);
-}
-
-
 window.addEventListener('DOMContentLoaded', () => {
   app = new App();
-  setup(document, resetRock);
+  app.setup(document, resetRock);
 });
 
 
