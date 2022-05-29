@@ -118,7 +118,7 @@ class App {
     this.CameraControls.target = new THREE.Vector3(0, 1, 0);
     this.CameraControls.update();
   
-    document.body.appendChild(this.Renderer.domElement);
+    documentObj.body.appendChild(this.Renderer.domElement);
     window.addEventListener('resize', onWindowResize, false);
    
     function onWindowResize(this : any) {
@@ -129,7 +129,7 @@ class App {
       this.Renderer.setAnimationLoop(render);
     }
 
-  setupScene(documentObj : Document){
+  setupScene(){
     this.Scene = new THREE.Scene();
     this.Clock = new THREE.Clock();
     this.Raycaster = new THREE.Raycaster();
@@ -170,7 +170,7 @@ class App {
 
   setup(documentObj : Document){
     this.setupRenderer(documentObj);
-    const scene = this.setupScene(documentObj);
+    const scene = this.setupScene();
     this.initSimulation();
     this.initUI(documentObj);
     this.initXR();
@@ -236,7 +236,7 @@ function render() {
 }
 
 
-//callbacks
+// callbacks
 const addObjectClickListener = (
   Scene : THREE.Scene,
   rockHandling : RockHandling
@@ -257,14 +257,14 @@ const addObjectClickListener = (
       }
     };
     document.addEventListener("touchstart", function (event) {
-      if (app.rockHandling.rockMeshes && app.rockHandling.rockMeshes[0] && app.rockHandling.intersections &&
-        app.rockHandling.rockState.valueOf() == RockState.start) {
-        app.rockHandling.rockState = RockState.configuring;
+      if (rockHandling.rockMeshes && rockHandling.rockMeshes[0] && rockHandling.intersections &&
+        rockHandling.rockState.valueOf() == RockState.start) {
+        rockHandling.rockState = RockState.configuring;
         const touch = event.touches[0] || event.changedTouches[0];
         startX = touch.pageX;
         startY = touch.pageY;
         removeEntity(defaultLabel, Scene);
-        setText(app.rockHandling, defaultLabel, defaultLabelFont);
+        setText(rockHandling, defaultLabel, defaultLabelFont);
       }
       else{
         startX = 0;
@@ -272,13 +272,13 @@ const addObjectClickListener = (
       }
     })
     document.addEventListener("touchend", function (event) {
-        if (app.rockHandling.rockMeshes && app.rockHandling.rockState.valueOf() == RockState.configuring) {
+        if (rockHandling.rockMeshes && rockHandling.rockState.valueOf() == RockState.configuring) {
             if (debug)
-            console.debug("mouseup:" + app.rockHandling.rockState);
-            app.rockHandling.rockState = RockState.simulation;
+            console.debug("mouseup:" + rockHandling.rockState);
+            rockHandling.rockState = RockState.simulation;
             //update label
             removeEntity(defaultLabel, Scene);
-            setText(app.rockHandling, defaultLabel, defaultLabelFont);
+            setText(rockHandling, defaultLabel, defaultLabelFont);
             if (app.CameraControls)
             app.CameraControls.enableRotate = true;
         }
