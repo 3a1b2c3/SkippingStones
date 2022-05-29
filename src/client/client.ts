@@ -18,11 +18,11 @@ const animDelta = 0.02;
 const resetTime = 5000;
 const angleIncr = .03;
 
-const Pointer = new THREE.Vector2();
+const g_Pointer = new THREE.Vector2();
 
 function onPointerMove( event : any ) {
-  Pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-  Pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
+  g_Pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+  g_Pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
 }
 
 let app : any = null;
@@ -35,6 +35,7 @@ class App {
   Camera : THREE.Camera | null = null;
   CameraGroup : THREE.Group | null = null;
   Clock: THREE.Clock | null = null;
+  Sky : THREE.Mesh | null = null;
   Raycaster : THREE.Raycaster | null = null;
   hitTestSourceRequested = false;
   hitTestSource : any;
@@ -42,9 +43,9 @@ class App {
   reticle : any;
   box : any;
   rockHandling : RockHandling | any;
+  constructor() {
+  };
 }
-
-const { Camera, CameraGroup } = makeCamera();
 
 const rockHandling : RockHandling = {
   rockState: RockState.start,
@@ -85,11 +86,13 @@ function render() {
                     addHeadsup(document, "", 300, 300, "splashLabel", 18);
                   }, 1200);
                 }
-                //callback for splashes and ripples
+                //callback for ripples
+                /*
                 app.Renderer.setAnimationLoop(function (time : number) {
                   rippleCallbacks.forEach(cb => cb(time));
                   app.Renderer.render(app.Scene, Camera);
                 });
+                */
           }
         // update distance label
         if (app.Scene){
@@ -110,9 +113,9 @@ function render() {
       }
       app.Renderer.setAnimationLoop(function (time : number) {
         rippleCallbacks.forEach(cb => cb(time));
-        app.Renderer.render(app.Scene, Camera);
+        app.Renderer.render(app.Scene, app.Camera);
       });
-      app.Renderer.render(app.Scene, Camera)
+      app.Renderer.render(app.Scene, app.Camera)
 }
 
 function setupScene(documentObj : Document){
@@ -131,16 +134,16 @@ function setupScene(documentObj : Document){
 
     const { Light, Bounce } = makeLights();
     const cameraHelper = new THREE.CameraHelper(Light.shadow.camera);
-    const sky = makeSky();
+    app.Sky = makeSky();
     app.Scene.add(cameraHelper);;
     const helper = new THREE.DirectionalLightHelper(Light);
     if (debug)
     app.Scene.add(helper)
-    app.Scene.add(sky);
+    app.Scene.add(app.Sky);
     app.Scene.add(Bounce);
     app.Scene.add(Light);
-    app.Scene.add(Camera);
-    app.Scene.add(CameraGroup);
+    app.Scene.add(app.Camera);
+    app.Scene.add(app.CameraGroup);
     app. Scene.add(makeFloor());
     app.Scene.add(WaterMesh);
     return app.Scene;
@@ -228,7 +231,7 @@ const addObjectClickListener = (
 
     document.addEventListener('mousemove', function (event) {
       if (app.Raycaster){
-        app.Raycaster.setFromCamera(Pointer, Camera);
+        app.Raycaster.setFromCamera(g_Pointer, app.Camera);
           const intersects = app.Raycaster.intersectObjects(Scene.children, true);
           if (intersects.length > 0) {
             if ( intersects.length > 0 ) {
@@ -288,6 +291,9 @@ const addObjectClickListener = (
 };
 
 function setupRenderer(documentObj : Document){
+  const { Camera, CameraGroup } = makeCamera();
+  app.Camera = Camera;
+  app.CameraGroup = CameraGroup;
   app.Renderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: true
@@ -315,8 +321,8 @@ function setupRenderer(documentObj : Document){
     window.addEventListener('resize', onWindowResize, false);
  
     function onWindowResize() {
-        Camera.aspect = window.innerWidth / window.innerHeight;
-        Camera.updateProjectionMatrix();
+        app.Camera.aspect = window.innerWidth / window.innerHeight;
+        app.Camera.updateProjectionMatrix();
         app.Renderer.setSize(window.innerWidth, window.innerHeight);
     }
     app.Renderer.setAnimationLoop(render);
