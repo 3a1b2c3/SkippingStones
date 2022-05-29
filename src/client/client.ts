@@ -158,7 +158,7 @@ class App {
           app.Renderer.setSize(window.innerWidth, window.innerHeight);
       }
       this.Renderer.setAnimationLoop(render);
-    }
+  }
 
   setupScene(){
     this.Scene = new THREE.Scene();
@@ -211,14 +211,9 @@ class App {
   }
 };
 
+//TODO make class method
 function render() {
       requestAnimationFrame(render);
-      if (app.XRSession && app.Sky.visible){
-        app.Sky.visible = false;
-      }
-      else if (!app.Sky.visible){
-        app.Sky.visible = true;
-      }
       //update simulation
       if(app.Clock && app.rockHandling.rockMeshes?.length && 
         app.rockHandling.rockState.valueOf() == RockState.simulation){
@@ -227,7 +222,8 @@ function render() {
         if (delta > animDelta){
             delta = animDelta;
         }
-        const res : THREE.Vector3 = simulateOneStep(app.rockHandling.stoneSimulation,
+        const res : THREE.Vector3 = simulateOneStep(
+          app.rockHandling.stoneSimulation,
             delta, true);
         app.rockHandling.rockMeshes[0].position.x = res.z;
         app.rockHandling.rockMeshes[0].position.y = res.y + waterHeight;
@@ -273,7 +269,31 @@ function render() {
         rippleCallbacks.forEach(cb => cb(time));
         app.Renderer.render(app.Scene, app.Camera);
       });
-      //app.Renderer.render(app.Scene, app.Camera)
+  app.Renderer.render(app.Scene, app.Camera);
+  
+  const frame = app.Renderer.xr.getFrame();
+  if ( frame != null ) {
+    /*
+    const refSpace = app.Renderer.xr.getReferenceSpace();
+    const views = frame.getViewerPose(refSpace).views;
+    const pos = views[0].transform.position;
+    */
+    app.Renderer.xr.getCamera().cameras[0].position.y = 1.5;
+    console.log(app.Renderer.xr.getCamera().cameras[0].position);
+    app.Renderer.render( app.Scene, app.Renderer.xr.getCamera().cameras[0]);
+    if (app.XRSession && app.Sky.visible){
+      app.Sky.visible = false;
+    }
+    if (app.hitTestSourceRequested === false) {
+      app.requestHitTestSource();
+    }
+    if (app.hitTestSource) {
+      app.getHitTestResults(frame);
+    }
+  }
+  else if (!app.Sky.visible){
+    app.Sky.visible = true;
+  }
 }
 
 
