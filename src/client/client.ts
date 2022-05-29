@@ -4,7 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 import { models } from "./lib/meshes";
 import { makeFloor, WaterMesh, rippleCallbacks, rain } from "./lib/water";
-import { makeLights, makeSky, makeCamera, removeEntity } from "./lib/Scene";
+import { makeLights, makeSky, makeCamera, removeEntity, makeReticle, makeBox } from "./lib/scene";
 import { StoneDefault, simulateOneStep } from "./lib/skipping";
 import { RockState, RockHandling} from './types/types'
 import { waterHeight, floorHeight, defaultLabel, defaultLabelFont} from "./lib/constants";
@@ -161,17 +161,9 @@ class App {
     this. Scene.add(makeFloor());
     this.Scene.add(WaterMesh);
   
-    let geometry = new THREE.RingGeometry(0.08, 0.10, 32).rotateX(-Math.PI / 2);
-    const material = new THREE.MeshBasicMaterial;
-    this.reticle = new THREE.Mesh(geometry, material);
-    this.reticle.matrixAutoUpdate = false;
-    this.reticle.visible = false;
+    this.reticle = makeReticle();
     this.Scene.add(this.reticle);
-
-    const geometry1 = new THREE.BoxGeometry(0.1, 0.1, 0.1);
-    const material1 = new THREE.MeshStandardMaterial({ color: 0x5853e6 });
-    this.box = new THREE.Mesh(geometry1, material1);
-    this.box.visible = false;
+    this.box = makeBox();
     this.Scene.add(this.box);
 
     return this.Scene;
@@ -243,7 +235,6 @@ function render() {
       });
       app.Renderer.render(app.Scene, app.Camera)
 }
-
 
 
 //callbacks

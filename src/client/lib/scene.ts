@@ -6,7 +6,9 @@ import {
     Mesh,
     MeshBasicMaterial,
     Group,
-    BackSide, Scene
+    BackSide, Scene,
+    BoxGeometry,
+    RingGeometry, MeshStandardMaterial 
 } from 'three';
 import { sceneRadius as sceneRadiusDefault } from './constants';
 
@@ -31,6 +33,23 @@ export function makeSky(radius=sceneRadiusDefault *2.4){
     const sky = new Mesh(skyGeo, material);
     sky.material.side = BackSide;
     return sky;
+}
+
+export function makeReticle(){
+    const geometry = new RingGeometry(0.08, 0.10, 32).rotateX(-Math.PI / 2);
+    const material = new MeshBasicMaterial;
+    const reticle = new Mesh(geometry, material);
+    reticle.matrixAutoUpdate = false;
+    reticle.visible = false;
+    return reticle;
+}
+
+export function makeBox(){
+    const geometry1 = new BoxGeometry(0.1, 0.1, 0.1);
+    const material1 = new MeshStandardMaterial({ color: 0x5853e6 });
+    const box = new Mesh(geometry1, material1);
+    box.visible = false;
+    return box;
 }
 
 export function makeLights(intensity=2.3, sceneRadius=sceneRadiusDefault){
