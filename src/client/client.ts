@@ -52,7 +52,7 @@ class App {
       intersections : null,
       stoneSimulation : Object.create(StoneDefault)
     };
-  };
+  }
 
   initSimulation(){
     if (this.Scene){
@@ -142,8 +142,8 @@ class App {
           app.Camera.aspect = window.innerWidth / window.innerHeight;
           app.Camera.updateProjectionMatrix();
           app.Renderer.setSize(window.innerWidth, window.innerHeight);
-      }
-      this.Renderer.setAnimationLoop(render);
+    }
+    this.Renderer.setAnimationLoop(render);
   }
 
   setupScene(){
@@ -195,7 +195,7 @@ class App {
         this.Raycaster, this.Camera, this.CameraControls, g_Pointer);
     }
   }
-};
+}
 
 //TODO make class method
 function render() {
@@ -254,33 +254,32 @@ function render() {
       app.Renderer.setAnimationLoop(function (time : number) {
         rippleCallbacks.forEach(cb => cb(time));
         app.Renderer.render(app.Scene, app.Camera);
-      });
+    });
 
-  
-  const frame = app.Renderer.xr.getFrame();
-  if (frame != null ) {
-    /*
-    const refSpace = app.Renderer.xr.getReferenceSpace();
-    const views = frame.getViewerPose(refSpace).views;
-    const pos = views[0].transform.position;
-    */
-    app.Renderer.xr.getCamera().cameras[0].position.y = 1.5;
-    console.log(app.Renderer.xr.getCamera().cameras[0].position);
-    app.Renderer.render( app.Scene, app.Renderer.xr.getCamera().cameras[0]);
-    if (app.XRSession && app.Sky.visible){
-      app.Sky.visible = false;
+    const frame = app.Renderer.xr.getFrame();
+    if (frame != null ) {
+      /*
+      const refSpace = app.Renderer.xr.getReferenceSpace();
+      const views = frame.getViewerPose(refSpace).views;
+      const pos = views[0].transform.position;
+      */
+      app.Renderer.xr.getCamera().cameras[0].position.y = 1.5;
+      console.log(app.Renderer.xr.getCamera().cameras[0].position);
+      app.Renderer.render( app.Scene, app.Renderer.xr.getCamera().cameras[0]);
+      if (app.XRSession && app.Sky.visible){
+        app.Sky.visible = false;
+      }
+      if (app.hitTestSourceRequested === false) {
+        app.requestHitTestSource();
+      }
+      if (app.hitTestSource) {
+        app.getHitTestResults(frame);
+      }
     }
-    if (app.hitTestSourceRequested === false) {
-      app.requestHitTestSource();
+    else if (!app.Sky.visible){
+      app.Sky.visible = true;
     }
-    if (app.hitTestSource) {
-      app.getHitTestResults(frame);
-    }
-  }
-  else if (!app.Sky.visible){
-    app.Sky.visible = true;
-  }
-  app.Renderer.render(app.Scene, app.Camera);
+    app.Renderer.render(app.Scene, app.Camera);
 }
 
 
