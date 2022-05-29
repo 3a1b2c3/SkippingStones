@@ -8,7 +8,7 @@ import { makeLights, makeSky, makeCamera, removeEntity } from "./lib/Scene";
 import { StoneDefault, simulateOneStep } from "./lib/skipping";
 import { RockState, RockHandling} from './types/types'
 import { waterHeight, floorHeight, defaultLabel, defaultLabelFont} from "./lib/constants";
-import { addHeadsup, addButton, setText } from "./lib/headsUp";
+import { addHeadsup, addButton, setText, headsUpStartText } from "./lib/headsUp";
 import { resetRock } from "./lib/rock";
 import { clamp } from "./lib/helper";
 
@@ -32,6 +32,8 @@ class App {
   Renderer : THREE.WebGLRenderer | null | any = null;
   Scene : THREE.Scene | null = null;
   CameraControls : OrbitControls | null = null;
+  Camera : THREE.Camera | null = null;
+  CameraGroup : THREE.Group | null = null;
   Clock: THREE.Clock | null = null;
   Raycaster : THREE.Raycaster | null = null;
   hitTestSourceRequested = false;
@@ -158,7 +160,7 @@ function initSimulation(rockh : RockHandling){
 function initUI(documentObj : Document) {
   if (app.Scene)
   addButton(documentObj, resetRock, app.Scene, rockHandling);
-  addHeadsup(documentObj, 'Skip a stone', 100, 50, 'header', 22);
+  addHeadsup(documentObj, headsUpStartText, 100, 50, 'header', 22);
 }
 
 //callbacks
