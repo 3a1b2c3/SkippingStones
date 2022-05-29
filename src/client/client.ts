@@ -41,7 +41,7 @@ class App {
   controller : any;
   reticle : any;
   box : any;
-  rockHandling : any;
+  rockHandling : RockHandling | any;
 }
 
 const { Camera, CameraGroup } = makeCamera();
@@ -94,8 +94,7 @@ function render() {
         // update distance label
         if (app.Scene){
             removeEntity(defaultLabel, app.Scene);
-            setText(rockHandling.rockState, rockHandling.stoneSimulation,
-            rockHandling, defaultLabel, defaultLabelFont);
+            setText(rockHandling, defaultLabel, defaultLabelFont);
           }
         //done
         if(rockHandling.rockMeshes[0].position.y <= minFloorHeight ||
@@ -190,8 +189,7 @@ const addObjectClickListener = (
         startX = touch.pageX;
         startY = touch.pageY;
         removeEntity(defaultLabel, Scene);
-        setText(rockHandling.rockState, rockHandling.stoneSimulation,
-          rockHandling, defaultLabel, defaultLabelFont);
+        setText(rockHandling, defaultLabel, defaultLabelFont);
       }
       else{
         startX = 0;
@@ -205,8 +203,7 @@ const addObjectClickListener = (
             rockHandling.rockState = RockState.simulation;
             //update label
             removeEntity(defaultLabel, Scene);
-            setText(rockHandling.rockState, rockHandling.stoneSimulation,
-               rockHandling, defaultLabel, defaultLabelFont);
+            setText(rockHandling, defaultLabel, defaultLabelFont);
             if (app.CameraControls)
             app.CameraControls.enableRotate = true;
         }
@@ -221,8 +218,7 @@ const addObjectClickListener = (
         if (debug)
           console.debug(startY + 'mousedown' + rockHandling.rockState);
         removeEntity(defaultLabel, Scene);
-        setText(rockHandling.rockState, rockHandling.stoneSimulation,
-          rockHandling, defaultLabel, defaultLabelFont);
+        setText(rockHandling, defaultLabel, defaultLabelFont);
       }
       else{
         startX = 0;
@@ -271,8 +267,7 @@ const addObjectClickListener = (
             rockHandling.stoneSimulation.theta = rockHandling.rockMeshes[0].rotation.x;
             //update label
             removeEntity(defaultLabel, Scene);
-            setText(rockHandling.rockState, rockHandling.stoneSimulation,
-               rockHandling, defaultLabel, defaultLabelFont);
+            setText(rockHandling, defaultLabel, defaultLabelFont);
           }
         }
     });
@@ -280,12 +275,11 @@ const addObjectClickListener = (
     document.addEventListener('mouseup', function (event) {
       if (rockHandling.rockMeshes && rockHandling.rockState.valueOf() == RockState.configuring) {
           if (debug)
-          console.debug("mouseup:" + rockHandling.rockState);
+            console.debug("mouseup:" + rockHandling.rockState);
           rockHandling.rockState = RockState.simulation;
           //update label
           removeEntity(defaultLabel, Scene);
-          setText(rockHandling.rockState, rockHandling.stoneSimulation,
-             rockHandling, defaultLabel, defaultLabelFont);
+          setText(rockHandling, defaultLabel, defaultLabelFont);
           if (app.CameraControls)
           app.CameraControls.enableRotate = true;
       }

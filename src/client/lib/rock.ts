@@ -21,8 +21,7 @@ export function resetRock(scene : Scene, rockHandling : RockHandling){
   rockHandling.rockState = RockState.start;
   if (scene){
     removeEntity(defaultLabel, scene);
-    setText(rockHandling.rockState, rockHandling.stoneSimulation, 
-      rockHandling,
+    setText(rockHandling,
       defaultLabel, defaultLabelFont);
   }
   if (rockHandling.rockMeshes && rockHandling.rockMeshes[0]){

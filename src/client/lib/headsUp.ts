@@ -10,26 +10,25 @@ export const headsUpStartText = 'Skip a stone';
 const imgPath = path.join(mediaPath, 'SeekPng.com_png-circle_99552.png');
 
 //TODO add spin, velocity, incident velocity, weight, height
-export function setText(rockState : RockState, stoneObject : stone, 
-  rockHandling : RockHandling, 
+export function setText(rockHandling : RockHandling, 
   objectName='headsUp', 
   fontSize=15, x=100, y=100, documentObj=document,
   ) : string {
  let text = headsUpStartText;
- if (rockState.valueOf() == RockState.selected ){
+ if (rockHandling.rockState.valueOf() == RockState.selected ){
    text = 'Set rock tilt angle by dragging it with the mouse.';
  }
  else if (rockHandling.rockState.valueOf() == RockState.configuring){
    text = `Drag the mouse to change the stone's tilt angle: ${roundTo((rockHandling.stoneSimulation.theta * 180 / Math.PI), 2)} degree.`;
  }
- else if(rockState.valueOf() == RockState.simulation){
-   text = `${stoneObject.out_bounces} bounce`
-   if (stoneObject.out_bounces != 1)
+ else if(rockHandling.rockState.valueOf() == RockState.simulation){
+   text = `${rockHandling.stoneSimulation.out_bounces} bounce`
+   if (rockHandling.stoneSimulation.out_bounces != 1)
      text += `s`;
-   if (stoneObject.out_meters)
-     text += ` and distance: ${roundTo(stoneObject.out_meters, 2)}  m`;
+   if (rockHandling.stoneSimulation.out_meters)
+     text += ` and distance: ${roundTo(rockHandling.stoneSimulation.out_meters, 2)}  m`;
  }
- else if(rockState.valueOf() == RockState.start && objectName==defaultLabel){
+ else if(rockHandling.rockState.valueOf() == RockState.start && objectName==defaultLabel){
    text = 'Grab the stone to play';
  }
  addHeadsup(documentObj, text, x, y, objectName, fontSize);
