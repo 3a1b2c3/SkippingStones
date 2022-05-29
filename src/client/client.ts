@@ -174,7 +174,9 @@ class App {
     this.initSimulation();
     this.initUI(documentObj);
     this.initXR();
-    addObjectClickListener(scene, this.rockHandling);
+    if (this.Raycaster && this.CameraControls && this.Camera){
+      addObjectClickListener(scene, this.rockHandling, this.Raycaster, this.Camera, this.CameraControls);
+    }
   }
 };
 
@@ -239,7 +241,10 @@ function render() {
 // callbacks
 const addObjectClickListener = (
   Scene : THREE.Scene,
-  rockHandling : RockHandling
+  rockHandling : RockHandling,
+  Raycaster : THREE.Raycaster,
+  Camera : THREE.Camera,
+  CameraControls : OrbitControls
   ) => {
     let startX = 0;
     let startY = 0;
@@ -279,8 +284,8 @@ const addObjectClickListener = (
             //update label
             removeEntity(defaultLabel, Scene);
             setText(rockHandling, defaultLabel, defaultLabelFont);
-            if (app.CameraControls)
-            app.CameraControls.enableRotate = true;
+            if (CameraControls)
+            CameraControls.enableRotate = true;
         }
     })
    
@@ -302,9 +307,9 @@ const addObjectClickListener = (
     });
 
     document.addEventListener('mousemove', function (event) {
-      if (app.Raycaster){
-        app.Raycaster.setFromCamera(g_Pointer, app.Camera);
-          const intersects = app.Raycaster.intersectObjects(Scene.children, true);
+      if (Raycaster){
+        Raycaster.setFromCamera(g_Pointer, Camera);
+          const intersects = Raycaster.intersectObjects(Scene.children, true);
           if (intersects.length > 0) {
             if ( intersects.length > 0 ) {
               if (rockHandling.intersections != intersects[0].object) {
@@ -333,8 +338,8 @@ const addObjectClickListener = (
         //const diffX = Math.abs(event.pageX - startX);//weight
         const diffY = Math.abs(event.pageY - startY);
         const delta = 5;
-        if (app.CameraControls){
-          app.CameraControls.enableRotate = false;
+        if (CameraControls){
+          CameraControls.enableRotate = false;
         }
         if (diffY > delta) {
             const angleDiff = clamp(diffY *.005, -angleIncr,  angleIncr);
@@ -355,8 +360,8 @@ const addObjectClickListener = (
           //update label
           removeEntity(defaultLabel, Scene);
           setText(rockHandling, defaultLabel, defaultLabelFont);
-          if (app.CameraControls)
-          app.CameraControls.enableRotate = true;
+          if (CameraControls)
+          CameraControls.enableRotate = true;
       }
     });
   }
