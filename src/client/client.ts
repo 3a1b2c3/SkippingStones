@@ -122,15 +122,61 @@ class App {
     document.body.appendChild(this.Renderer.domElement);
     window.addEventListener('resize', onWindowResize, false);
    
-    function onWindowResize() {
+    function onWindowResize(this : any) {
           app.Camera.aspect = window.innerWidth / window.innerHeight;
           app.Camera.updateProjectionMatrix();
           app.Renderer.setSize(window.innerWidth, window.innerHeight);
       }
       this.Renderer.setAnimationLoop(render);
     }
-};
 
+  setupScene(documentObj : Document){
+    this.Scene = new THREE.Scene();
+    this.Clock = new THREE.Clock();
+    this.Raycaster = new THREE.Raycaster();
+    const modelsPromise = (async function () {
+        const {
+            rock,
+            rock2,
+        } = await models;
+        app.rockHandling.rockMeshes.push(rock);
+        app.Scene.add(rock);
+        app.Scene.add(rock2);
+    })();
+
+    const { Light, Bounce } = makeLights();
+    const cameraHelper = new THREE.CameraHelper(Light.shadow.camera);
+    this.Sky = makeSky();
+    this.Scene.add(cameraHelper);;
+    const helper = new THREE.DirectionalLightHelper(Light);
+    if (debug)
+    this.Scene.add(helper)
+    this.Scene.add(this.Sky);
+    this.Scene.add(Bounce);
+    this.Scene.add(Light);
+    if (this.Camera)
+      this.Scene.add(this.Camera);
+    if (this.CameraGroup)
+      this.Scene.add(this.CameraGroup);
+    this. Scene.add(makeFloor());
+    this.Scene.add(WaterMesh);
+  
+    let geometry = new THREE.RingGeometry(0.08, 0.10, 32).rotateX(-Math.PI / 2);
+    const material = new THREE.MeshBasicMaterial;
+    this.reticle = new THREE.Mesh(geometry, material);
+    this.reticle.matrixAutoUpdate = false;
+    this.reticle.visible = false;
+    this.Scene.add(this.reticle);
+
+    const geometry1 = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+    const material1 = new THREE.MeshStandardMaterial({ color: 0x5853e6 });
+    this.box = new THREE.Mesh(geometry1, material1);
+    this.box.visible = false;
+    this.Scene.add(this.box);
+
+    return this.Scene;
+  }
+};
 
 function render() {
       requestAnimationFrame(render);
@@ -189,55 +235,12 @@ function render() {
       app.Renderer.render(app.Scene, app.Camera)
 }
 
-function setupScene(documentObj : Document){
-    app.Scene = new THREE.Scene();
-    app.Clock = new THREE.Clock();
-    app.Raycaster = new THREE.Raycaster();
-    const modelsPromise = (async function () {
-        const {
-            rock,
-            rock2,
-        } = await models;
-        app.rockHandling.rockMeshes.push(rock);
-        app.Scene.add(rock);
-        app.Scene.add(rock2);
-    })();
-
-    const { Light, Bounce } = makeLights();
-    const cameraHelper = new THREE.CameraHelper(Light.shadow.camera);
-    app.Sky = makeSky();
-    app.Scene.add(cameraHelper);;
-    const helper = new THREE.DirectionalLightHelper(Light);
-    if (debug)
-    app.Scene.add(helper)
-    app.Scene.add(app.Sky);
-    app.Scene.add(Bounce);
-    app.Scene.add(Light);
-    app.Scene.add(app.Camera);
-    app.Scene.add(app.CameraGroup);
-    app. Scene.add(makeFloor());
-    app.Scene.add(WaterMesh);
-   
-    let geometry = new THREE.RingGeometry(0.08, 0.10, 32).rotateX(-Math.PI / 2);
-    const material = new THREE.MeshBasicMaterial;
-    app.reticle = new THREE.Mesh(geometry, material);
-    app.reticle.matrixAutoUpdate = false;
-    app.reticle.visible = false;
-    app.Scene.add(app.reticle);
-  
-    const geometry1 = new THREE.BoxGeometry(0.1, 0.1, 0.1);
-    const material1 = new THREE.MeshStandardMaterial({ color: 0x5853e6 });
-    app.box = new THREE.Mesh(geometry1, material1);
-    app.box.visible = false;
-    app.Scene.add(app.box);
- 
-    return app.Scene;
-}
 
 
 //callbacks
 const addObjectClickListener = (
-  Scene : THREE.Scene
+  Scene : THREE.Scene,
+  rockHandling : RockHandling
   ) => {
     let startX = 0;
     let startY = 0;
@@ -361,11 +364,11 @@ const addObjectClickListener = (
 
 function setup(documentObj : Document, resetRockFct : any){
   app.setupRenderer(documentObj);
-  const scene = setupScene(documentObj);
+  const scene = app.setupScene(documentObj);
   app.initSimulation();
   app.initUI(documentObj);
   app.initXR();
-  addObjectClickListener(scene);
+  addObjectClickListener(scene, app.rockHandling);
 }
 
 
