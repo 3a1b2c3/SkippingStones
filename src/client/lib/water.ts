@@ -72,7 +72,7 @@ rippleCallbacks.add(function (t : number) {
     WaterMesh.position.y = 0.4 + 0.1 * Math.sin(t / 2000);
 });
 
-function rain(radius=.024, maxR=8, speed=0.01,
+function rain(radius=.02, maxR=8, speed=0.01,
     posX : null | number=null, posZ : null | number=null, 
     distX=20, distZ=20, timeOut=1000) : any {
     const rainRipples :any  = [];

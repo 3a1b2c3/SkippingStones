@@ -17,6 +17,7 @@ const minFloorHeight = floorHeight * 1.1;
 const animDelta = 0.02;
 const resetTime = 5000;
 const angleIncr = .03;
+const maxRipples = 8;
 
 const g_Pointer = new THREE.Vector2();
 
@@ -40,6 +41,7 @@ class App {
   hitTestSourceRequested = false;
   hitTestSource : any;
   controller : any;
+  session : any;
   reticle: THREE.Mesh | null = null;
   box : THREE.Mesh | null = null;
   rockHandling : RockHandling | any;
@@ -77,13 +79,13 @@ class App {
   }
 
   async requestHitTestSource() {
-    const session = this.Renderer.xr.getSession();
-    session.addEventListener('end', () => {
+    this.session = this.Renderer.xr.getSession();
+    this.session.addEventListener('end', () => {
       this.hitTestSourceRequested = false;
       this.hitTestSource = null;
     });
-    const referenceSpace = await session.requestReferenceSpace('viewer');
-    this.hitTestSource = await session.requestHitTestSource({ space: referenceSpace, entityTypes: ['plane'] });
+    const referenceSpace = await this.session.requestReferenceSpace('viewer');
+    this.hitTestSource = await this.session.requestHitTestSource({ space: referenceSpace, entityTypes: ['plane'] });
     this.hitTestSourceRequested = true;
   }
 
@@ -108,14 +110,15 @@ class App {
       this.box.visible = true;
     } 
   }
-  initXR(){
+  initXR(documentObj : Document) {
     this.Renderer.xr.enabled = true;
     this.hitTestSourceRequested = false;
     this.hitTestSource = null;
     this.controller = this.Renderer.xr.getController(0);
     this.controller.addEventListener('select', this.onSelect.bind(this));
-    document.body.appendChild(ARButton.createButton(this.Renderer));
+    documentObj.body.appendChild(ARButton.createButton(this.Renderer));
   }
+
   initUI(documentObj : Document) {
     if (this.Scene){
       addButton(documentObj, resetRock, this.Scene, this.rockHandling);
@@ -173,10 +176,10 @@ class App {
 
     this.Sky = makeSky();
     const { Light, Bounce } = makeLights();
-    const helper = new THREE.DirectionalLightHelper(Light);
-    const cameraHelper = new THREE.CameraHelper(Light.shadow.camera);
     this.box = makeBox();
     this.reticle = makeReticle();
+    const helper = new THREE.DirectionalLightHelper(Light);
+    const cameraHelper = new THREE.CameraHelper(Light.shadow.camera);
     if (this.Camera)
       this.Scene.add(this.Camera);
     if (this.CameraGroup)
@@ -200,7 +203,7 @@ class App {
     const scene = this.setupScene();
     this.initSimulation();
     this.initUI(documentObj);
-    this.initXR();
+    this.initXR(documentObj);
     if (this.Raycaster && this.CameraControls && this.Camera){
       addObjectClickListener(scene, this.rockHandling, this.Raycaster, this.Camera, this.CameraControls);
     }
@@ -209,6 +212,12 @@ class App {
 
 function render() {
       requestAnimationFrame(render);
+      if (app.session && app.Sky.visible){
+        app.Sky.visible = false;
+      }
+      else if (!app.Sky.visible){
+        app.Sky.visible = true;
+      }
       //update simulation
       if(app.Clock && app.rockHandling.rockMeshes?.length && 
         app.rockHandling.rockState.valueOf() == RockState.simulation){
@@ -229,7 +238,7 @@ function render() {
         app.rockHandling.rockMeshes[0].position.z = res.x;
 
          if(splash){
-            rain(.25, 12, 0.005, app.rockHandling.rockMeshes[0].position.x,
+            rain(.25, maxRipples, 0.005, app.rockHandling.rockMeshes[0].position.x,
                 app.rockHandling.rockMeshes[0].position.z, .3, .3, 100);
                 splash = false;
                 if(debug)
