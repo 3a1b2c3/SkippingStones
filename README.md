@@ -55,7 +55,7 @@ The **stone will bounce on the water** (or not) depending on inital tilt angle i
 ### Things still missing or bad: 
 * 3d ui can be difficult to use, rayintersection in flat viewing angles is unreliable
 
-* Camera controls in AR mode?
+* Camera controls in AR mode? OrbitControl does not work
 
 * Make it easier to see which way the stone will fly 
 
