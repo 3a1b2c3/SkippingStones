@@ -51,7 +51,15 @@ class App {
       stoneSimulation : Object.create(StoneDefault)
     };
   };
-
+  initSimulation(){
+    if (this.Scene)
+    resetRock(this.Scene, this.rockHandling);
+    this.rockHandling.rockState = RockState.start;
+    this.rockHandling.rockMeshes = Array<THREE.Mesh>(),
+    this.rockHandling.intersections = null;
+    this.rockHandling.stoneSimulation = Object.create(StoneDefault);
+  }
+  
   render(_ : any, frame : any) {
     /*
     if (frame) {
@@ -74,12 +82,12 @@ class App {
     } 
   }
   initXR(){
-    app.Renderer.xr.enabled = true;
-    app.hitTestSourceRequested = false;
-    app.hitTestSource = null;
-    app.controller = app.Renderer.xr.getController(0);
-    app.controller.addEventListener('select', app.onSelect.bind(app));
-    document.body.appendChild(ARButton.createButton(app.Renderer));
+    this.Renderer.xr.enabled = true;
+    this.hitTestSourceRequested = false;
+    this.hitTestSource = null;
+    this.controller = this.Renderer.xr.getController(0);
+    this.controller.addEventListener('select', this.onSelect.bind(this));
+    document.body.appendChild(ARButton.createButton(this.Renderer));
   }
   initUI(documentObj : Document) {
     if (this.Scene)
@@ -190,17 +198,6 @@ function setupScene(documentObj : Document){
  
     return app.Scene;
 }
-
-
-function initSimulation(rockh : RockHandling){
-  if (app.Scene)
-  resetRock(app.Scene, rockh);
-  rockh.rockState = RockState.start;
-  rockh.rockMeshes = Array<THREE.Mesh>(),
-  rockh.intersections = null;
-  rockh.stoneSimulation = Object.create(StoneDefault);
-}
-
 
 
 //callbacks
@@ -365,7 +362,7 @@ function setupRenderer(documentObj : Document){
 function setup(documentObj : Document, resetRockFct : any){
   const renderer = setupRenderer(documentObj);
   const scene = setupScene(documentObj);
-  initSimulation(app.rockHandling);
+  app.initSimulation();
   app.initUI(documentObj);
   app.initXR();
   addObjectClickListener(scene);
