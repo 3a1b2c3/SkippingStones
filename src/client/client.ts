@@ -64,20 +64,6 @@ class App {
     this.rockHandling.stoneSimulation = Object.create(StoneDefault);
   }
   
-  renderXR(_ : any, frame : any) {
-    if (frame) {
-      if (this.Sky)
-        this.Sky.visible = false;
-      if (this.hitTestSourceRequested === false) {
-        this.requestHitTestSource();
-      }
-      if (this.hitTestSource) {
-        this.getHitTestResults(frame);
-      }
-    }
-    this.Renderer.render(this.Scene, this.Camera);
-  }
-
   async requestHitTestSource() {
     this.XRSession = this.Renderer.xr.getSession();
     this.XRSession.addEventListener('end', () => {
