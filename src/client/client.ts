@@ -255,10 +255,10 @@ function render() {
         rippleCallbacks.forEach(cb => cb(time));
         app.Renderer.render(app.Scene, app.Camera);
       });
-  app.Renderer.render(app.Scene, app.Camera);
+
   
   const frame = app.Renderer.xr.getFrame();
-  if ( frame != null ) {
+  if (frame != null ) {
     /*
     const refSpace = app.Renderer.xr.getReferenceSpace();
     const views = frame.getViewerPose(refSpace).views;
@@ -280,6 +280,7 @@ function render() {
   else if (!app.Sky.visible){
     app.Sky.visible = true;
   }
+  app.Renderer.render(app.Scene, app.Camera);
 }
 
 
