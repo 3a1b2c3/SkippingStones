@@ -61,18 +61,17 @@ class App {
     this.rockHandling.stoneSimulation = Object.create(StoneDefault);
   }
   
-  render(_ : any, frame : any) {
-    /*
+  renderXR(_ : any, frame : any) {
     if (frame) {
+      /*
       if (this.hitTestSourceRequested === false) {
         this.requestHitTestSource();
       }
       if (this.hitTestSource) {
         this.getHitTestResults(frame);
-      }
+      }*/
     }
-    this.renderer.render(this.scene, this.camera);
-    */
+    this.Renderer.render(this.Scene, this.Camera);
   }
 
   onSelect() {
@@ -254,7 +253,7 @@ const addObjectClickListener = (
           isEscape = (evt.keyCode === 27);
       }
       if (isEscape && Scene) {
-        resetRock(Scene, app.rockHandling);
+        resetRock(Scene, rockHandling);
       }
     };
     document.addEventListener("touchstart", function (event) {
@@ -286,15 +285,15 @@ const addObjectClickListener = (
     })
    
     document.addEventListener('mousedown', function (event) {
-      if (app.rockHandling.rockMeshes && app.rockHandling.rockMeshes[0] && app.rockHandling.intersections &&
-        app.rockHandling.rockState.valueOf() == RockState.start) {
-        app.rockHandling.rockState = RockState.configuring;
+      if (rockHandling.rockMeshes && rockHandling.rockMeshes[0] && rockHandling.intersections &&
+        rockHandling.rockState.valueOf() == RockState.start) {
+        rockHandling.rockState = RockState.configuring;
         startX = event.pageX;
         startY = event.pageY;
         if (debug)
-          console.debug(startY + 'mousedown' + app.rockHandling.rockState);
+          console.debug(startY + 'mousedown' + rockHandling.rockState);
         removeEntity(defaultLabel, Scene);
-        setText(app.rockHandling, defaultLabel, defaultLabelFont);
+        setText(rockHandling, defaultLabel, defaultLabelFont);
       }
       else{
         startX = 0;
@@ -308,29 +307,29 @@ const addObjectClickListener = (
           const intersects = app.Raycaster.intersectObjects(Scene.children, true);
           if (intersects.length > 0) {
             if ( intersects.length > 0 ) {
-              if (app.rockHandling.intersections != intersects[0].object) {
-                if (app.rockHandling.intersections && app.rockHandling.intersections?.material?.emissive) 
-                  app.rockHandling.intersections.material.emissive.setHex(app.rockHandling.intersections.currentHex);
-                if (intersects[0].object.name == 'boulder' && app.rockHandling.rockState.valueOf() != RockState.simulation){
-                    app.rockHandling.intersections = intersects[0].object;
+              if (rockHandling.intersections != intersects[0].object) {
+                if (rockHandling.intersections && rockHandling.intersections?.material?.emissive) 
+                  rockHandling.intersections.material.emissive.setHex(rockHandling.intersections.currentHex);
+                if (intersects[0].object.name == 'boulder' && rockHandling.rockState.valueOf() != RockState.simulation){
+                    rockHandling.intersections = intersects[0].object;
                 }
                 else{
-                  app.rockHandling.intersections = null;
+                  rockHandling.intersections = null;
                 }
-                if (app.rockHandling.intersections && app.rockHandling.intersections?.material?.emissive){
-                  app.rockHandling.intersections.currentHex = app.rockHandling.intersections.material.emissive.getHex();
-                  app.rockHandling.intersections.material.emissive.setHex( 0xff0000 );
+                if (rockHandling.intersections && rockHandling.intersections?.material?.emissive){
+                  rockHandling.intersections.currentHex = rockHandling.intersections.material.emissive.getHex();
+                  rockHandling.intersections.material.emissive.setHex( 0xff0000 );
                 }
               }
             } else {
-              if (app.rockHandling.intersections && app.rockHandling.intersections?.material?.emissive)
-                app.rockHandling.intersections.material.emissive.setHex(app.rockHandling.intersections.currentHex);
-              app.rockHandling.intersections = null;
+              if (rockHandling.intersections && rockHandling.intersections?.material?.emissive)
+                rockHandling.intersections.material.emissive.setHex(rockHandling.intersections.currentHex);
+              rockHandling.intersections = null;
             }
           }
         }
-      if (app.rockHandling.rockMeshes && 
-        app.rockHandling.rockState.valueOf() == RockState.configuring) {
+      if (rockHandling.rockMeshes && 
+        rockHandling.rockState.valueOf() == RockState.configuring) {
         //const diffX = Math.abs(event.pageX - startX);//weight
         const diffY = Math.abs(event.pageY - startY);
         const delta = 5;
@@ -339,23 +338,23 @@ const addObjectClickListener = (
         }
         if (diffY > delta) {
             const angleDiff = clamp(diffY *.005, -angleIncr,  angleIncr);
-            app.rockHandling.rockMeshes[0].rotateX(angleDiff);
-            app.rockHandling.stoneSimulation.theta = app.rockHandling.rockMeshes[0].rotation.x;
+            rockHandling.rockMeshes[0].rotateX(angleDiff);
+            rockHandling.stoneSimulation.theta = rockHandling.rockMeshes[0].rotation.x;
             //update label
             removeEntity(defaultLabel, Scene);
-            setText(app.rockHandling, defaultLabel, defaultLabelFont);
+            setText(rockHandling, defaultLabel, defaultLabelFont);
           }
         }
     });
 
     document.addEventListener('mouseup', function (event) {
-      if (app.rockHandling.rockMeshes && app.rockHandling.rockState.valueOf() == RockState.configuring) {
+      if (rockHandling.rockMeshes && rockHandling.rockState.valueOf() == RockState.configuring) {
           if (debug)
-            console.debug("mouseup:" + app.app.rockHandling.rockState);
-          app.rockHandling.rockState = RockState.simulation;
+            console.debug("mouseup:" + rockHandling.rockState);
+          rockHandling.rockState = RockState.simulation;
           //update label
           removeEntity(defaultLabel, Scene);
-          setText(app.rockHandling, defaultLabel, defaultLabelFont);
+          setText(rockHandling, defaultLabel, defaultLabelFont);
           if (app.CameraControls)
           app.CameraControls.enableRotate = true;
       }
