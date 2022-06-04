@@ -28,7 +28,7 @@ Uses [three.js](https://threejs.org) and a simple custome physics engine althoug
 ## How to play: 
 Open the web site (locally from dist/client folder) in chrome and android chrome, I have not tested other browers yet. 
 
-Hosted version [here](https://3a1b2c3.github.io/webxr/) 
+Hosted version [here](https://3a1b2c3.github.io/SkippingStones) 
 
 *On a computer use*: 
 
